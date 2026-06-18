@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Painel do Anfitrião | Confirmaê</title>
+
+  <meta
+    name="description"
+    content="Painel do anfitrião para gerenciar convidados, links individuais e status de confirmação."
+  />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="page-admin">
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Início</a>
+        <a href="convite.html?evento=evento-demo&convidado=convidado-demo">Convite</a>
+        <a href="portaria.html">Portaria</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <section class="container dashboard-header">
+      <div>
+        <span class="eyebrow">Painel do anfitrião</span>
+        <h1>Gerencie seu evento</h1>
+        <p>
+          Cadastre convidados, acompanhe confirmações e prepare a lista para a
+          portaria.
+        </p>
+      </div>
+
+      <div class="event-selector-card">
+        <label for="eventIdInput">ID do evento</label>
+        <input
+          type="text"
+          id="eventIdInput"
+          value="evento-demo"
+          aria-label="ID do evento"
+        />
+        <button type="button" class="btn btn-secondary" id="loadEventButton">
+          Carregar
+        </button>
+      </div>
+    </section>
+
+    <section class="container stats-grid" aria-label="Resumo de status dos convidados">
+      <article class="stat-card">
+        <span>Total</span>
+        <strong id="totalGuests">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Aguardando</span>
+        <strong id="waitingGuests">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Aceitos</span>
+        <strong id="acceptedGuests">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Recusados</span>
+        <strong id="declinedGuests">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Presentes</span>
+        <strong id="presentGuests">0</strong>
+      </article>
+    </section>
+
+    <section class="container dashboard-grid">
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Novo convidado</span>
+            <h2>Cadastrar convite</h2>
+          </div>
+        </div>
+
+        <form class="guest-form" id="guestForm">
+          <div class="form-group">
+            <label for="guestNameInput">Nome do convidado</label>
+            <input
+              type="text"
+              id="guestNameInput"
+              placeholder="Ex: Maria Oliveira"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="guestPhoneInput">Telefone</label>
+            <input
+              type="tel"
+              id="guestPhoneInput"
+              placeholder="Ex: (11) 99999-9999"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="guestEmailInput">E-mail</label>
+            <input
+              type="email"
+              id="guestEmailInput"
+              placeholder="Ex: maria@email.com"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="guestCompanionsInput">Acompanhantes permitidos</label>
+            <input
+              type="number"
+              id="guestCompanionsInput"
+              min="0"
+              value="0"
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Criar convite
+          </button>
+        </form>
+
+        <div class="admin-help-box">
+          <strong>Modo demonstração</strong>
+          <p>
+            Os convidados cadastrados agora ficam salvos apenas neste navegador.
+            Na próxima etapa, conectaremos tudo ao Firebase.
+          </p>
+        </div>
+      </article>
+
+      <article class="panel-card panel-card-large">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Lista de convidados</span>
+            <h2>Status dos convites</h2>
+          </div>
+
+          <button type="button" class="btn btn-secondary" id="resetDemoButton">
+            Restaurar demo
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="guest-table">
+            <thead>
+              <tr>
+                <th>Convidado</th>
+                <th>Contato</th>
+                <th>Status</th>
+                <th>Link</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody id="guestTableBody">
+              <tr>
+                <td colspan="5">Carregando convidados...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© 2026 Confirmaê.</p>
+      <p>Painel demonstrativo do anfitrião.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
