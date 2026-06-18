@@ -8,7 +8,7 @@
 
   <meta
     name="description"
-    content="Painel do anfitrião para gerenciar convidados, links individuais, QR Codes e status de confirmação."
+    content="Painel do anfitrião para personalizar eventos, gerenciar convidados, links individuais, QR Codes e status de confirmação."
   />
 
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -36,8 +36,8 @@
         <span class="eyebrow">Painel do anfitrião</span>
         <h1>Gerencie seu evento</h1>
         <p>
-          Cadastre convidados, acompanhe confirmações, gere QR Codes e prepare a
-          lista para a portaria.
+          Personalize o evento, cadastre convidados, acompanhe confirmações,
+          gere QR Codes e prepare a lista para a portaria.
         </p>
       </div>
 
@@ -82,7 +82,101 @@
       </article>
     </section>
 
-    <section class="container dashboard-grid">
+    <section class="container">
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Personalização</span>
+            <h2>Dados do evento</h2>
+          </div>
+        </div>
+
+        <form class="guest-form" id="eventConfigForm">
+          <div class="form-group">
+            <label for="eventNameInput">Nome do evento</label>
+            <input
+              type="text"
+              id="eventNameInput"
+              placeholder="Ex: Casamento João & Maria"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventTypeInput">Tipo do evento</label>
+            <input
+              type="text"
+              id="eventTypeInput"
+              placeholder="Ex: Casamento, Aniversário, Festa, Formatura"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventHostInput">Nome do anfitrião</label>
+            <input
+              type="text"
+              id="eventHostInput"
+              placeholder="Ex: João & Maria"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventDateInput">Data do evento</label>
+            <input
+              type="text"
+              id="eventDateInput"
+              placeholder="Ex: 20 de dezembro de 2026"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventTimeInput">Horário</label>
+            <input
+              type="text"
+              id="eventTimeInput"
+              placeholder="Ex: 19h30"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventLocationInput">Local</label>
+            <input
+              type="text"
+              id="eventLocationInput"
+              placeholder="Ex: Espaço Jardim Imperial"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventIntroInput">Mensagem do convite</label>
+            <input
+              type="text"
+              id="eventIntroInput"
+              placeholder="Ex: Você está recebendo este convite especial..."
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Salvar dados do evento
+          </button>
+        </form>
+
+        <div class="admin-help-box">
+          <strong>Personalização por evento</strong>
+          <p>
+            Estes dados são salvos no Firebase dentro do ID informado acima.
+            Assim cada cliente pode ter um evento próprio usando a mesma base do Confirmaê.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <section class="container dashboard-grid" style="margin-top: 24px;">
       <article class="panel-card">
         <div class="panel-heading">
           <div>
