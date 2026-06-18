@@ -1,5 +1,6 @@
 import {
   buildInvitationLink,
+  buildWhatsappUnlockLink,
   getEvent,
   saveEvent,
   getGuestsByEvent,
@@ -13,9 +14,18 @@ import {
 } from "./app.js";
 
 const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
+const BUSINESS_CONFIG = CONFIRMAE_THEME.business;
 
 const eventIdInput = document.getElementById("eventIdInput");
 const loadEventButton = document.getElementById("loadEventButton");
+
+const accessLockedSection = document.getElementById("accessLockedSection");
+const lockedEventIdText = document.getElementById("lockedEventIdText");
+const unlockPriceText = document.getElementById("unlockPriceText");
+const pixKeyText = document.getElementById("pixKeyText");
+const unlockWhatsappLink = document.getElementById("unlockWhatsappLink");
+const copyPixButton = document.getElementById("copyPixButton");
+const eventWorkspaceSections = document.querySelectorAll("[data-event-workspace]");
 
 const eventConfigForm = document.getElementById("eventConfigForm");
 const eventNameInput = document.getElementById("eventNameInput");
@@ -57,6 +67,29 @@ function setTableLoading(message) {
   `;
 }
 
+function showEventWorkspace() {
+  accessLockedSection.hidden = true;
+
+  eventWorkspaceSections.forEach((section) => {
+    section.hidden = false;
+  });
+}
+
+function showAccessLocked(eventId) {
+  lockedEventIdText.textContent = eventId;
+  unlockPriceText.textContent = BUSINESS_CONFIG.unlockPrice;
+  pixKeyText.textContent = BUSINESS_CONFIG.pixKey;
+  unlockWhatsappLink.href = buildWhatsappUnlockLink(eventId);
+
+  accessLockedSection.hidden = false;
+
+  eventWorkspaceSections.forEach((section) => {
+    section.hidden = true;
+  });
+
+  updateStats([]);
+}
+
 function updateStats(guests) {
   totalGuests.textContent = guests.length;
   waitingGuests.textContent = guests.filter((guest) => guest.status === "waiting").length;
@@ -66,126 +99,136 @@ function updateStats(guests) {
 }
 
 async function renderEventConfig() {
-  try {
-    const eventInfo = await getEvent(currentEventId);
+  const eventInfo = await getEvent(currentEventId);
 
-    eventNameInput.value = eventInfo.name || "";
-    eventTypeInput.value = eventInfo.type || "";
-    eventHostInput.value = eventInfo.hostName || "";
-    eventDateInput.value = eventInfo.date || "";
-    eventTimeInput.value = eventInfo.time || "";
-    eventLocationInput.value = eventInfo.location || "";
-    eventIntroInput.value = eventInfo.intro || "";
-  } catch (error) {
-    console.error(error);
-
-    alert("Não foi possível carregar os dados do evento.");
-  }
+  eventNameInput.value = eventInfo.name || "";
+  eventTypeInput.value = eventInfo.type || "";
+  eventHostInput.value = eventInfo.hostName || "";
+  eventDateInput.value = eventInfo.date || "";
+  eventTimeInput.value = eventInfo.time || "";
+  eventLocationInput.value = eventInfo.location || "";
+  eventIntroInput.value = eventInfo.intro || "";
 }
 
 async function renderGuests() {
   setTableLoading("Carregando convidados do Firebase...");
 
-  try {
-    const guests = await getGuestsByEvent(currentEventId);
+  const guests = await getGuestsByEvent(currentEventId);
 
-    updateStats(guests);
+  updateStats(guests);
 
-    if (!guests.length) {
-      guestTableBody.innerHTML = `
+  if (!guests.length) {
+    guestTableBody.innerHTML = `
+      <tr>
+        <td colspan="5">
+          Nenhum convidado cadastrado para este evento.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  guestTableBody.innerHTML = guests
+    .map((guest) => {
+      const statusInfo = getGuestStatusInfo(guest);
+      const invitationLink = buildInvitationLink(guest.eventId, guest.id);
+
+      return `
         <tr>
-          <td colspan="5">
-            Nenhum convidado cadastrado para este evento.
+          <td>
+            <div class="guest-name-cell">
+              <strong>${escapeHtml(guest.name)}</strong>
+              <small>ID: ${escapeHtml(guest.id)}</small>
+            </div>
+          </td>
+
+          <td>
+            <div class="guest-contact-cell">
+              <strong>${escapeHtml(guest.phone || "Sem telefone")}</strong>
+              <small>${escapeHtml(guest.email || "Sem e-mail")}</small>
+            </div>
+          </td>
+
+          <td>
+            <span class="status-pill status-pill-${escapeHtml(statusInfo.className)}">
+              <span class="status-dot status-dot-${escapeHtml(statusInfo.className)}"></span>
+              ${escapeHtml(statusInfo.label)}
+            </span>
+          </td>
+
+          <td>
+            <div class="invitation-actions">
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="copy-link"
+                data-link="${escapeHtml(invitationLink)}"
+              >
+                Copiar link
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-primary btn-small"
+                data-action="show-qr"
+                data-link="${escapeHtml(invitationLink)}"
+                data-guest-name="${escapeHtml(guest.name)}"
+              >
+                Ver QR
+              </button>
+            </div>
+          </td>
+
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="mark-waiting"
+                data-guest-id="${escapeHtml(guest.id)}"
+              >
+                Enviado
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-danger btn-small"
+                data-action="remove"
+                data-guest-id="${escapeHtml(guest.id)}"
+              >
+                Remover
+              </button>
+            </div>
           </td>
         </tr>
       `;
-      return;
-    }
+    })
+    .join("");
+}
 
-    guestTableBody.innerHTML = guests
-      .map((guest) => {
-        const statusInfo = getGuestStatusInfo(guest);
-        const invitationLink = buildInvitationLink(guest.eventId, guest.id);
+async function loadCurrentEvent() {
+  currentEventId = eventIdInput.value.trim() || CONFIRMAE_THEME.defaultEventId;
+  eventIdInput.value = currentEventId;
 
-        return `
-          <tr>
-            <td>
-              <div class="guest-name-cell">
-                <strong>${escapeHtml(guest.name)}</strong>
-                <small>ID: ${escapeHtml(guest.id)}</small>
-              </div>
-            </td>
+  loadEventButton.disabled = true;
+  loadEventButton.textContent = "Carregando...";
 
-            <td>
-              <div class="guest-contact-cell">
-                <strong>${escapeHtml(guest.phone || "Sem telefone")}</strong>
-                <small>${escapeHtml(guest.email || "Sem e-mail")}</small>
-              </div>
-            </td>
-
-            <td>
-              <span class="status-pill status-pill-${escapeHtml(statusInfo.className)}">
-                <span class="status-dot status-dot-${escapeHtml(statusInfo.className)}"></span>
-                ${escapeHtml(statusInfo.label)}
-              </span>
-            </td>
-
-            <td>
-              <div class="invitation-actions">
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-small"
-                  data-action="copy-link"
-                  data-link="${escapeHtml(invitationLink)}"
-                >
-                  Copiar link
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-primary btn-small"
-                  data-action="show-qr"
-                  data-link="${escapeHtml(invitationLink)}"
-                  data-guest-name="${escapeHtml(guest.name)}"
-                >
-                  Ver QR
-                </button>
-              </div>
-            </td>
-
-            <td>
-              <div class="table-actions">
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-small"
-                  data-action="mark-waiting"
-                  data-guest-id="${escapeHtml(guest.id)}"
-                >
-                  Enviado
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn-danger btn-small"
-                  data-action="remove"
-                  data-guest-id="${escapeHtml(guest.id)}"
-                >
-                  Remover
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      })
-      .join("");
+  try {
+    await renderEventConfig();
+    await renderGuests();
+    showEventWorkspace();
   } catch (error) {
     console.error(error);
 
-    updateStats([]);
-
-    setTableLoading(
-      "Erro ao carregar convidados. Confira se o Firestore foi criado e se as regras estão em modo de teste."
-    );
+    if (error.code === "event-not-released") {
+      showAccessLocked(currentEventId);
+    } else {
+      alert("Não foi possível carregar o evento. Confira o Firebase e tente novamente.");
+      showAccessLocked(currentEventId);
+    }
+  } finally {
+    loadEventButton.disabled = false;
+    loadEventButton.textContent = "Carregar";
   }
 }
 
@@ -294,7 +337,12 @@ async function handleEventConfigSubmit(event) {
   } catch (error) {
     console.error(error);
 
-    alert("Não foi possível salvar os dados do evento.");
+    if (error.code === "event-not-released") {
+      showAccessLocked(currentEventId);
+      alert("Este evento ainda não foi liberado para edição.");
+    } else {
+      alert("Não foi possível salvar os dados do evento.");
+    }
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Salvar dados do evento";
@@ -339,7 +387,13 @@ async function handleGuestFormSubmit(event) {
     alert(`Convite criado com sucesso!\n\nLink do convite:\n${invitationLink}`);
   } catch (error) {
     console.error(error);
-    alert("Não foi possível criar o convite. Confira o Firebase e tente novamente.");
+
+    if (error.code === "event-not-released") {
+      showAccessLocked(currentEventId);
+      alert("Este evento ainda não foi liberado para cadastro de convidados.");
+    } else {
+      alert("Não foi possível criar o convite. Confira o Firebase e tente novamente.");
+    }
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Criar convite";
@@ -406,14 +460,6 @@ async function handleTableClick(event) {
   }
 }
 
-async function handleLoadEvent() {
-  currentEventId = eventIdInput.value.trim() || CONFIRMAE_THEME.defaultEventId;
-  eventIdInput.value = currentEventId;
-
-  await renderEventConfig();
-  await renderGuests();
-}
-
 async function handleResetDemo() {
   const confirmReset = confirm(
     "Isso vai restaurar os convidados de demonstração no Firebase. Os dados personalizados do evento serão mantidos. Deseja continuar?"
@@ -434,6 +480,7 @@ async function handleResetDemo() {
 
     await renderEventConfig();
     await renderGuests();
+    showEventWorkspace();
   } catch (error) {
     console.error(error);
     alert("Não foi possível restaurar a demonstração.");
@@ -446,8 +493,12 @@ async function handleResetDemo() {
 eventConfigForm.addEventListener("submit", handleEventConfigSubmit);
 guestForm.addEventListener("submit", handleGuestFormSubmit);
 guestTableBody.addEventListener("click", handleTableClick);
-loadEventButton.addEventListener("click", handleLoadEvent);
+loadEventButton.addEventListener("click", loadCurrentEvent);
 resetDemoButton.addEventListener("click", handleResetDemo);
+
+copyPixButton.addEventListener("click", () => {
+  copyTextToClipboard(BUSINESS_CONFIG.pixKey, copyPixButton, "Copiar chave Pix");
+});
 
 closeQrModal.addEventListener("click", closeModal);
 
@@ -469,5 +520,4 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-renderEventConfig();
-renderGuests();
+loadCurrentEvent();
