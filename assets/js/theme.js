@@ -41,4 +41,6 @@ function applyConfirmaeTheme() {
   root.style.setProperty("--color-text", CONFIRMAE_THEME.colors.text);
 }
 
+window.CONFIRMAE_THEME = CONFIRMAE_THEME;
+
 applyConfirmaeTheme();
