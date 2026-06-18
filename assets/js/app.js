@@ -81,6 +81,10 @@ function buildInvitationLink(eventId, guestId) {
   return `${getBaseUrl()}convite.html?evento=${encodeURIComponent(eventId)}&convidado=${encodeURIComponent(guestId)}`;
 }
 
+function buildAdminLink(eventId) {
+  return `${getBaseUrl()}admin.html?evento=${encodeURIComponent(eventId)}`;
+}
+
 function buildWhatsappUnlockLink(eventId) {
   const business = CONFIRMAE_THEME.business;
   const message = [
@@ -188,7 +192,10 @@ async function getEventAccess(eventId) {
       id: eventId,
       enabled: true,
       paid: true,
-      reason: "Evento demonstrativo padrão."
+      customerName: "Demonstração",
+      customerWhatsapp: "",
+      amountPaid: "Demo",
+      notes: "Evento demonstrativo padrão."
     };
   }
 
@@ -207,6 +214,116 @@ async function getEventAccess(eventId) {
     id: accessSnapshot.id,
     ...accessSnapshot.data()
   };
+}
+
+async function listEventAccessRecords() {
+  const accessSnapshot = await getDocs(collection(db, "eventAccess"));
+
+  const records = accessSnapshot.docs.map((accessDocument) => {
+    return {
+      id: accessDocument.id,
+      ...accessDocument.data()
+    };
+  });
+
+  records.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+
+  return records;
+}
+
+async function releaseEvent(eventId, data) {
+  const safeEventId = String(eventId || "").trim();
+
+  if (!safeEventId) {
+    throw new Error("Informe o ID do evento.");
+  }
+
+  const accessData = {
+    id: safeEventId,
+    enabled: true,
+    paid: true,
+    customerName: data.customerName || "",
+    customerWhatsapp: data.customerWhatsapp || "",
+    customerEmail: data.customerEmail || "",
+    amountPaid: data.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
+    notes: data.notes || "",
+    releasedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+
+  await setDoc(getEventAccessReference(safeEventId), accessData, {
+    merge: true
+  });
+
+  const eventSnapshot = await getDoc(getEventReference(safeEventId));
+
+  if (!eventSnapshot.exists()) {
+    const defaultEventData = getDefaultEventData(safeEventId);
+
+    await setDoc(getEventReference(safeEventId), {
+      ...defaultEventData,
+      name: data.eventName || defaultEventData.name,
+      type: data.eventType || defaultEventData.type,
+      hostName: data.customerName || defaultEventData.hostName,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  } else {
+    await setDoc(getEventReference(safeEventId), {
+      name: data.eventName || eventSnapshot.data().name || "Evento personalizado",
+      type: data.eventType || eventSnapshot.data().type || "Evento",
+      updatedAt: serverTimestamp()
+    }, {
+      merge: true
+    });
+  }
+
+  return getEventAccess(safeEventId);
+}
+
+async function blockEvent(eventId) {
+  const safeEventId = String(eventId || "").trim();
+
+  if (!safeEventId) {
+    throw new Error("Informe o ID do evento.");
+  }
+
+  await setDoc(getEventAccessReference(safeEventId), {
+    id: safeEventId,
+    enabled: false,
+    paid: false,
+    blockedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  }, {
+    merge: true
+  });
+
+  return getEventAccess(safeEventId);
+}
+
+async function deleteManagedEvent(eventId) {
+  const safeEventId = String(eventId || "").trim();
+
+  if (!safeEventId) {
+    throw new Error("Informe o ID do evento.");
+  }
+
+  const guestsSnapshot = await getDocs(getGuestsCollectionReference(safeEventId));
+  const guestDocs = guestsSnapshot.docs;
+
+  for (let index = 0; index < guestDocs.length; index += 450) {
+    const batch = writeBatch(db);
+    const chunk = guestDocs.slice(index, index + 450);
+
+    chunk.forEach((guestDocument) => {
+      batch.delete(guestDocument.ref);
+    });
+
+    await batch.commit();
+  }
+
+  await deleteDoc(getEventReference(safeEventId));
+  await deleteDoc(getEventAccessReference(safeEventId));
 }
 
 async function ensureEventExists(eventId) {
@@ -479,8 +596,13 @@ export {
   createGuestToken,
   getBaseUrl,
   buildInvitationLink,
+  buildAdminLink,
   buildWhatsappUnlockLink,
   getEventAccess,
+  listEventAccessRecords,
+  releaseEvent,
+  blockEvent,
+  deleteManagedEvent,
   getEvent,
   saveEvent,
   getGuestsByEvent,
