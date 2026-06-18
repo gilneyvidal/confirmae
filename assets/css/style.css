@@ -1409,3 +1409,210 @@ label {
     position: sticky;
   }
 }
+/* =========================================================
+   Ajuste do logo no header + animações suaves
+   ========================================================= */
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+}
+
+.brand::before {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  background-image: url("../img/confirmae-icon.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.brand::after {
+  content: "Confirmaê";
+  display: inline-block;
+  color: #FEFEFE;
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.brand-icon,
+.brand-text {
+  display: none !important;
+}
+
+.site-header .brand:hover::after {
+  color: var(--color-primary);
+}
+
+body.page-admin .brand::after {
+  content: "Confirmaê";
+}
+
+body.page-gate .brand::after {
+  content: "Confirmaê";
+}
+
+/* Logo maior opcional em áreas amplas */
+.hero-logo-mark {
+  width: min(260px, 70vw);
+  height: auto;
+  display: block;
+  margin-bottom: 24px;
+}
+
+/* Animações suaves */
+@keyframes confirmaeFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes confirmaeFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confirmaeSoftPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(33, 189, 193, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(33, 189, 193, 0.18);
+  }
+
+  100% {
+    box-shadow: 0 0 0 rgba(33, 189, 193, 0);
+  }
+}
+
+.hero-content,
+.dashboard-header,
+.invitation-card,
+.side-panel,
+.gate-header {
+  animation: confirmaeFadeUp 0.72s ease both;
+}
+
+.event-preview-card,
+.panel-card,
+.feature-card,
+.stat-card,
+.next-step-card,
+.event-selector-card,
+.status-card {
+  animation: confirmaeFadeUp 0.72s ease both;
+}
+
+.feature-card:nth-child(1),
+.stat-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.feature-card:nth-child(2),
+.stat-card:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.feature-card:nth-child(3),
+.stat-card:nth-child(3) {
+  animation-delay: 0.19s;
+}
+
+.feature-card:nth-child(4),
+.stat-card:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+.btn-primary {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-secondary,
+.btn-danger,
+.feature-card,
+.panel-card,
+.stat-card,
+.event-preview-card,
+.next-step-card,
+.status-card {
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.feature-card:hover,
+.panel-card:hover,
+.stat-card:hover,
+.event-preview-card:hover,
+.next-step-card:hover,
+.status-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(33, 189, 193, 0.34);
+}
+
+.qr-code-box,
+.fake-qr {
+  animation: confirmaeSoftPulse 3.8s ease-in-out infinite;
+}
+
+.modal-card {
+  animation: confirmaeFadeUp 0.28s ease both;
+}
+
+.site-header {
+  animation: confirmaeFadeIn 0.45s ease both;
+}
+
+@media (max-width: 640px) {
+  .brand {
+    gap: 10px;
+  }
+
+  .brand::before {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .brand::after {
+    font-size: 1.08rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
