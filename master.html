@@ -75,13 +75,6 @@
             Entrar com Google
           </button>
         </div>
-
-        <div class="admin-help-box">
-          <strong>Conta autorizada</strong>
-          <p>
-            Apenas o e-mail autorizado consegue visualizar e operar o painel master.
-          </p>
-        </div>
       </article>
     </section>
 
@@ -180,6 +173,24 @@
           </div>
 
           <div class="form-group">
+            <label for="masterPanelPinInput">PIN do painel do cliente</label>
+            <input
+              type="text"
+              id="masterPanelPinInput"
+              placeholder="Ex: 123456"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterGatePinInput">PIN da portaria</label>
+            <input
+              type="text"
+              id="masterGatePinInput"
+              placeholder="Ex: 654321"
+            />
+          </div>
+
+          <div class="form-group">
             <label for="masterEventNameInput">Nome inicial do evento</label>
             <input
               type="text"
@@ -211,6 +222,10 @@
               Liberar / atualizar evento
             </button>
 
+            <button type="button" class="btn btn-secondary" id="generatePinsButton">
+              Gerar novos PINs
+            </button>
+
             <button type="button" class="btn btn-secondary" id="clearMasterFormButton">
               Limpar formulário
             </button>
@@ -237,6 +252,7 @@
                 <th>ID</th>
                 <th>Cliente</th>
                 <th>Status</th>
+                <th>PINs</th>
                 <th>Pagamento</th>
                 <th>Ações</th>
               </tr>
@@ -244,7 +260,7 @@
 
             <tbody id="masterEventsTableBody">
               <tr>
-                <td colspan="5">Carregando eventos...</td>
+                <td colspan="6">Carregando eventos...</td>
               </tr>
             </tbody>
           </table>
@@ -261,6 +277,6 @@
   </footer>
 
   <script src="assets/js/theme.js"></script>
-  <script type="module" src="assets/js/master.js?v=auth-login-1"></script>
+  <script type="module" src="assets/js/master.js?v=pins-1"></script>
 </body>
 </html>
