@@ -2,6 +2,14 @@ const CONFIRMAE_THEME = {
   productName: "Confirmaê",
   defaultEventId: "evento-demo",
 
+  business: {
+    whatsappNumberInternational: "5511968649673",
+    whatsappDisplay: "(11) 96864-9673",
+    pixKey: "11968649673",
+    unlockPrice: "R$ 97,00",
+    paymentDescription: "Liberação de novo evento no Confirmaê"
+  },
+
   colors: {
     primary: "#6c3df4",
     primaryDark: "#4d25c9",
