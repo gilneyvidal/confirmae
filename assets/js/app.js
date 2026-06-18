@@ -43,6 +43,14 @@ const CONFIRMAE_STATUS = {
   }
 };
 
+function createEventNotReleasedError(eventId) {
+  const error = new Error(`O evento ${eventId} ainda não foi liberado.`);
+  error.code = "event-not-released";
+  error.eventId = eventId;
+
+  return error;
+}
+
 function getQueryParam(name) {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
@@ -71,6 +79,21 @@ function getBaseUrl() {
 
 function buildInvitationLink(eventId, guestId) {
   return `${getBaseUrl()}convite.html?evento=${encodeURIComponent(eventId)}&convidado=${encodeURIComponent(guestId)}`;
+}
+
+function buildWhatsappUnlockLink(eventId) {
+  const business = CONFIRMAE_THEME.business;
+  const message = [
+    "Olá! Quero liberar um novo evento no Confirmaê.",
+    "",
+    `ID do evento: ${eventId}`,
+    `Valor: ${business.unlockPrice}`,
+    `Chave Pix: ${business.pixKey}`,
+    "",
+    "Vou enviar o comprovante por aqui para liberação manual."
+  ].join("\n");
+
+  return `https://wa.me/${business.whatsappNumberInternational}?text=${encodeURIComponent(message)}`;
 }
 
 function getDemoGuestsSeed() {
@@ -147,12 +170,43 @@ function getEventReference(eventId) {
   return doc(db, "events", eventId);
 }
 
+function getEventAccessReference(eventId) {
+  return doc(db, "eventAccess", eventId);
+}
+
 function getGuestReference(eventId, guestId) {
   return doc(db, "events", eventId, "guests", guestId);
 }
 
 function getGuestsCollectionReference(eventId) {
   return collection(db, "events", eventId, "guests");
+}
+
+async function getEventAccess(eventId) {
+  if (eventId === DEFAULT_EVENT_ID) {
+    return {
+      id: eventId,
+      enabled: true,
+      paid: true,
+      reason: "Evento demonstrativo padrão."
+    };
+  }
+
+  const accessSnapshot = await getDoc(getEventAccessReference(eventId));
+
+  if (!accessSnapshot.exists()) {
+    return {
+      id: eventId,
+      enabled: false,
+      paid: false,
+      reason: "Evento ainda não liberado."
+    };
+  }
+
+  return {
+    id: accessSnapshot.id,
+    ...accessSnapshot.data()
+  };
 }
 
 async function ensureEventExists(eventId) {
@@ -164,6 +218,12 @@ async function ensureEventExists(eventId) {
       id: eventSnapshot.id,
       ...eventSnapshot.data()
     };
+  }
+
+  const eventAccess = await getEventAccess(eventId);
+
+  if (!eventAccess.enabled) {
+    throw createEventNotReleasedError(eventId);
   }
 
   const eventData = getDefaultEventData(eventId);
@@ -419,6 +479,8 @@ export {
   createGuestToken,
   getBaseUrl,
   buildInvitationLink,
+  buildWhatsappUnlockLink,
+  getEventAccess,
   getEvent,
   saveEvent,
   getGuestsByEvent,
