@@ -1,4 +1,5 @@
 import {
+  getQueryParam,
   buildInvitationLink,
   buildWhatsappUnlockLink,
   getEvent,
@@ -55,9 +56,11 @@ const qrCodeBox = document.getElementById("qrCodeBox");
 const copyQrLinkButton = document.getElementById("copyQrLinkButton");
 const downloadQrButton = document.getElementById("downloadQrButton");
 
-let currentEventId = CONFIRMAE_THEME.defaultEventId;
+let currentEventId = getQueryParam("evento") || CONFIRMAE_THEME.defaultEventId;
 let currentQrLink = "";
 let currentQrGuestName = "";
+
+eventIdInput.value = currentEventId;
 
 function setTableLoading(message) {
   guestTableBody.innerHTML = `
@@ -228,7 +231,7 @@ async function loadCurrentEvent() {
     }
   } finally {
     loadEventButton.disabled = false;
-    loadEventButton.textContent = "Carregar";
+    loadEventButton.textContent = "Acessar evento";
   }
 }
 
