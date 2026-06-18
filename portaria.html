@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Portaria | Confirmaê</title>
+
+  <meta
+    name="description"
+    content="Página de portaria para validar convidados e registrar presença no evento."
+  />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="page-gate">
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Início</a>
+        <a href="admin.html">Anfitrião</a>
+        <a href="convite.html?evento=evento-demo&convidado=convidado-demo">Convite</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="gate-main">
+    <section class="container gate-header">
+      <div>
+        <span class="eyebrow">Controle de entrada</span>
+        <h1>Portaria do evento</h1>
+        <p>
+          Valide o convite, confira o status e marque a chegada do convidado.
+        </p>
+      </div>
+    </section>
+
+    <section class="container gate-grid">
+      <article class="panel-card scanner-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Leitor QR</span>
+            <h2>Validação do convite</h2>
+          </div>
+        </div>
+
+        <div class="scanner-placeholder">
+          <div class="scanner-frame">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <p>
+            O leitor real de câmera será conectado na próxima etapa com uma
+            biblioteca de QR Code.
+          </p>
+        </div>
+
+        <form class="gate-form" id="gateForm">
+          <div class="form-group">
+            <label for="qrInput">Cole o link ou token do convite</label>
+            <input
+              type="text"
+              id="qrInput"
+              placeholder="Ex: convite.html?evento=evento-demo&convidado=convidado-demo"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Validar entrada
+          </button>
+        </form>
+
+        <div class="admin-help-box">
+          <strong>Teste rápido</strong>
+          <p>
+            Cole o link de convite copiado no painel do anfitrião ou use o token
+            <strong>convidado-demo</strong>.
+          </p>
+        </div>
+      </article>
+
+      <aside class="panel-card result-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Resultado</span>
+            <h2>Status da entrada</h2>
+          </div>
+        </div>
+
+        <div class="gate-result" id="gateResult">
+          <span class="result-icon">?</span>
+          <h3>Aguardando leitura</h3>
+          <p>
+            Leia um QR Code ou cole o link do convite para validar o convidado.
+          </p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© 2026 Confirmaê.</p>
+      <p>Controle de portaria demonstrativo.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/portaria.js"></script>
+</body>
+</html>
