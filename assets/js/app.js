@@ -122,6 +122,27 @@ function getDemoGuestsSeed() {
   ];
 }
 
+function getDefaultEventData(eventId) {
+  if (eventId === DEFAULT_EVENT_ID) {
+    return {
+      ...CONFIRMAE_THEME.demoEvent,
+      id: eventId
+    };
+  }
+
+  return {
+    id: eventId,
+    type: "Evento",
+    name: "Evento personalizado",
+    intro:
+      "Você está recebendo este convite especial. Confirme sua presença para ajudar o anfitrião na organização.",
+    date: "Data a definir",
+    time: "Horário a definir",
+    location: "Local a definir",
+    hostName: "Anfitrião"
+  };
+}
+
 function getEventReference(eventId) {
   return doc(db, "events", eventId);
 }
@@ -145,19 +166,7 @@ async function ensureEventExists(eventId) {
     };
   }
 
-  const eventData = eventId === DEFAULT_EVENT_ID
-    ? CONFIRMAE_THEME.demoEvent
-    : {
-        id: eventId,
-        type: "Evento",
-        name: "Evento personalizado",
-        intro:
-          "Você está recebendo este convite especial. Confirme sua presença para ajudar o anfitrião na organização.",
-        date: "Data a definir",
-        time: "Horário a definir",
-        location: "Local a definir",
-        hostName: "Anfitrião"
-      };
+  const eventData = getDefaultEventData(eventId);
 
   await setDoc(eventReference, {
     ...eventData,
@@ -182,6 +191,24 @@ async function getEvent(eventId) {
     id: eventSnapshot.id,
     ...eventSnapshot.data()
   };
+}
+
+async function saveEvent(eventId, eventData) {
+  const safeEventId = eventId || DEFAULT_EVENT_ID;
+  const currentEvent = await ensureEventExists(safeEventId);
+
+  const updatedEvent = {
+    ...currentEvent,
+    ...eventData,
+    id: safeEventId,
+    updatedAt: serverTimestamp()
+  };
+
+  await setDoc(getEventReference(safeEventId), updatedEvent, {
+    merge: true
+  });
+
+  return getEvent(safeEventId);
 }
 
 async function ensureDemoGuestsExist() {
@@ -393,6 +420,7 @@ export {
   getBaseUrl,
   buildInvitationLink,
   getEvent,
+  saveEvent,
   getGuestsByEvent,
   findGuest,
   updateGuest,
