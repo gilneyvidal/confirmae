@@ -379,9 +379,7 @@ async function ensureEventExists(eventId) {
     };
   }
 
-  const eventAccess = await getEventAccess(eventId);
-
-  if (!eventAccess.enabled) {
+  if (eventId !== DEFAULT_EVENT_ID) {
     throw createEventNotReleasedError(eventId);
   }
 
