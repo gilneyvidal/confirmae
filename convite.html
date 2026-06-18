@@ -4,18 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Confirmaê | Convite Digital</title>
+  <title>Convite | Confirmaê</title>
 
   <meta
     name="description"
-    content="Convite digital personalizado para confirmação de presença em eventos pelo Confirmaê."
+    content="Página de confirmação de presença do convidado no Confirmaê."
   />
 
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 
-<body class="page-invite">
-  <header class="site-header invite-header">
+<body class="page-invitation">
+  <header class="site-header">
     <div class="container header-content">
       <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
         <span class="brand-icon">✓</span>
@@ -30,99 +30,105 @@
     </div>
   </header>
 
-  <main class="invite-main">
-    <section class="invite-hero">
-      <div class="container invite-container">
-        <article class="invite-card">
-          <div class="invite-decoration invite-decoration-top"></div>
-
+  <main class="invitation-main">
+    <section class="container invitation-wrapper">
+      <article class="invitation-card">
+        <div class="invitation-cover">
           <span class="eyebrow">Convite especial</span>
-
-          <h1 id="guestGreeting">Olá, convidado!</h1>
-
-          <p class="invite-message">
-            Você foi convidado para participar de um momento muito especial.
-            Confirme sua presença para ajudar o anfitrião na organização do evento.
+          <h1 id="guestGreeting">Olá!</h1>
+          <p id="eventIntro">
+            Você foi convidado para um evento especial.
           </p>
+        </div>
 
-          <div class="event-info-card">
-            <h2 id="eventName">Casamento João & Maria</h2>
+        <div class="invitation-body">
+          <div class="event-info-box">
+            <span class="event-type" id="eventType">Evento</span>
+            <h2 id="eventName">Carregando evento...</h2>
 
-            <ul class="event-info-list">
+            <ul class="event-details-list">
               <li>
-                <span>Data</span>
-                <strong id="eventDate">20 de dezembro de 2026</strong>
+                <strong>Data:</strong>
+                <span id="eventDate">--</span>
               </li>
-
               <li>
-                <span>Horário</span>
-                <strong id="eventTime">19h30</strong>
+                <strong>Horário:</strong>
+                <span id="eventTime">--</span>
               </li>
-
               <li>
-                <span>Local</span>
-                <strong id="eventPlace">Espaço Jardim Imperial</strong>
+                <strong>Local:</strong>
+                <span id="eventLocation">--</span>
               </li>
             </ul>
           </div>
 
-          <div class="invite-actions" id="inviteActions">
-            <button type="button" class="btn btn-primary" id="acceptInviteButton">
-              Confirmar presença
-            </button>
+          <div class="guest-confirmation-box">
+            <h3>Confirmação de presença</h3>
 
-            <button type="button" class="btn btn-danger-outline" id="declineInviteButton">
-              Não poderei comparecer
-            </button>
-          </div>
+            <p id="confirmationMessage">
+              Confirme se você poderá comparecer. Sua resposta ajuda o anfitrião
+              a organizar melhor o evento.
+            </p>
 
-          <div class="invite-response hidden" id="inviteResponse">
-            <div class="response-icon" id="responseIcon">✓</div>
-            <h2 id="responseTitle">Presença confirmada!</h2>
-            <p id="responseMessage">
-              Obrigado por confirmar. Sua resposta foi registrada com sucesso.
+            <div class="current-status-box" id="currentStatusBox">
+              <span class="status-dot status-dot-waiting"></span>
+              <span id="currentStatusText">Aguardando confirmação</span>
+            </div>
+
+            <div class="confirmation-actions">
+              <button type="button" class="btn btn-primary" id="acceptButton">
+                Sim, vou comparecer
+              </button>
+
+              <button type="button" class="btn btn-danger" id="declineButton">
+                Não poderei comparecer
+              </button>
+            </div>
+
+            <p class="small-note">
+              Nesta primeira etapa, a confirmação fica salva apenas como
+              demonstração no navegador. Depois conectaremos ao Firebase.
             </p>
           </div>
+        </div>
+      </article>
 
-          <p class="invite-footer-note">
-            Este convite é individual e possui identificação única.
-          </p>
+      <aside class="side-panel">
+        <h2>Seu convite</h2>
 
-          <div class="invite-decoration invite-decoration-bottom"></div>
-        </article>
+        <div class="guest-summary-card">
+          <span class="guest-avatar" id="guestInitial">C</span>
 
-        <aside class="invite-side-card">
-          <h2>Resumo do convite</h2>
-
-          <div class="summary-row">
-            <span>Evento</span>
-            <strong id="summaryEventId">evento-demo</strong>
+          <div>
+            <strong id="guestName">Convidado</strong>
+            <small id="guestToken">Token do convite</small>
           </div>
+        </div>
 
-          <div class="summary-row">
-            <span>Convidado</span>
-            <strong id="summaryGuestId">convidado-demo</strong>
-          </div>
+        <div class="fake-qr fake-qr-large" aria-label="Representação visual de QR Code">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
 
-          <div class="summary-row">
-            <span>Status</span>
-            <strong id="summaryStatus" class="summary-status status-text-waiting">
-              Aguardando confirmação
-            </strong>
-          </div>
-
-          <div class="mini-alert">
-            Na próxima etapa, esta resposta será salva automaticamente no Firebase.
-          </div>
-        </aside>
-      </div>
+        <p>
+          Este QR Code representa o convite individual. Na próxima etapa,
+          vamos gerar QR Codes reais para cada convidado.
+        </p>
+      </aside>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-content">
-      <p>© 2026 Confirmaê. Convite digital para eventos.</p>
-      <p>Confirmação simples, rápida e personalizada.</p>
+      <p>© 2026 Confirmaê.</p>
+      <p>Convite digital personalizado.</p>
     </div>
   </footer>
 
