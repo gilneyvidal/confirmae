@@ -42,7 +42,22 @@
       </div>
     </section>
 
-    <section class="container" id="masterLoginSection">
+    <section class="container" id="masterLoadingSection">
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Verificando acesso</span>
+            <h2>Carregando autenticação...</h2>
+          </div>
+        </div>
+
+        <p>
+          Aguarde enquanto verificamos se existe uma conta Google conectada.
+        </p>
+      </article>
+    </section>
+
+    <section class="container" id="masterLoginSection" hidden>
       <article class="panel-card">
         <div class="panel-heading">
           <div>
@@ -51,28 +66,47 @@
           </div>
         </div>
 
-        <form class="guest-form" id="masterLoginForm">
-          <div class="form-group">
-            <label for="masterPasswordInput">Senha master</label>
-            <input
-              type="password"
-              id="masterPasswordInput"
-              placeholder="Digite a senha master"
-              required
-            />
-          </div>
+        <p>
+          Entre com a conta Google autorizada para acessar a gestão interna do Confirmaê.
+        </p>
 
-          <button type="submit" class="btn btn-primary">
-            Entrar
+        <div class="hero-actions">
+          <button type="button" class="btn btn-primary" id="googleSignInButton">
+            Entrar com Google
           </button>
-        </form>
+        </div>
 
         <div class="admin-help-box">
-          <strong>Aviso importante</strong>
+          <strong>Conta autorizada</strong>
           <p>
-            Esta senha é uma proteção temporária para o MVP. Antes de vender em escala,
-            vamos trocar isso por login real com Firebase Authentication.
+            Apenas o e-mail autorizado consegue visualizar e operar o painel master.
           </p>
+        </div>
+      </article>
+    </section>
+
+    <section class="container" id="masterDeniedSection" hidden>
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Acesso negado</span>
+            <h2>Este e-mail não está autorizado</h2>
+          </div>
+        </div>
+
+        <p>
+          Você entrou com uma conta Google que não tem permissão para acessar o painel master.
+        </p>
+
+        <div class="admin-help-box">
+          <strong>E-mail conectado</strong>
+          <p id="deniedEmailText">--</p>
+        </div>
+
+        <div class="hero-actions">
+          <button type="button" class="btn btn-secondary" id="deniedLogoutButton">
+            Sair e tentar outra conta
+          </button>
         </div>
       </article>
     </section>
@@ -88,6 +122,14 @@
           <button type="button" class="btn btn-secondary" id="masterLogoutButton">
             Sair
           </button>
+        </div>
+
+        <div class="admin-help-box">
+          <strong>Administrador conectado</strong>
+          <p>
+            <span id="masterUserName">Administrador</span><br />
+            <span id="masterUserEmail">--</span>
+          </p>
         </div>
 
         <form class="guest-form" id="masterEventForm">
