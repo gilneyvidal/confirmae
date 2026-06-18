@@ -8,7 +8,7 @@
 
   <meta
     name="description"
-    content="Painel do anfitrião para gerenciar convidados, links individuais e status de confirmação."
+    content="Painel do anfitrião para gerenciar convidados, links individuais, QR Codes e status de confirmação."
   />
 
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -36,8 +36,8 @@
         <span class="eyebrow">Painel do anfitrião</span>
         <h1>Gerencie seu evento</h1>
         <p>
-          Cadastre convidados, acompanhe confirmações e prepare a lista para a
-          portaria.
+          Cadastre convidados, acompanhe confirmações, gere QR Codes e prepare a
+          lista para a portaria.
         </p>
       </div>
 
@@ -139,7 +139,7 @@
           <strong>Banco online ativo</strong>
           <p>
             Os convidados cadastrados agora são salvos no Firebase Firestore.
-            Em breve, vamos adicionar login e regras de segurança mais fortes.
+            O QR Code gerado usa o link individual de cada convidado.
           </p>
         </div>
       </article>
@@ -163,7 +163,7 @@
                 <th>Convidado</th>
                 <th>Contato</th>
                 <th>Status</th>
-                <th>Link</th>
+                <th>Convite</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -179,6 +179,47 @@
     </section>
   </main>
 
+  <div class="modal-overlay" id="qrModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">Convite individual</span>
+          <h2 id="qrModalTitle">QR Code do convidado</h2>
+        </div>
+
+        <button type="button" class="modal-close" id="closeQrModal" aria-label="Fechar modal">
+          ×
+        </button>
+      </div>
+
+      <div class="qr-modal-body">
+        <div class="qr-guest-info">
+          <span class="guest-avatar" id="qrGuestInitial">C</span>
+          <div>
+            <strong id="qrGuestName">Convidado</strong>
+            <small id="qrGuestLink">Link do convite</small>
+          </div>
+        </div>
+
+        <div class="qr-code-box" id="qrCodeBox"></div>
+
+        <div class="qr-actions">
+          <button type="button" class="btn btn-secondary" id="copyQrLinkButton">
+            Copiar link
+          </button>
+
+          <button type="button" class="btn btn-primary" id="downloadQrButton">
+            Baixar QR Code
+          </button>
+        </div>
+
+        <p class="small-note">
+          Este QR Code leva diretamente para o convite nominal deste convidado.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <footer class="site-footer">
     <div class="container footer-content">
       <p>© 2026 Confirmaê.</p>
@@ -187,6 +228,7 @@
   </footer>
 
   <script src="assets/js/theme.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script type="module" src="assets/js/admin.js"></script>
 </body>
 </html>
