@@ -1,4 +1,20 @@
-const CONFIRMAE_STORAGE_KEY = "confirmae_demo_guests_v1";
+import {
+  db,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  writeBatch,
+  serverTimestamp,
+  query,
+  orderBy
+} from "./firebase-config.js";
+
+const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
+const DEFAULT_EVENT_ID = CONFIRMAE_THEME.defaultEventId;
 
 const CONFIRMAE_STATUS = {
   created: {
@@ -57,7 +73,7 @@ function getDemoGuestsSeed() {
   return [
     {
       id: "convidado-demo",
-      eventId: "evento-demo",
+      eventId: DEFAULT_EVENT_ID,
       name: "Gilney Vidal",
       phone: "(11) 99999-0000",
       email: "gilney@email.com",
@@ -67,7 +83,7 @@ function getDemoGuestsSeed() {
     },
     {
       id: "maria-oliveira",
-      eventId: "evento-demo",
+      eventId: DEFAULT_EVENT_ID,
       name: "Maria Oliveira",
       phone: "(11) 98888-1111",
       email: "maria@email.com",
@@ -77,7 +93,7 @@ function getDemoGuestsSeed() {
     },
     {
       id: "carlos-santos",
-      eventId: "evento-demo",
+      eventId: DEFAULT_EVENT_ID,
       name: "Carlos Santos",
       phone: "(11) 97777-2222",
       email: "carlos@email.com",
@@ -87,7 +103,7 @@ function getDemoGuestsSeed() {
     },
     {
       id: "ana-lima",
-      eventId: "evento-demo",
+      eventId: DEFAULT_EVENT_ID,
       name: "Ana Lima",
       phone: "(11) 96666-3333",
       email: "ana@email.com",
@@ -98,92 +114,206 @@ function getDemoGuestsSeed() {
   ];
 }
 
-function getGuests() {
-  const savedGuests = localStorage.getItem(CONFIRMAE_STORAGE_KEY);
+function getEventReference(eventId) {
+  return doc(db, "events", eventId);
+}
 
-  if (!savedGuests) {
-    const seedGuests = getDemoGuestsSeed();
-    saveGuests(seedGuests);
-    return seedGuests;
+function getGuestReference(eventId, guestId) {
+  return doc(db, "events", eventId, "guests", guestId);
+}
+
+function getGuestsCollectionReference(eventId) {
+  return collection(db, "events", eventId, "guests");
+}
+
+async function ensureEventExists(eventId) {
+  const eventReference = getEventReference(eventId);
+  const eventSnapshot = await getDoc(eventReference);
+
+  if (eventSnapshot.exists()) {
+    return {
+      id: eventSnapshot.id,
+      ...eventSnapshot.data()
+    };
   }
 
-  try {
-    return JSON.parse(savedGuests);
-  } catch (error) {
-    console.warn("Erro ao carregar convidados. Restaurando demonstração.", error);
-    const seedGuests = getDemoGuestsSeed();
-    saveGuests(seedGuests);
-    return seedGuests;
-  }
-}
-
-function saveGuests(guests) {
-  localStorage.setItem(CONFIRMAE_STORAGE_KEY, JSON.stringify(guests));
-}
-
-function resetDemoGuests() {
-  const seedGuests = getDemoGuestsSeed();
-  saveGuests(seedGuests);
-  return seedGuests;
-}
-
-function getGuestsByEvent(eventId) {
-  return getGuests().filter((guest) => guest.eventId === eventId);
-}
-
-function findGuest(eventId, guestId) {
-  return getGuests().find((guest) => {
-    return guest.eventId === eventId && guest.id === guestId;
-  });
-}
-
-function updateGuest(eventId, guestId, updates) {
-  const guests = getGuests();
-
-  const updatedGuests = guests.map((guest) => {
-    if (guest.eventId === eventId && guest.id === guestId) {
-      return {
-        ...guest,
-        ...updates
+  const eventData = eventId === DEFAULT_EVENT_ID
+    ? CONFIRMAE_THEME.demoEvent
+    : {
+        id: eventId,
+        type: "Evento",
+        name: "Evento personalizado",
+        intro:
+          "Você está recebendo este convite especial. Confirme sua presença para ajudar o anfitrião na organização.",
+        date: "Data a definir",
+        time: "Horário a definir",
+        location: "Local a definir",
+        hostName: "Anfitrião"
       };
-    }
 
-    return guest;
+  await setDoc(eventReference, {
+    ...eventData,
+    id: eventId,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
   });
 
-  saveGuests(updatedGuests);
+  return eventData;
+}
+
+async function getEvent(eventId) {
+  await ensureEventExists(eventId);
+
+  const eventSnapshot = await getDoc(getEventReference(eventId));
+
+  if (!eventSnapshot.exists()) {
+    return null;
+  }
+
+  return {
+    id: eventSnapshot.id,
+    ...eventSnapshot.data()
+  };
+}
+
+async function ensureDemoGuestsExist() {
+  await ensureEventExists(DEFAULT_EVENT_ID);
+
+  const guestsSnapshot = await getDocs(getGuestsCollectionReference(DEFAULT_EVENT_ID));
+
+  if (!guestsSnapshot.empty) {
+    return;
+  }
+
+  const batch = writeBatch(db);
+  const demoGuests = getDemoGuestsSeed();
+
+  demoGuests.forEach((guest) => {
+    const guestReference = getGuestReference(DEFAULT_EVENT_ID, guest.id);
+
+    batch.set(guestReference, {
+      ...guest,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  });
+
+  await batch.commit();
+}
+
+async function getGuestsByEvent(eventId) {
+  if (eventId === DEFAULT_EVENT_ID) {
+    await ensureDemoGuestsExist();
+  } else {
+    await ensureEventExists(eventId);
+  }
+
+  const guestsQuery = query(
+    getGuestsCollectionReference(eventId),
+    orderBy("name", "asc")
+  );
+
+  const guestsSnapshot = await getDocs(guestsQuery);
+
+  return guestsSnapshot.docs.map((guestDocument) => {
+    return {
+      id: guestDocument.id,
+      ...guestDocument.data()
+    };
+  });
+}
+
+async function findGuest(eventId, guestId) {
+  await ensureEventExists(eventId);
+
+  const guestSnapshot = await getDoc(getGuestReference(eventId, guestId));
+
+  if (!guestSnapshot.exists()) {
+    return null;
+  }
+
+  return {
+    id: guestSnapshot.id,
+    ...guestSnapshot.data()
+  };
+}
+
+async function updateGuest(eventId, guestId, updates) {
+  const guestReference = getGuestReference(eventId, guestId);
+  const guestSnapshot = await getDoc(guestReference);
+
+  if (!guestSnapshot.exists()) {
+    return null;
+  }
+
+  await updateDoc(guestReference, {
+    ...updates,
+    updatedAt: serverTimestamp()
+  });
 
   return findGuest(eventId, guestId);
 }
 
-function addGuest(guestData) {
-  const guests = getGuests();
+async function addGuest(guestData) {
+  const eventId = guestData.eventId || DEFAULT_EVENT_ID;
+
+  await ensureEventExists(eventId);
 
   const newGuest = {
     id: createGuestToken(guestData.name),
-    eventId: guestData.eventId || CONFIRMAE_THEME.defaultEventId,
+    eventId,
     name: guestData.name,
     phone: guestData.phone || "",
     email: guestData.email || "",
     companions: Number(guestData.companions || 0),
     status: "created",
-    arrivedAt: ""
+    arrivedAt: "",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
   };
 
-  guests.push(newGuest);
-  saveGuests(guests);
+  await setDoc(getGuestReference(eventId, newGuest.id), newGuest);
 
-  return newGuest;
+  return {
+    ...newGuest,
+    createdAt: "",
+    updatedAt: ""
+  };
 }
 
-function removeGuest(eventId, guestId) {
-  const guests = getGuests();
+async function removeGuest(eventId, guestId) {
+  await deleteDoc(getGuestReference(eventId, guestId));
+}
 
-  const filteredGuests = guests.filter((guest) => {
-    return !(guest.eventId === eventId && guest.id === guestId);
+async function resetDemoGuests() {
+  await ensureEventExists(DEFAULT_EVENT_ID);
+
+  const guestsSnapshot = await getDocs(getGuestsCollectionReference(DEFAULT_EVENT_ID));
+
+  const deleteBatch = writeBatch(db);
+
+  guestsSnapshot.docs.forEach((guestDocument) => {
+    deleteBatch.delete(guestDocument.ref);
   });
 
-  saveGuests(filteredGuests);
+  await deleteBatch.commit();
+
+  const createBatch = writeBatch(db);
+  const demoGuests = getDemoGuestsSeed();
+
+  demoGuests.forEach((guest) => {
+    const guestReference = getGuestReference(DEFAULT_EVENT_ID, guest.id);
+
+    createBatch.set(guestReference, {
+      ...guest,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  });
+
+  await createBatch.commit();
+
+  return getGuestsByEvent(DEFAULT_EVENT_ID);
 }
 
 function getStatusInfo(status) {
@@ -225,25 +355,35 @@ function parseInvitationInput(inputValue) {
   }
 
   return {
-    eventId: CONFIRMAE_THEME.defaultEventId,
+    eventId: DEFAULT_EVENT_ID,
     guestId: value
   };
 }
 
-window.ConfirmaeApp = {
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+export {
+  CONFIRMAE_STATUS,
   getQueryParam,
   createGuestToken,
   getBaseUrl,
   buildInvitationLink,
-  getGuests,
-  saveGuests,
-  resetDemoGuests,
+  getEvent,
   getGuestsByEvent,
   findGuest,
   updateGuest,
   addGuest,
   removeGuest,
+  resetDemoGuests,
   getStatusInfo,
   getInitials,
-  parseInvitationInput
+  parseInvitationInput,
+  escapeHtml
 };
