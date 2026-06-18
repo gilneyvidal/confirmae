@@ -36,6 +36,10 @@ const CONFIRMAE_STATUS = {
   present: {
     label: "Presente",
     className: "present"
+  },
+  presentManual: {
+    label: "Presente com liberação manual",
+    className: "manual"
   }
 };
 
@@ -79,7 +83,8 @@ function getDemoGuestsSeed() {
       email: "gilney@email.com",
       companions: 0,
       status: "waiting",
-      arrivedAt: ""
+      arrivedAt: "",
+      gateOverride: false
     },
     {
       id: "maria-oliveira",
@@ -89,7 +94,8 @@ function getDemoGuestsSeed() {
       email: "maria@email.com",
       companions: 1,
       status: "accepted",
-      arrivedAt: ""
+      arrivedAt: "",
+      gateOverride: false
     },
     {
       id: "carlos-santos",
@@ -99,7 +105,8 @@ function getDemoGuestsSeed() {
       email: "carlos@email.com",
       companions: 0,
       status: "declined",
-      arrivedAt: ""
+      arrivedAt: "",
+      gateOverride: false
     },
     {
       id: "ana-lima",
@@ -109,7 +116,8 @@ function getDemoGuestsSeed() {
       email: "ana@email.com",
       companions: 2,
       status: "created",
-      arrivedAt: ""
+      arrivedAt: "",
+      gateOverride: false
     }
   ];
 }
@@ -268,6 +276,7 @@ async function addGuest(guestData) {
     companions: Number(guestData.companions || 0),
     status: "created",
     arrivedAt: "",
+    gateOverride: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -318,6 +327,14 @@ async function resetDemoGuests() {
 
 function getStatusInfo(status) {
   return CONFIRMAE_STATUS[status] || CONFIRMAE_STATUS.created;
+}
+
+function getGuestStatusInfo(guest) {
+  if (guest && guest.status === "present" && guest.gateOverride === true) {
+    return CONFIRMAE_STATUS.presentManual;
+  }
+
+  return getStatusInfo(guest ? guest.status : "created");
 }
 
 function getInitials(name) {
@@ -383,6 +400,7 @@ export {
   removeGuest,
   resetDemoGuests,
   getStatusInfo,
+  getGuestStatusInfo,
   getInitials,
   parseInvitationInput,
   escapeHtml
