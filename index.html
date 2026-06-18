@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Confirmaê | Confirmação de Presença para Eventos</title>
+
+  <meta
+    name="description"
+    content="Confirmaê é um sistema web para confirmação de presença em eventos, com convite digital, QR Code, painel do anfitrião e controle de portaria."
+  />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="page-home">
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Início</a>
+        <a href="admin.html">Anfitrião</a>
+        <a href="portaria.html">Portaria</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <span class="eyebrow">Convite digital com confirmação inteligente</span>
+
+          <h1>
+            Controle convidados, confirmações e entrada do evento em um só lugar.
+          </h1>
+
+          <p>
+            O Confirmaê é um sistema web para festas, aniversários, casamentos,
+            eventos corporativos e qualquer ocasião que precise de confirmação
+            de presença com praticidade.
+          </p>
+
+          <div class="hero-actions">
+            <a href="admin.html" class="btn btn-primary">Acessar painel do anfitrião</a>
+            <a
+              href="convite.html?evento=evento-demo&convidado=convidado-demo"
+              class="btn btn-secondary"
+            >
+              Ver convite exemplo
+            </a>
+          </div>
+
+          <p class="hero-note">
+            Primeira versão demonstrativa. Em breve, conectaremos ao Firebase
+            para salvar convidados, confirmações e check-ins em tempo real.
+          </p>
+        </div>
+
+        <aside class="hero-card" aria-label="Resumo do evento exemplo">
+          <div class="event-preview-card">
+            <div class="event-preview-top">
+              <span class="status-dot status-dot-waiting"></span>
+              <span>Aguardando confirmação</span>
+            </div>
+
+            <h2>Casamento João & Maria</h2>
+
+            <p class="event-date">20 de dezembro de 2026</p>
+            <p class="event-place">Espaço Jardim Imperial</p>
+
+            <div class="guest-preview">
+              <span class="guest-avatar">G</span>
+              <div>
+                <strong>Gilney Vidal</strong>
+                <small>Convite individual com QR Code</small>
+              </div>
+            </div>
+
+            <div class="fake-qr" aria-label="Representação visual de QR Code">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Como vai funcionar</span>
+          <h2>Três áreas principais para organizar o evento</h2>
+          <p>
+            A base foi pensada para ser simples agora e escalável depois,
+            permitindo personalizar cada evento com seu próprio ID.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon">01</div>
+            <h3>Convite nominal</h3>
+            <p>
+              Cada convidado recebe um link único com o ID do evento e o token
+              individual do convite.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">02</div>
+            <h3>Painel do anfitrião</h3>
+            <p>
+              O anfitrião acompanha convidados cadastrados, convites enviados,
+              confirmações aceitas e recusas.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">03</div>
+            <h3>Portaria com QR Code</h3>
+            <p>
+              A equipe da entrada lê o QR Code, valida o convidado e marca a
+              chegada no evento.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Controle visual</span>
+          <h2>Status dos convidados</h2>
+        </div>
+
+        <div class="status-grid">
+          <article class="status-card status-created">
+            <span></span>
+            <div>
+              <strong>Convite feito</strong>
+              <small>Convidado cadastrado, mas ainda sem envio registrado.</small>
+            </div>
+          </article>
+
+          <article class="status-card status-waiting">
+            <span></span>
+            <div>
+              <strong>Aguardando confirmação</strong>
+              <small>Convite enviado, esperando resposta do convidado.</small>
+            </div>
+          </article>
+
+          <article class="status-card status-accepted">
+            <span></span>
+            <div>
+              <strong>Aceito</strong>
+              <small>O convidado confirmou presença no evento.</small>
+            </div>
+          </article>
+
+          <article class="status-card status-declined">
+            <span></span>
+            <div>
+              <strong>Recusado</strong>
+              <small>O convidado avisou que não poderá comparecer.</small>
+            </div>
+          </article>
+
+          <article class="status-card status-present">
+            <span></span>
+            <div>
+              <strong>Presente</strong>
+              <small>O convidado já chegou e passou pela portaria.</small>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="next-step-section">
+      <div class="container next-step-card">
+        <div>
+          <span class="eyebrow">Primeira versão</span>
+          <h2>Começamos pela estrutura visual</h2>
+          <p>
+            Nesta etapa, vamos montar todas as páginas do sistema sem banco de
+            dados. Depois conectaremos o Firebase com calma, passo a passo.
+          </p>
+        </div>
+
+        <a href="admin.html" class="btn btn-primary">Ir para o painel</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© 2026 Confirmaê. Sistema de confirmação de presença para eventos.</p>
+      <p>Projeto criado para GitHub Pages.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
