@@ -6,8 +6,12 @@ const CONFIRMAE_THEME = {
     whatsappNumberInternational: "5511968649673",
     whatsappDisplay: "(11) 96864-9673",
     pixKey: "11968649673",
-    unlockPrice: "R$ 97,00",
+    unlockPrice: "R$ 29,90",
     paymentDescription: "Liberação de novo evento no Confirmaê"
+  },
+
+  master: {
+    password: "Cdr.1290"
   },
 
   colors: {
