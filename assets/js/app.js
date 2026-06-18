@@ -56,6 +56,10 @@ function getQueryParam(name) {
   return params.get(name);
 }
 
+function generateAccessPin() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
 function createGuestToken(name) {
   const normalizedName = String(name || "convidado")
     .normalize("NFD")
@@ -83,6 +87,10 @@ function buildInvitationLink(eventId, guestId) {
 
 function buildAdminLink(eventId) {
   return `${getBaseUrl()}admin.html?evento=${encodeURIComponent(eventId)}`;
+}
+
+function buildGateLink(eventId) {
+  return `${getBaseUrl()}portaria.html?evento=${encodeURIComponent(eventId)}`;
 }
 
 function formatBrazilianWhatsappNumber(rawNumber) {
@@ -116,7 +124,10 @@ function buildClientAccessWhatsappLink(record) {
   const customerWhatsapp = formatBrazilianWhatsappNumber(record.customerWhatsapp);
   const eventId = record.id || record.eventId || "";
   const adminLink = buildAdminLink(eventId);
+  const gateLink = buildGateLink(eventId);
   const customerName = record.customerName || "tudo bem";
+  const panelPin = record.panelPin || "não informado";
+  const gatePin = record.gatePin || "não informado";
 
   if (!customerWhatsapp) {
     return "";
@@ -125,14 +136,19 @@ function buildClientAccessWhatsappLink(record) {
   const message = [
     `Olá, ${customerName}! Seu evento foi liberado no Confirmaê. ✅`,
     "",
+    "Acesso do anfitrião:",
+    `Link do painel: ${adminLink}`,
     `ID do evento: ${eventId}`,
-    `Painel do anfitrião: ${adminLink}`,
+    `PIN do painel: ${panelPin}`,
     "",
-    "Como acessar:",
-    "1. Abra o link acima.",
-    "2. Confira se o ID do evento está preenchido corretamente.",
-    "3. Clique em Acessar evento.",
-    "4. Personalize os dados do evento e cadastre seus convidados.",
+    "Acesso da portaria:",
+    `Link da portaria: ${gateLink}`,
+    `PIN da portaria: ${gatePin}`,
+    "",
+    "Orientação:",
+    "1. Use o painel do anfitrião para personalizar o evento e cadastrar convidados.",
+    "2. Use a portaria apenas no dia do evento para validar QR Codes e registrar entradas.",
+    "3. Não compartilhe o PIN do painel com a equipe da portaria.",
     "",
     "Qualquer dúvida, pode me chamar por aqui."
   ].join("\n");
@@ -193,7 +209,10 @@ function getDefaultEventData(eventId) {
   if (eventId === DEFAULT_EVENT_ID) {
     return {
       ...CONFIRMAE_THEME.demoEvent,
-      id: eventId
+      id: eventId,
+      accessEnabled: true,
+      panelPin: "",
+      gatePin: ""
     };
   }
 
@@ -206,7 +225,10 @@ function getDefaultEventData(eventId) {
     date: "Data a definir",
     time: "Horário a definir",
     location: "Local a definir",
-    hostName: "Anfitrião"
+    hostName: "Anfitrião",
+    accessEnabled: true,
+    panelPin: "",
+    gatePin: ""
   };
 }
 
@@ -235,6 +257,8 @@ async function getEventAccess(eventId) {
       customerName: "Demonstração",
       customerWhatsapp: "",
       amountPaid: "Demo",
+      panelPin: "",
+      gatePin: "",
       notes: "Evento demonstrativo padrão."
     };
   }
@@ -278,6 +302,14 @@ async function releaseEvent(eventId, data) {
     throw new Error("Informe o ID do evento.");
   }
 
+  const previousAccessSnapshot = await getDoc(getEventAccessReference(safeEventId));
+  const previousAccessData = previousAccessSnapshot.exists()
+    ? previousAccessSnapshot.data()
+    : {};
+
+  const panelPin = String(data.panelPin || previousAccessData.panelPin || generateAccessPin()).trim();
+  const gatePin = String(data.gatePin || previousAccessData.gatePin || generateAccessPin()).trim();
+
   const accessData = {
     id: safeEventId,
     enabled: true,
@@ -288,8 +320,10 @@ async function releaseEvent(eventId, data) {
     amountPaid: data.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
     eventName: data.eventName || "",
     eventType: data.eventType || "",
+    panelPin,
+    gatePin,
     notes: data.notes || "",
-    releasedAt: serverTimestamp(),
+    releasedAt: previousAccessData.releasedAt || serverTimestamp(),
     updatedAt: serverTimestamp()
   };
 
@@ -307,6 +341,9 @@ async function releaseEvent(eventId, data) {
       name: data.eventName || defaultEventData.name,
       type: data.eventType || defaultEventData.type,
       hostName: data.customerName || defaultEventData.hostName,
+      accessEnabled: true,
+      panelPin,
+      gatePin,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -314,6 +351,9 @@ async function releaseEvent(eventId, data) {
     await setDoc(getEventReference(safeEventId), {
       name: data.eventName || eventSnapshot.data().name || "Evento personalizado",
       type: data.eventType || eventSnapshot.data().type || "Evento",
+      accessEnabled: true,
+      panelPin,
+      gatePin,
       updatedAt: serverTimestamp()
     }, {
       merge: true
@@ -339,6 +379,17 @@ async function blockEvent(eventId) {
   }, {
     merge: true
   });
+
+  const eventSnapshot = await getDoc(getEventReference(safeEventId));
+
+  if (eventSnapshot.exists()) {
+    await setDoc(getEventReference(safeEventId), {
+      accessEnabled: false,
+      updatedAt: serverTimestamp()
+    }, {
+      merge: true
+    });
+  }
 
   return getEventAccess(safeEventId);
 }
@@ -633,10 +684,12 @@ function escapeHtml(value) {
 export {
   CONFIRMAE_STATUS,
   getQueryParam,
+  generateAccessPin,
   createGuestToken,
   getBaseUrl,
   buildInvitationLink,
   buildAdminLink,
+  buildGateLink,
   buildWhatsappUnlockLink,
   buildClientAccessWhatsappLink,
   getEventAccess,
