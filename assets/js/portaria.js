@@ -1,405 +1,448 @@
 import {
+  getQueryParam,
+  getEvent,
   parseInvitationInput,
   findGuest,
   updateGuest,
+  getGuestStatusInfo,
   escapeHtml
 } from "./app.js";
 
-const gateForm = document.getElementById("gateForm");
-const qrInput = document.getElementById("qrInput");
-const gateResult = document.getElementById("gateResult");
+const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
+
+const gateEventIdInput = document.getElementById("gateEventIdInput");
+const gatePinInput = document.getElementById("gatePinInput");
+const gateAccessHelpText = document.getElementById("gateAccessHelpText");
+const unlockGateButton = document.getElementById("unlockGateButton");
+const gateWorkspaceSections = document.querySelectorAll("[data-gate-workspace]");
+const authorizedGateEventText = document.getElementById("authorizedGateEventText");
+
 const qrReader = document.getElementById("qrReader");
 const scannerIdleContent = document.getElementById("scannerIdleContent");
 const startScannerButton = document.getElementById("startScannerButton");
 const stopScannerButton = document.getElementById("stopScannerButton");
 
-let lastBlockedGuest = null;
+const manualValidationForm = document.getElementById("manualValidationForm");
+const qrInput = document.getElementById("qrInput");
+const validationResult = document.getElementById("validationResult");
+
 let html5QrCode = null;
-let scannerIsRunning = false;
-let lastScannedText = "";
-let lastScannedAt = 0;
+let scannerRunning = false;
+let lastScannedValue = "";
+let currentGateEventId = "";
+let currentGateEventInfo = null;
 
-function renderResult(type, icon, title, message, actionButton = "") {
-  gateResult.className = `gate-result result-${type}`;
-  gateResult.innerHTML = `
-    <span class="result-icon">${escapeHtml(icon)}</span>
-    <h3>${escapeHtml(title)}</h3>
-    <p>${escapeHtml(message)}</p>
-    ${actionButton}
-  `;
+gateEventIdInput.value = getQueryParam("evento") || CONFIRMAE_THEME.defaultEventId;
+gatePinInput.value = getQueryParam("pin") || "";
+
+function getGateStorageKey(eventId) {
+  return `confirmae_gate_pin_${eventId}`;
 }
 
-function setScannerButtons(isRunning) {
-  scannerIsRunning = isRunning;
-  startScannerButton.disabled = isRunning;
-  stopScannerButton.disabled = !isRunning;
-
-  startScannerButton.textContent = isRunning ? "Câmera ativa" : "Iniciar câmera";
-  stopScannerButton.textContent = isRunning ? "Parar câmera" : "Câmera parada";
+function hideGateWorkspace() {
+  gateWorkspaceSections.forEach((section) => {
+    section.hidden = true;
+  });
 }
 
-function renderDeclinedGuestResult(guest, eventId, guestId) {
-  lastBlockedGuest = {
-    eventId,
-    guestId,
-    name: guest.name
-  };
-
-  const actionButton = `
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-action="force-release"
-      style="margin-top: 18px;"
-    >
-      Liberar entrada mesmo assim
-    </button>
-  `;
-
-  renderResult(
-    "danger",
-    "×",
-    "Convidado recusou",
-    `${guest.name} informou que não poderia comparecer. Confirme com o anfitrião antes de liberar.`,
-    actionButton
-  );
+function showGateWorkspace() {
+  gateWorkspaceSections.forEach((section) => {
+    section.hidden = false;
+  });
 }
 
-async function releaseDeclinedGuestAnyway() {
-  if (!lastBlockedGuest) {
-    renderResult(
-      "danger",
-      "×",
-      "Nenhum convidado selecionado",
-      "Valide novamente o convite antes de liberar a entrada."
+function setResult(html) {
+  validationResult.innerHTML = html;
+}
+
+function renderBasicResult(title, message, statusClass = "waiting") {
+  setResult(`
+    <div class="guest-summary-card">
+      <span class="status-dot status-dot-${escapeHtml(statusClass)}"></span>
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <small>${escapeHtml(message)}</small>
+      </div>
+    </div>
+  `);
+}
+
+function isGatePinValid(eventInfo, eventId) {
+  if (eventId === CONFIRMAE_THEME.defaultEventId) {
+    return true;
+  }
+
+  if (!eventInfo.gatePin) {
+    return true;
+  }
+
+  const typedPin = gatePinInput.value.trim();
+  const storedPin = sessionStorage.getItem(getGateStorageKey(eventId));
+
+  return typedPin === eventInfo.gatePin || storedPin === eventInfo.gatePin;
+}
+
+function rememberGatePin(eventInfo, eventId) {
+  if (eventInfo && eventInfo.gatePin) {
+    sessionStorage.setItem(getGateStorageKey(eventId), eventInfo.gatePin);
+  }
+}
+
+async function unlockGateAccess() {
+  const eventId = gateEventIdInput.value.trim() || CONFIRMAE_THEME.defaultEventId;
+
+  unlockGateButton.disabled = true;
+  unlockGateButton.textContent = "Verificando...";
+  gateAccessHelpText.textContent = "Verificando acesso da portaria...";
+
+  try {
+    const eventInfo = await getEvent(eventId);
+
+    if (!eventInfo || eventInfo.accessEnabled === false) {
+      hideGateWorkspace();
+      gateAccessHelpText.textContent = "Este evento está bloqueado ou ainda não foi liberado.";
+      alert("Evento bloqueado ou não liberado.");
+      return;
+    }
+
+    if (!isGatePinValid(eventInfo, eventId)) {
+      hideGateWorkspace();
+      gateAccessHelpText.textContent = "PIN da portaria incorreto.";
+      alert("PIN da portaria incorreto.");
+      return;
+    }
+
+    currentGateEventId = eventId;
+    currentGateEventInfo = eventInfo;
+
+    rememberGatePin(eventInfo, eventId);
+
+    gateEventIdInput.value = eventId;
+    gateAccessHelpText.textContent = "Portaria liberada para este evento.";
+    authorizedGateEventText.textContent = `${eventInfo.name || eventId} — ID: ${eventId}`;
+
+    showGateWorkspace();
+
+    renderBasicResult(
+      "Portaria liberada",
+      "Agora você pode ler QR Codes ou validar convidados manualmente.",
+      "accepted"
     );
+  } catch (error) {
+    console.error(error);
 
+    hideGateWorkspace();
+
+    if (error.code === "event-not-released") {
+      gateAccessHelpText.textContent = "Este evento ainda não foi liberado.";
+      alert("Este evento ainda não foi liberado.");
+    } else {
+      gateAccessHelpText.textContent = "Não foi possível validar a portaria.";
+      alert("Não foi possível validar a portaria. Confira o Firebase e tente novamente.");
+    }
+  } finally {
+    unlockGateButton.disabled = false;
+    unlockGateButton.textContent = "Liberar portaria";
+  }
+}
+
+function resolveInvitationInput(inputValue) {
+  const parsedInput = parseInvitationInput(inputValue);
+
+  if (!parsedInput) {
+    return null;
+  }
+
+  if (currentGateEventId && parsedInput.eventId === CONFIRMAE_THEME.defaultEventId) {
+    return {
+      ...parsedInput,
+      eventId: currentGateEventId
+    };
+  }
+
+  return parsedInput;
+}
+
+function renderGuestCard(guest, title, message, statusClass, extraHtml = "") {
+  const statusInfo = getGuestStatusInfo(guest);
+
+  setResult(`
+    <div class="guest-summary-card">
+      <span class="guest-avatar">${escapeHtml(String(guest.name || "C").charAt(0).toUpperCase())}</span>
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <small>${escapeHtml(message)}</small>
+      </div>
+    </div>
+
+    <div class="admin-help-box">
+      <strong>${escapeHtml(guest.name)}</strong>
+      <p>
+        Status atual:
+        <span class="status-pill status-pill-${escapeHtml(statusInfo.className)}">
+          <span class="status-dot status-dot-${escapeHtml(statusInfo.className)}"></span>
+          ${escapeHtml(statusInfo.label)}
+        </span>
+      </p>
+      <p>
+        Acompanhantes permitidos: ${escapeHtml(String(guest.companions || 0))}
+      </p>
+      ${extraHtml}
+    </div>
+  `);
+}
+
+async function validateGuestEntry(inputValue) {
+  if (!currentGateEventId) {
+    alert("Libere a portaria com ID e PIN antes de validar convidados.");
     return;
   }
 
+  const parsedInput = resolveInvitationInput(inputValue);
+
+  if (!parsedInput || !parsedInput.guestId) {
+    renderBasicResult(
+      "Entrada inválida",
+      "Informe um link de convite ou token válido.",
+      "declined"
+    );
+    return;
+  }
+
+  if (parsedInput.eventId !== currentGateEventId) {
+    renderBasicResult(
+      "Evento diferente",
+      "Este QR Code pertence a outro evento. Confira o ID da portaria.",
+      "declined"
+    );
+    return;
+  }
+
+  renderBasicResult(
+    "Validando convidado",
+    "Buscando informações no Firebase...",
+    "waiting"
+  );
+
+  try {
+    const guest = await findGuest(parsedInput.eventId, parsedInput.guestId);
+
+    if (!guest) {
+      renderBasicResult(
+        "Convidado não encontrado",
+        "O convite não existe na lista deste evento.",
+        "declined"
+      );
+      return;
+    }
+
+    if (guest.status === "present") {
+      renderGuestCard(
+        guest,
+        "Entrada já registrada",
+        "Este convidado já foi marcado como presente anteriormente.",
+        "declined"
+      );
+      return;
+    }
+
+    if (guest.status === "declined") {
+      renderGuestCard(
+        guest,
+        "Convidado recusou o convite",
+        "Este convidado informou que não poderia comparecer.",
+        "declined",
+        `
+          <div class="hero-actions">
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-action="manual-release"
+              data-event-id="${escapeHtml(parsedInput.eventId)}"
+              data-guest-id="${escapeHtml(parsedInput.guestId)}"
+            >
+              Liberar entrada mesmo assim
+            </button>
+          </div>
+        `
+      );
+      return;
+    }
+
+    const updatedGuest = await updateGuest(parsedInput.eventId, parsedInput.guestId, {
+      status: "present",
+      arrivedAt: new Date().toISOString(),
+      gateOverride: false
+    });
+
+    renderGuestCard(
+      updatedGuest,
+      "Entrada liberada",
+      "Convidado validado e marcado como presente.",
+      "accepted"
+    );
+  } catch (error) {
+    console.error(error);
+
+    renderBasicResult(
+      "Erro na validação",
+      "Não foi possível validar este convidado.",
+      "declined"
+    );
+  }
+}
+
+async function handleManualRelease(eventId, guestId) {
   const confirmRelease = confirm(
-    `Deseja liberar a entrada de ${lastBlockedGuest.name} mesmo com status recusado?`
+    "Deseja liberar manualmente este convidado mesmo ele tendo recusado o convite?"
   );
 
   if (!confirmRelease) {
     return;
   }
 
-  const releaseButton = gateResult.querySelector("[data-action='force-release']");
-
-  if (releaseButton) {
-    releaseButton.disabled = true;
-    releaseButton.textContent = "Liberando...";
-  }
-
   try {
-    const now = new Date();
-
-    const updatedGuest = await updateGuest(
-      lastBlockedGuest.eventId,
-      lastBlockedGuest.guestId,
-      {
-        status: "present",
-        arrivedAt: now.toISOString(),
-        gateOverride: true,
-        gateOverrideReason: "Convidado estava recusado, mas foi liberado manualmente pela portaria."
-      }
-    );
-
-    if (!updatedGuest) {
-      renderResult(
-        "danger",
-        "×",
-        "Erro ao liberar",
-        "Não foi possível liberar este convidado."
-      );
-
-      return;
-    }
-
-    renderResult(
-      "success",
-      "✓",
-      "Entrada liberada",
-      `${updatedGuest.name} foi liberado manualmente e marcado como presente.`
-    );
-
-    lastBlockedGuest = null;
-    qrInput.value = "";
-  } catch (error) {
-    console.error(error);
-
-    renderResult(
-      "danger",
-      "×",
-      "Erro no Firebase",
-      "Não foi possível liberar a entrada. Confira a conexão e tente novamente."
-    );
-  }
-}
-
-async function validateInvitationText(rawValue, origin = "manual") {
-  lastBlockedGuest = null;
-
-  const parsedInput = parseInvitationInput(rawValue);
-
-  if (!parsedInput) {
-    renderResult(
-      "danger",
-      "!",
-      "Entrada inválida",
-      "Informe um token ou link de convite válido."
-    );
-
-    return;
-  }
-
-  qrInput.value = rawValue;
-
-  try {
-    const guest = await findGuest(parsedInput.eventId, parsedInput.guestId);
-
-    if (!guest) {
-      renderResult(
-        "danger",
-        "×",
-        "Convite não encontrado",
-        "Este token não foi encontrado na lista de convidados."
-      );
-
-      return;
-    }
-
-    if (guest.status === "present") {
-      renderResult(
-        "warning",
-        "!",
-        "Entrada já registrada",
-        `${guest.name} já teve a chegada registrada anteriormente.`
-      );
-
-      if (origin === "camera") {
-        await stopScanner();
-      }
-
-      return;
-    }
-
-    if (guest.status === "declined") {
-      renderDeclinedGuestResult(guest, parsedInput.eventId, parsedInput.guestId);
-
-      if (origin === "camera") {
-        await stopScanner();
-      }
-
-      return;
-    }
-
-    const now = new Date();
-
-    const updatedGuest = await updateGuest(parsedInput.eventId, parsedInput.guestId, {
+    const updatedGuest = await updateGuest(eventId, guestId, {
       status: "present",
-      arrivedAt: now.toISOString(),
-      gateOverride: false
+      arrivedAt: new Date().toISOString(),
+      gateOverride: true,
+      gateOverrideReason: "Liberação manual pela portaria"
     });
 
-    if (!updatedGuest) {
-      renderResult(
-        "danger",
-        "×",
-        "Erro ao registrar",
-        "Não foi possível registrar a entrada deste convidado."
-      );
-
-      return;
-    }
-
-    renderResult(
-      "success",
-      "✓",
-      "Entrada liberada",
-      `${updatedGuest.name} foi marcado como presente com sucesso.`
+    renderGuestCard(
+      updatedGuest,
+      "Entrada liberada manualmente",
+      "Convidado recusado foi liberado manualmente pela portaria.",
+      "accepted"
     );
-
-    qrInput.value = "";
-
-    if (origin === "camera") {
-      await stopScanner();
-    }
   } catch (error) {
     console.error(error);
 
-    renderResult(
-      "danger",
-      "×",
-      "Erro no Firebase",
-      "Não foi possível validar a entrada. Confira a conexão e as regras do Firestore."
+    renderBasicResult(
+      "Erro na liberação manual",
+      "Não foi possível liberar este convidado.",
+      "declined"
     );
   }
-}
-
-async function validateGuestEntry(event) {
-  event.preventDefault();
-
-  const submitButton = gateForm.querySelector("button[type='submit']");
-  submitButton.disabled = true;
-  submitButton.textContent = "Validando...";
-
-  await validateInvitationText(qrInput.value, "manual");
-
-  submitButton.disabled = false;
-  submitButton.textContent = "Validar entrada";
-}
-
-function shouldIgnoreRepeatedScan(decodedText) {
-  const now = Date.now();
-  const isSameText = decodedText === lastScannedText;
-  const isTooSoon = now - lastScannedAt < 2500;
-
-  if (isSameText && isTooSoon) {
-    return true;
-  }
-
-  lastScannedText = decodedText;
-  lastScannedAt = now;
-
-  return false;
-}
-
-async function handleSuccessfulQrScan(decodedText) {
-  if (shouldIgnoreRepeatedScan(decodedText)) {
-    return;
-  }
-
-  renderResult(
-    "info",
-    "…",
-    "QR Code lido",
-    "Validando convite no Firebase..."
-  );
-
-  await validateInvitationText(decodedText, "camera");
-}
-
-function handleQrScanError() {
-  /*
-    Erros de leitura acontecem várias vezes por segundo enquanto a câmera
-    procura um QR Code. Por isso, não mostramos alerta a cada erro.
-  */
 }
 
 async function startScanner() {
-  if (scannerIsRunning) {
+  if (!currentGateEventId) {
+    alert("Libere a portaria com ID e PIN antes de iniciar a câmera.");
     return;
   }
 
   if (typeof Html5Qrcode === "undefined") {
-    renderResult(
-      "danger",
-      "×",
-      "Leitor não carregou",
-      "Atualize a página e tente novamente. Se continuar, use o campo manual."
-    );
-
+    alert("Leitor de QR Code não carregou. Atualize a página e tente novamente.");
     return;
   }
 
-  try {
-    renderResult(
-      "info",
-      "⌕",
-      "Abrindo câmera",
-      "Permita o acesso à câmera quando o navegador solicitar."
-    );
+  if (scannerRunning) {
+    return;
+  }
 
+  startScannerButton.disabled = true;
+  startScannerButton.textContent = "Iniciando...";
+
+  try {
     if (!html5QrCode) {
       html5QrCode = new Html5Qrcode("qrReader");
     }
 
     scannerIdleContent.style.display = "none";
 
-    const scannerConfig = {
-      fps: 10,
-      qrbox: {
-        width: 250,
-        height: 250
-      },
-      aspectRatio: 1
-    };
-
     await html5QrCode.start(
       {
         facingMode: "environment"
       },
-      scannerConfig,
-      handleSuccessfulQrScan,
-      handleQrScanError
+      {
+        fps: 10,
+        qrbox: {
+          width: 250,
+          height: 250
+        }
+      },
+      async (decodedText) => {
+        if (!decodedText || decodedText === lastScannedValue) {
+          return;
+        }
+
+        lastScannedValue = decodedText;
+
+        await stopScanner();
+        await validateGuestEntry(decodedText);
+
+        setTimeout(() => {
+          lastScannedValue = "";
+        }, 1500);
+      }
     );
 
-    setScannerButtons(true);
-
-    renderResult(
-      "info",
-      "⌕",
-      "Câmera ativa",
-      "Aponte a câmera para o QR Code do convite."
-    );
+    scannerRunning = true;
   } catch (error) {
     console.error(error);
 
     scannerIdleContent.style.display = "block";
-    setScannerButtons(false);
 
-    renderResult(
-      "danger",
-      "×",
-      "Não foi possível abrir a câmera",
-      "Confira se você permitiu o acesso à câmera. Se estiver no computador, teste também pelo celular."
+    alert(
+      "Não foi possível iniciar a câmera. Confira se o navegador tem permissão de câmera."
     );
+  } finally {
+    startScannerButton.disabled = false;
+    startScannerButton.textContent = "Iniciar câmera";
   }
 }
 
 async function stopScanner() {
-  if (!html5QrCode || !scannerIsRunning) {
+  if (!html5QrCode || !scannerRunning) {
     scannerIdleContent.style.display = "block";
-    setScannerButtons(false);
     return;
   }
 
   try {
     await html5QrCode.stop();
-    await html5QrCode.clear();
-
-    html5QrCode = null;
   } catch (error) {
-    console.warn("Não foi possível parar a câmera.", error);
+    console.warn("Não foi possível parar o scanner.", error);
+  } finally {
+    scannerRunning = false;
+    scannerIdleContent.style.display = "block";
   }
-
-  scannerIdleContent.style.display = "block";
-  setScannerButtons(false);
 }
 
-gateForm.addEventListener("submit", validateGuestEntry);
+unlockGateButton.addEventListener("click", unlockGateAccess);
+startScannerButton.addEventListener("click", startScanner);
+stopScannerButton.addEventListener("click", stopScanner);
 
-gateResult.addEventListener("click", (event) => {
+manualValidationForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const inputValue = qrInput.value.trim();
+
+  if (!inputValue) {
+    alert("Informe um link ou token para validar.");
+    return;
+  }
+
+  await validateGuestEntry(inputValue);
+});
+
+validationResult.addEventListener("click", async (event) => {
   const clickedButton = event.target.closest("button");
 
   if (!clickedButton) {
     return;
   }
 
-  if (clickedButton.dataset.action === "force-release") {
-    releaseDeclinedGuestAnyway();
+  if (clickedButton.dataset.action === "manual-release") {
+    await handleManualRelease(
+      clickedButton.dataset.eventId,
+      clickedButton.dataset.guestId
+    );
   }
 });
 
-startScannerButton.addEventListener("click", startScanner);
-stopScannerButton.addEventListener("click", stopScanner);
+hideGateWorkspace();
 
-window.addEventListener("beforeunload", () => {
-  if (html5QrCode && scannerIsRunning) {
-    html5QrCode.stop().catch(() => {});
-  }
-});
-
-setScannerButtons(false);
+if (gateEventIdInput.value === CONFIRMAE_THEME.defaultEventId) {
+  unlockGateAccess();
+}
