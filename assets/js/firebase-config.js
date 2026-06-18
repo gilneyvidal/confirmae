@@ -15,6 +15,14 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAd_csKRHD2dEzyszjzCC3bTJvpHH_YUf8",
   authDomain: "confirmae-e629a.firebaseapp.com",
@@ -26,10 +34,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 export {
   app,
   db,
+  auth,
+  googleProvider,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
   collection,
   doc,
   getDoc,
