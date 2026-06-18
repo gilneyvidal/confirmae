@@ -1,27 +1,44 @@
-/*
-  Confirmaê - Configuração Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-  Este arquivo está separado de propósito.
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  writeBatch,
+  serverTimestamp,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  Na etapa atual, o projeto ainda NÃO usa Firebase.
-  Vamos primeiro validar o visual, o fluxo e a estrutura no GitHub Pages.
+const firebaseConfig = {
+  apiKey: "AIzaSyAd_csKRHD2dEzyszjzCC3bTJvpHH_YUf8",
+  authDomain: "confirmae-e629a.firebaseapp.com",
+  projectId: "confirmae-e629a",
+  storageBucket: "confirmae-e629a.firebasestorage.app",
+  messagingSenderId: "372030861002",
+  appId: "1:372030861002:web:d688248aef7a5297b8ce33"
+};
 
-  Quando formos conectar o banco de dados, vamos substituir este conteúdo
-  pela configuração oficial do seu projeto Firebase.
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  Exemplo futuro de informações que entrarão aqui:
-
-  const firebaseConfig = {
-    apiKey: "SUA_CHAVE",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    messagingSenderId: "000000000000",
-    appId: "1:000000000000:web:000000000000000000"
-  };
-
-  Importante:
-  Nunca vamos colocar senha pessoal do GitHub aqui.
-  A chave pública do Firebase Web App pode aparecer no front-end,
-  mas as regras de segurança do Firestore precisam ser configuradas corretamente.
-*/
+export {
+  app,
+  db,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  writeBatch,
+  serverTimestamp,
+  query,
+  orderBy
+};
