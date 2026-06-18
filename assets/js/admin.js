@@ -23,7 +23,9 @@ const loadEventButton = document.getElementById("loadEventButton");
 const accessLockedSection = document.getElementById("accessLockedSection");
 const lockedEventIdText = document.getElementById("lockedEventIdText");
 const unlockPriceText = document.getElementById("unlockPriceText");
+const pixBankText = document.getElementById("pixBankText");
 const pixKeyText = document.getElementById("pixKeyText");
+const pixHolderText = document.getElementById("pixHolderText");
 const unlockWhatsappLink = document.getElementById("unlockWhatsappLink");
 const copyPixButton = document.getElementById("copyPixButton");
 const eventWorkspaceSections = document.querySelectorAll("[data-event-workspace]");
@@ -81,7 +83,9 @@ function showEventWorkspace() {
 function showAccessLocked(eventId) {
   lockedEventIdText.textContent = eventId;
   unlockPriceText.textContent = BUSINESS_CONFIG.unlockPrice;
+  pixBankText.textContent = BUSINESS_CONFIG.pixBank;
   pixKeyText.textContent = BUSINESS_CONFIG.pixKey;
+  pixHolderText.textContent = BUSINESS_CONFIG.pixHolder;
   unlockWhatsappLink.href = buildWhatsappUnlockLink(eventId);
 
   accessLockedSection.hidden = false;
