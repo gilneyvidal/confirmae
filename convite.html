@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Confirmaê | Convite Digital</title>
+
+  <meta
+    name="description"
+    content="Convite digital personalizado para confirmação de presença em eventos pelo Confirmaê."
+  />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="page-invite">
+  <header class="site-header invite-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Início</a>
+        <a href="admin.html">Anfitrião</a>
+        <a href="portaria.html">Portaria</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="invite-main">
+    <section class="invite-hero">
+      <div class="container invite-container">
+        <article class="invite-card">
+          <div class="invite-decoration invite-decoration-top"></div>
+
+          <span class="eyebrow">Convite especial</span>
+
+          <h1 id="guestGreeting">Olá, convidado!</h1>
+
+          <p class="invite-message">
+            Você foi convidado para participar de um momento muito especial.
+            Confirme sua presença para ajudar o anfitrião na organização do evento.
+          </p>
+
+          <div class="event-info-card">
+            <h2 id="eventName">Casamento João & Maria</h2>
+
+            <ul class="event-info-list">
+              <li>
+                <span>Data</span>
+                <strong id="eventDate">20 de dezembro de 2026</strong>
+              </li>
+
+              <li>
+                <span>Horário</span>
+                <strong id="eventTime">19h30</strong>
+              </li>
+
+              <li>
+                <span>Local</span>
+                <strong id="eventPlace">Espaço Jardim Imperial</strong>
+              </li>
+            </ul>
+          </div>
+
+          <div class="invite-actions" id="inviteActions">
+            <button type="button" class="btn btn-primary" id="acceptInviteButton">
+              Confirmar presença
+            </button>
+
+            <button type="button" class="btn btn-danger-outline" id="declineInviteButton">
+              Não poderei comparecer
+            </button>
+          </div>
+
+          <div class="invite-response hidden" id="inviteResponse">
+            <div class="response-icon" id="responseIcon">✓</div>
+            <h2 id="responseTitle">Presença confirmada!</h2>
+            <p id="responseMessage">
+              Obrigado por confirmar. Sua resposta foi registrada com sucesso.
+            </p>
+          </div>
+
+          <p class="invite-footer-note">
+            Este convite é individual e possui identificação única.
+          </p>
+
+          <div class="invite-decoration invite-decoration-bottom"></div>
+        </article>
+
+        <aside class="invite-side-card">
+          <h2>Resumo do convite</h2>
+
+          <div class="summary-row">
+            <span>Evento</span>
+            <strong id="summaryEventId">evento-demo</strong>
+          </div>
+
+          <div class="summary-row">
+            <span>Convidado</span>
+            <strong id="summaryGuestId">convidado-demo</strong>
+          </div>
+
+          <div class="summary-row">
+            <span>Status</span>
+            <strong id="summaryStatus" class="summary-status status-text-waiting">
+              Aguardando confirmação
+            </strong>
+          </div>
+
+          <div class="mini-alert">
+            Na próxima etapa, esta resposta será salva automaticamente no Firebase.
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© 2026 Confirmaê. Convite digital para eventos.</p>
+      <p>Confirmação simples, rápida e personalizada.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/convite.js"></script>
+</body>
+</html>
