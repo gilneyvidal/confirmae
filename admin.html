@@ -55,7 +55,63 @@
       </div>
     </section>
 
-    <section class="container stats-grid" aria-label="Resumo de status dos convidados">
+    <section class="container" id="accessLockedSection" hidden>
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Evento bloqueado</span>
+            <h2>Liberação necessária</h2>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon">ID</div>
+            <h3 id="lockedEventIdText">evento</h3>
+            <p>
+              Este ID ainda não foi liberado para uso no Confirmaê.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">PIX</div>
+            <h3 id="unlockPriceText">R$ 97,00</h3>
+            <p>
+              Chave Pix:
+              <strong id="pixKeyText">11968649673</strong>
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">WA</div>
+            <h3>Enviar comprovante</h3>
+            <p>
+              Após o pagamento, envie o comprovante pelo WhatsApp para liberação manual.
+            </p>
+          </article>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary" id="unlockWhatsappLink" target="_blank" rel="noopener">
+            Falar no WhatsApp
+          </a>
+
+          <button type="button" class="btn btn-secondary" id="copyPixButton">
+            Copiar chave Pix
+          </button>
+        </div>
+
+        <div class="admin-help-box">
+          <strong>Como funciona a liberação</strong>
+          <p>
+            O cliente informa o ID desejado, faz o pagamento via Pix e envia o comprovante.
+            Depois você libera manualmente esse ID no Firebase.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <section class="container stats-grid" data-event-workspace aria-label="Resumo de status dos convidados">
       <article class="stat-card">
         <span>Total</span>
         <strong id="totalGuests">0</strong>
@@ -82,7 +138,7 @@
       </article>
     </section>
 
-    <section class="container">
+    <section class="container" data-event-workspace>
       <article class="panel-card">
         <div class="panel-heading">
           <div>
@@ -176,7 +232,7 @@
       </article>
     </section>
 
-    <section class="container dashboard-grid" style="margin-top: 24px;">
+    <section class="container dashboard-grid" data-event-workspace style="margin-top: 24px;">
       <article class="panel-card">
         <div class="panel-heading">
           <div>
