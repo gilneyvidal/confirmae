@@ -85,6 +85,20 @@ function buildAdminLink(eventId) {
   return `${getBaseUrl()}admin.html?evento=${encodeURIComponent(eventId)}`;
 }
 
+function formatBrazilianWhatsappNumber(rawNumber) {
+  const digits = String(rawNumber || "").replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  if (digits.startsWith("55")) {
+    return digits;
+  }
+
+  return `55${digits}`;
+}
+
 function buildWhatsappUnlockLink(eventId) {
   const business = CONFIRMAE_THEME.business;
   const message = [
@@ -98,6 +112,34 @@ function buildWhatsappUnlockLink(eventId) {
   ].join("\n");
 
   return `https://wa.me/${business.whatsappNumberInternational}?text=${encodeURIComponent(message)}`;
+}
+
+function buildClientAccessWhatsappLink(record) {
+  const customerWhatsapp = formatBrazilianWhatsappNumber(record.customerWhatsapp);
+  const eventId = record.id || record.eventId || "";
+  const adminLink = buildAdminLink(eventId);
+  const customerName = record.customerName || "tudo bem";
+
+  if (!customerWhatsapp) {
+    return "";
+  }
+
+  const message = [
+    `Olá, ${customerName}! Seu evento foi liberado no Confirmaê. ✅`,
+    "",
+    `ID do evento: ${eventId}`,
+    `Painel do anfitrião: ${adminLink}`,
+    "",
+    "Como acessar:",
+    "1. Abra o link acima.",
+    "2. Confira se o ID do evento está preenchido corretamente.",
+    "3. Clique em Acessar evento.",
+    "4. Personalize os dados do evento e cadastre seus convidados.",
+    "",
+    "Qualquer dúvida, pode me chamar por aqui."
+  ].join("\n");
+
+  return `https://wa.me/${customerWhatsapp}?text=${encodeURIComponent(message)}`;
 }
 
 function getDemoGuestsSeed() {
@@ -246,6 +288,8 @@ async function releaseEvent(eventId, data) {
     customerWhatsapp: data.customerWhatsapp || "",
     customerEmail: data.customerEmail || "",
     amountPaid: data.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
+    eventName: data.eventName || "",
+    eventType: data.eventType || "",
     notes: data.notes || "",
     releasedAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -598,6 +642,7 @@ export {
   buildInvitationLink,
   buildAdminLink,
   buildWhatsappUnlockLink,
+  buildClientAccessWhatsappLink,
   getEventAccess,
   listEventAccessRecords,
   releaseEvent,
