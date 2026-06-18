@@ -5,7 +5,9 @@ const CONFIRMAE_THEME = {
   business: {
     whatsappNumberInternational: "5511968649673",
     whatsappDisplay: "(11) 96864-9673",
+    pixBank: "Mercado Pago",
     pixKey: "11968649673",
+    pixHolder: "Gilney Wesley Aparecido Vidal",
     unlockPrice: "R$ 29,90",
     paymentDescription: "Liberação de novo evento no Confirmaê"
   },
