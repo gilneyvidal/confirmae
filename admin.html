@@ -37,7 +37,7 @@
         <span class="eyebrow">Painel do anfitrião</span>
         <h1>Acesse seu evento</h1>
         <p>
-          Informe o ID do evento liberado para personalizar, cadastrar convidados,
+          Informe o ID e o PIN do painel para personalizar, cadastrar convidados,
           gerar QR Codes e acompanhar confirmações.
         </p>
 
@@ -54,6 +54,19 @@
           value="evento-demo"
           aria-label="ID do evento"
         />
+
+        <label for="eventPanelPinInput">PIN do painel</label>
+        <input
+          type="password"
+          id="eventPanelPinInput"
+          placeholder="Digite o PIN do painel"
+          aria-label="PIN do painel"
+        />
+
+        <small id="panelPinHelpText">
+          O PIN é enviado pelo WhatsApp após a liberação do evento.
+        </small>
+
         <button type="button" class="btn btn-secondary" id="loadEventButton">
           Acessar evento
         </button>
@@ -110,18 +123,10 @@
             Ver explicação completa
           </a>
         </div>
-
-        <div class="admin-help-box">
-          <strong>Como funciona a liberação</strong>
-          <p>
-            O cliente informa o ID desejado, faz o pagamento via Pix e envia o comprovante.
-            Depois o acesso é liberado manualmente no painel master do Confirmaê.
-          </p>
-        </div>
       </article>
     </section>
 
-    <section class="container stats-grid" data-event-workspace aria-label="Resumo de status dos convidados">
+    <section class="container stats-grid" data-event-workspace hidden aria-label="Resumo de status dos convidados">
       <article class="stat-card">
         <span>Total</span>
         <strong id="totalGuests">0</strong>
@@ -148,7 +153,7 @@
       </article>
     </section>
 
-    <section class="container" data-event-workspace>
+    <section class="container" data-event-workspace hidden>
       <article class="panel-card">
         <div class="panel-heading">
           <div>
@@ -160,89 +165,47 @@
         <form class="guest-form" id="eventConfigForm">
           <div class="form-group">
             <label for="eventNameInput">Nome do evento</label>
-            <input
-              type="text"
-              id="eventNameInput"
-              placeholder="Ex: Casamento João & Maria"
-              required
-            />
+            <input type="text" id="eventNameInput" placeholder="Ex: Casamento João & Maria" required />
           </div>
 
           <div class="form-group">
             <label for="eventTypeInput">Tipo do evento</label>
-            <input
-              type="text"
-              id="eventTypeInput"
-              placeholder="Ex: Casamento, Aniversário, Festa, Formatura"
-              required
-            />
+            <input type="text" id="eventTypeInput" placeholder="Ex: Casamento, Aniversário, Festa, Formatura" required />
           </div>
 
           <div class="form-group">
             <label for="eventHostInput">Nome do anfitrião</label>
-            <input
-              type="text"
-              id="eventHostInput"
-              placeholder="Ex: João & Maria"
-            />
+            <input type="text" id="eventHostInput" placeholder="Ex: João & Maria" />
           </div>
 
           <div class="form-group">
             <label for="eventDateInput">Data do evento</label>
-            <input
-              type="text"
-              id="eventDateInput"
-              placeholder="Ex: 20 de dezembro de 2026"
-              required
-            />
+            <input type="text" id="eventDateInput" placeholder="Ex: 20 de dezembro de 2026" required />
           </div>
 
           <div class="form-group">
             <label for="eventTimeInput">Horário</label>
-            <input
-              type="text"
-              id="eventTimeInput"
-              placeholder="Ex: 19h30"
-              required
-            />
+            <input type="text" id="eventTimeInput" placeholder="Ex: 19h30" required />
           </div>
 
           <div class="form-group">
             <label for="eventLocationInput">Local</label>
-            <input
-              type="text"
-              id="eventLocationInput"
-              placeholder="Ex: Espaço Jardim Imperial"
-              required
-            />
+            <input type="text" id="eventLocationInput" placeholder="Ex: Espaço Jardim Imperial" required />
           </div>
 
           <div class="form-group">
             <label for="eventIntroInput">Mensagem do convite</label>
-            <input
-              type="text"
-              id="eventIntroInput"
-              placeholder="Ex: Você está recebendo este convite especial..."
-              required
-            />
+            <input type="text" id="eventIntroInput" placeholder="Ex: Você está recebendo este convite especial..." required />
           </div>
 
           <button type="submit" class="btn btn-primary">
             Salvar dados do evento
           </button>
         </form>
-
-        <div class="admin-help-box">
-          <strong>Personalização por evento</strong>
-          <p>
-            Estes dados são salvos no Firebase dentro do ID informado acima.
-            Assim cada cliente pode ter um evento próprio usando a mesma base do Confirmaê.
-          </p>
-        </div>
       </article>
     </section>
 
-    <section class="container dashboard-grid" data-event-workspace style="margin-top: 24px;">
+    <section class="container dashboard-grid" data-event-workspace hidden style="margin-top: 24px;">
       <article class="panel-card">
         <div class="panel-heading">
           <div>
@@ -254,54 +217,28 @@
         <form class="guest-form" id="guestForm">
           <div class="form-group">
             <label for="guestNameInput">Nome do convidado</label>
-            <input
-              type="text"
-              id="guestNameInput"
-              placeholder="Ex: Maria Oliveira"
-              required
-            />
+            <input type="text" id="guestNameInput" placeholder="Ex: Maria Oliveira" required />
           </div>
 
           <div class="form-group">
             <label for="guestPhoneInput">Telefone</label>
-            <input
-              type="tel"
-              id="guestPhoneInput"
-              placeholder="Ex: (11) 99999-9999"
-            />
+            <input type="tel" id="guestPhoneInput" placeholder="Ex: (11) 99999-9999" />
           </div>
 
           <div class="form-group">
             <label for="guestEmailInput">E-mail</label>
-            <input
-              type="email"
-              id="guestEmailInput"
-              placeholder="Ex: maria@email.com"
-            />
+            <input type="email" id="guestEmailInput" placeholder="Ex: maria@email.com" />
           </div>
 
           <div class="form-group">
             <label for="guestCompanionsInput">Acompanhantes permitidos</label>
-            <input
-              type="number"
-              id="guestCompanionsInput"
-              min="0"
-              value="0"
-            />
+            <input type="number" id="guestCompanionsInput" min="0" value="0" />
           </div>
 
           <button type="submit" class="btn btn-primary">
             Criar convite
           </button>
         </form>
-
-        <div class="admin-help-box">
-          <strong>Banco online ativo</strong>
-          <p>
-            Os convidados cadastrados agora são salvos no Firebase Firestore.
-            O QR Code gerado usa o link individual de cada convidado.
-          </p>
-        </div>
       </article>
 
       <article class="panel-card panel-card-large">
@@ -330,7 +267,7 @@
 
             <tbody id="guestTableBody">
               <tr>
-                <td colspan="5">Carregando convidados...</td>
+                <td colspan="5">Aguardando acesso ao evento...</td>
               </tr>
             </tbody>
           </table>
@@ -372,10 +309,6 @@
             Baixar QR Code
           </button>
         </div>
-
-        <p class="small-note">
-          Este QR Code leva diretamente para o convite nominal deste convidado.
-        </p>
       </div>
     </div>
   </div>
@@ -389,6 +322,6 @@
 
   <script src="assets/js/theme.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script type="module" src="assets/js/admin.js"></script>
+  <script type="module" src="assets/js/admin.js?v=pins-1"></script>
 </body>
 </html>
