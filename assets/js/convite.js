@@ -24,6 +24,7 @@ const declineButton = document.getElementById("declineButton");
 const guestInitial = document.getElementById("guestInitial");
 const guestName = document.getElementById("guestName");
 const guestToken = document.getElementById("guestToken");
+const invitationQrCodeBox = document.getElementById("invitationQrCodeBox");
 
 const eventId = getQueryParam("evento") || CONFIRMAE_THEME.defaultEventId;
 const guestId = getQueryParam("convidado") || "convidado-demo";
@@ -55,6 +56,34 @@ function renderEventInfo(eventInfo) {
   eventLocation.textContent = eventInfo.location || "Local a definir";
 }
 
+function renderInvitationQrCode() {
+  if (!invitationQrCodeBox) {
+    return;
+  }
+
+  invitationQrCodeBox.innerHTML = "";
+
+  if (typeof QRCode === "undefined") {
+    invitationQrCodeBox.innerHTML = `
+      <p class="small-note">
+        Não foi possível carregar o QR Code. Atualize a página e tente novamente.
+      </p>
+    `;
+    return;
+  }
+
+  const currentInvitationUrl = window.location.href;
+
+  new QRCode(invitationQrCodeBox, {
+    text: currentInvitationUrl,
+    width: 220,
+    height: 220,
+    colorDark: "#221b35",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
 async function renderGuest() {
   setButtonsDisabled(true);
 
@@ -75,6 +104,7 @@ async function renderGuest() {
 
       renderStatus("declined");
       setButtonsDisabled(true);
+      renderInvitationQrCode();
 
       return;
     }
@@ -100,6 +130,7 @@ async function renderGuest() {
         "Confirme se você poderá comparecer. Sua resposta ajuda o anfitrião a organizar melhor o evento.";
     }
 
+    renderInvitationQrCode();
     setButtonsDisabled(false);
   } catch (error) {
     console.error(error);
@@ -109,6 +140,7 @@ async function renderGuest() {
       "Não foi possível carregar este convite. Confira a conexão com o Firebase.";
 
     renderStatus("declined");
+    renderInvitationQrCode();
     setButtonsDisabled(true);
   }
 }
