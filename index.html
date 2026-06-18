@@ -245,8 +245,8 @@
           </p>
 
           <p>
-            Para contratar, faça o Pix, envie o comprovante pelo WhatsApp e informe
-            o ID desejado para o seu evento.
+            Preencha seus dados, escolha um ID para seu evento e envie a mensagem
+            pelo WhatsApp. Depois faça o Pix e envie o comprovante para liberação.
           </p>
 
           <p>
@@ -254,14 +254,46 @@
           </p>
         </div>
 
-        <div class="hero-actions">
-          <a href="#" class="btn btn-primary" id="homeWhatsappButton" target="_blank" rel="noopener">
-            Contratar pelo WhatsApp
-          </a>
+        <div class="event-selector-card">
+          <form class="guest-form" id="leadForm">
+            <div class="form-group">
+              <label for="leadNameInput">Seu nome</label>
+              <input
+                type="text"
+                id="leadNameInput"
+                placeholder="Ex: Maria Oliveira"
+                required
+              />
+            </div>
 
-          <a href="admin.html" class="btn btn-secondary">
-            Acessar evento liberado
-          </a>
+            <div class="form-group">
+              <label for="leadWhatsappInput">Seu WhatsApp</label>
+              <input
+                type="text"
+                id="leadWhatsappInput"
+                placeholder="Ex: 11999999999"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="leadEventIdInput">ID desejado para o evento</label>
+              <input
+                type="text"
+                id="leadEventIdInput"
+                placeholder="Ex: aniversario-maria-2026"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Contratar pelo WhatsApp
+            </button>
+
+            <a href="admin.html" class="btn btn-secondary">
+              Já tenho evento liberado
+            </a>
+          </form>
         </div>
       </div>
     </section>
@@ -314,18 +346,53 @@
 
   <script>
     const business = window.CONFIRMAE_THEME.business;
-    const message = [
-      "Olá! Quero contratar o Confirmaê para meu evento.",
-      "",
-      "Valor: " + business.unlockPrice,
-      "Chave Pix: " + business.pixKey,
-      "",
-      "Quero enviar o comprovante e liberar meu evento."
-    ].join("\n");
+    const leadForm = document.getElementById("leadForm");
+    const homePixKey = document.getElementById("homePixKey");
 
-    document.getElementById("homePixKey").textContent = business.pixKey;
-    document.getElementById("homeWhatsappButton").href =
-      "https://wa.me/" + business.whatsappNumberInternational + "?text=" + encodeURIComponent(message);
+    homePixKey.textContent = business.pixKey;
+
+    function normalizeEventId(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    leadForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const leadName = document.getElementById("leadNameInput").value.trim();
+      const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
+      const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
+
+      if (!leadName || !leadWhatsapp || !desiredEventId) {
+        alert("Preencha nome, WhatsApp e ID desejado para continuar.");
+        return;
+      }
+
+      const message = [
+        "Olá! Quero contratar o Confirmaê para meu evento.",
+        "",
+        "Nome: " + leadName,
+        "WhatsApp: " + leadWhatsapp,
+        "ID desejado: " + desiredEventId,
+        "",
+        "Valor: " + business.unlockPrice,
+        "Chave Pix: " + business.pixKey,
+        "",
+        "Vou enviar o comprovante por aqui para liberar meu evento."
+      ].join("\n");
+
+      const whatsappUrl =
+        "https://wa.me/" +
+        business.whatsappNumberInternational +
+        "?text=" +
+        encodeURIComponent(message);
+
+      window.open(whatsappUrl, "_blank");
+    });
   </script>
 </body>
 </html>
