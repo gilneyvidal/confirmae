@@ -105,10 +105,8 @@ function buildWhatsappUnlockLink(eventId) {
     "Olá! Quero liberar um novo evento no Confirmaê.",
     "",
     `ID do evento: ${eventId}`,
-    `Valor: ${business.unlockPrice}`,
-    `Chave Pix: ${business.pixKey}`,
     "",
-    "Vou enviar o comprovante por aqui para liberação manual."
+    `Vi a oferta de ${business.unlockPrice} e quero enviar o comprovante para liberar meu evento.`
   ].join("\n");
 
   return `https://wa.me/${business.whatsappNumberInternational}?text=${encodeURIComponent(message)}`;
