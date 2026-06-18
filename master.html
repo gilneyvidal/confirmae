@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Painel Master | Confirmaê</title>
+
+  <meta
+    name="description"
+    content="Painel master interno do Confirmaê para liberar, bloquear e gerenciar eventos."
+  />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body class="page-admin">
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê Master</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Home</a>
+        <a href="admin.html">Painel evento</a>
+        <a href="portaria.html">Portaria</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <section class="container dashboard-header">
+      <div>
+        <span class="eyebrow">Painel interno</span>
+        <h1>Gestão master</h1>
+        <p>
+          Libere eventos pagos, bloqueie acessos, consulte clientes e apague eventos
+          quando necessário.
+        </p>
+      </div>
+    </section>
+
+    <section class="container" id="masterLoginSection">
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Acesso restrito</span>
+            <h2>Entrar no painel master</h2>
+          </div>
+        </div>
+
+        <form class="guest-form" id="masterLoginForm">
+          <div class="form-group">
+            <label for="masterPasswordInput">Senha master</label>
+            <input
+              type="password"
+              id="masterPasswordInput"
+              placeholder="Digite a senha master"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Entrar
+          </button>
+        </form>
+
+        <div class="admin-help-box">
+          <strong>Aviso importante</strong>
+          <p>
+            Esta senha é uma proteção temporária para o MVP. Antes de vender em escala,
+            vamos trocar isso por login real com Firebase Authentication.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <section class="container" id="masterAppSection" hidden>
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Liberar cliente</span>
+            <h2>Criar ou atualizar evento</h2>
+          </div>
+
+          <button type="button" class="btn btn-secondary" id="masterLogoutButton">
+            Sair
+          </button>
+        </div>
+
+        <form class="guest-form" id="masterEventForm">
+          <div class="form-group">
+            <label for="masterEventIdInput">ID do evento</label>
+            <input
+              type="text"
+              id="masterEventIdInput"
+              placeholder="Ex: aniversario-maria-2026"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterCustomerNameInput">Nome do cliente</label>
+            <input
+              type="text"
+              id="masterCustomerNameInput"
+              placeholder="Ex: Maria Oliveira"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterCustomerWhatsappInput">WhatsApp do cliente</label>
+            <input
+              type="text"
+              id="masterCustomerWhatsappInput"
+              placeholder="Ex: 11999999999"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterCustomerEmailInput">E-mail do cliente</label>
+            <input
+              type="email"
+              id="masterCustomerEmailInput"
+              placeholder="Ex: cliente@email.com"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterAmountInput">Valor pago</label>
+            <input
+              type="text"
+              id="masterAmountInput"
+              value="R$ 29,90"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterEventNameInput">Nome inicial do evento</label>
+            <input
+              type="text"
+              id="masterEventNameInput"
+              placeholder="Ex: Aniversário da Maria"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterEventTypeInput">Tipo do evento</label>
+            <input
+              type="text"
+              id="masterEventTypeInput"
+              placeholder="Ex: Aniversário"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="masterNotesInput">Observações internas</label>
+            <input
+              type="text"
+              id="masterNotesInput"
+              placeholder="Ex: Pagamento confirmado via Pix."
+            />
+          </div>
+
+          <div class="hero-actions">
+            <button type="submit" class="btn btn-primary">
+              Liberar / atualizar evento
+            </button>
+
+            <button type="button" class="btn btn-secondary" id="clearMasterFormButton">
+              Limpar formulário
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <article class="panel-card" style="margin-top: 24px;">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Eventos</span>
+            <h2>Eventos liberados e bloqueados</h2>
+          </div>
+
+          <button type="button" class="btn btn-secondary" id="reloadMasterListButton">
+            Atualizar lista
+          </button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="guest-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Status</th>
+                <th>Pagamento</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody id="masterEventsTableBody">
+              <tr>
+                <td colspan="5">Carregando eventos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>© 2026 Confirmaê.</p>
+      <p>Painel interno de gestão.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script type="module" src="assets/js/master.js"></script>
+</body>
+</html>
