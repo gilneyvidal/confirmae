@@ -1,3 +1,16 @@
+import {
+  buildInvitationLink,
+  getGuestsByEvent,
+  updateGuest,
+  addGuest,
+  removeGuest,
+  resetDemoGuests,
+  getStatusInfo,
+  escapeHtml
+} from "./app.js";
+
+const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
+
 const eventIdInput = document.getElementById("eventIdInput");
 const loadEventButton = document.getElementById("loadEventButton");
 const guestForm = document.getElementById("guestForm");
@@ -12,8 +25,12 @@ const presentGuests = document.getElementById("presentGuests");
 
 let currentEventId = CONFIRMAE_THEME.defaultEventId;
 
-function getCurrentGuests() {
-  return ConfirmaeApp.getGuestsByEvent(currentEventId);
+function setTableLoading(message) {
+  guestTableBody.innerHTML = `
+    <tr>
+      <td colspan="5">${escapeHtml(message)}</td>
+    </tr>
+  `;
 }
 
 function updateStats(guests) {
@@ -24,89 +41,101 @@ function updateStats(guests) {
   presentGuests.textContent = guests.filter((guest) => guest.status === "present").length;
 }
 
-function renderGuests() {
-  const guests = getCurrentGuests();
+async function renderGuests() {
+  setTableLoading("Carregando convidados do Firebase...");
 
-  updateStats(guests);
+  try {
+    const guests = await getGuestsByEvent(currentEventId);
 
-  if (!guests.length) {
-    guestTableBody.innerHTML = `
-      <tr>
-        <td colspan="5">
-          Nenhum convidado cadastrado para este evento.
-        </td>
-      </tr>
-    `;
-    return;
-  }
+    updateStats(guests);
 
-  guestTableBody.innerHTML = guests
-    .map((guest) => {
-      const statusInfo = ConfirmaeApp.getStatusInfo(guest.status);
-      const invitationLink = ConfirmaeApp.buildInvitationLink(guest.eventId, guest.id);
-
-      return `
+    if (!guests.length) {
+      guestTableBody.innerHTML = `
         <tr>
-          <td>
-            <div class="guest-name-cell">
-              <strong>${guest.name}</strong>
-              <small>ID: ${guest.id}</small>
-            </div>
-          </td>
-
-          <td>
-            <div class="guest-contact-cell">
-              <strong>${guest.phone || "Sem telefone"}</strong>
-              <small>${guest.email || "Sem e-mail"}</small>
-            </div>
-          </td>
-
-          <td>
-            <span class="status-pill status-pill-${statusInfo.className}">
-              <span class="status-dot status-dot-${statusInfo.className}"></span>
-              ${statusInfo.label}
-            </span>
-          </td>
-
-          <td>
-            <button
-              type="button"
-              class="btn btn-secondary btn-small"
-              data-action="copy-link"
-              data-link="${invitationLink}"
-            >
-              Copiar link
-            </button>
-          </td>
-
-          <td>
-            <div class="table-actions">
-              <button
-                type="button"
-                class="btn btn-secondary btn-small"
-                data-action="mark-waiting"
-                data-guest-id="${guest.id}"
-              >
-                Enviado
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-danger btn-small"
-                data-action="remove"
-                data-guest-id="${guest.id}"
-              >
-                Remover
-              </button>
-            </div>
+          <td colspan="5">
+            Nenhum convidado cadastrado para este evento.
           </td>
         </tr>
       `;
-    })
-    .join("");
+      return;
+    }
+
+    guestTableBody.innerHTML = guests
+      .map((guest) => {
+        const statusInfo = getStatusInfo(guest.status);
+        const invitationLink = buildInvitationLink(guest.eventId, guest.id);
+
+        return `
+          <tr>
+            <td>
+              <div class="guest-name-cell">
+                <strong>${escapeHtml(guest.name)}</strong>
+                <small>ID: ${escapeHtml(guest.id)}</small>
+              </div>
+            </td>
+
+            <td>
+              <div class="guest-contact-cell">
+                <strong>${escapeHtml(guest.phone || "Sem telefone")}</strong>
+                <small>${escapeHtml(guest.email || "Sem e-mail")}</small>
+              </div>
+            </td>
+
+            <td>
+              <span class="status-pill status-pill-${escapeHtml(statusInfo.className)}">
+                <span class="status-dot status-dot-${escapeHtml(statusInfo.className)}"></span>
+                ${escapeHtml(statusInfo.label)}
+              </span>
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="copy-link"
+                data-link="${escapeHtml(invitationLink)}"
+              >
+                Copiar link
+              </button>
+            </td>
+
+            <td>
+              <div class="table-actions">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  data-action="mark-waiting"
+                  data-guest-id="${escapeHtml(guest.id)}"
+                >
+                  Enviado
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-danger btn-small"
+                  data-action="remove"
+                  data-guest-id="${escapeHtml(guest.id)}"
+                >
+                  Remover
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+  } catch (error) {
+    console.error(error);
+
+    updateStats([]);
+
+    setTableLoading(
+      "Erro ao carregar convidados. Confira se o Firestore foi criado e se as regras estão em modo de teste."
+    );
+  }
 }
 
-function handleGuestFormSubmit(event) {
+async function handleGuestFormSubmit(event) {
   event.preventDefault();
 
   const nameInput = document.getElementById("guestNameInput");
@@ -121,25 +150,37 @@ function handleGuestFormSubmit(event) {
     return;
   }
 
-  const newGuest = ConfirmaeApp.addGuest({
-    eventId: currentEventId,
-    name,
-    phone: phoneInput.value.trim(),
-    email: emailInput.value.trim(),
-    companions: companionsInput.value
-  });
+  const submitButton = guestForm.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+  submitButton.textContent = "Criando...";
 
-  guestForm.reset();
-  companionsInput.value = 0;
+  try {
+    const newGuest = await addGuest({
+      eventId: currentEventId,
+      name,
+      phone: phoneInput.value.trim(),
+      email: emailInput.value.trim(),
+      companions: companionsInput.value
+    });
 
-  renderGuests();
+    guestForm.reset();
+    companionsInput.value = 0;
 
-  const invitationLink = ConfirmaeApp.buildInvitationLink(newGuest.eventId, newGuest.id);
+    await renderGuests();
 
-  alert(`Convite criado com sucesso!\n\nLink do convite:\n${invitationLink}`);
+    const invitationLink = buildInvitationLink(newGuest.eventId, newGuest.id);
+
+    alert(`Convite criado com sucesso!\n\nLink do convite:\n${invitationLink}`);
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível criar o convite. Confira o Firebase e tente novamente.");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Criar convite";
+  }
 }
 
-function handleTableClick(event) {
+async function handleTableClick(event) {
   const clickedButton = event.target.closest("button");
 
   if (!clickedButton) {
@@ -168,11 +209,20 @@ function handleTableClick(event) {
   }
 
   if (action === "mark-waiting") {
-    ConfirmaeApp.updateGuest(currentEventId, guestId, {
-      status: "waiting"
-    });
+    clickedButton.disabled = true;
+    clickedButton.textContent = "Salvando...";
 
-    renderGuests();
+    try {
+      await updateGuest(currentEventId, guestId, {
+        status: "waiting"
+      });
+
+      await renderGuests();
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível atualizar o status.");
+    }
+
     return;
   }
 
@@ -183,30 +233,49 @@ function handleTableClick(event) {
       return;
     }
 
-    ConfirmaeApp.removeGuest(currentEventId, guestId);
-    renderGuests();
+    try {
+      await removeGuest(currentEventId, guestId);
+      await renderGuests();
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível remover o convidado.");
+    }
   }
 }
 
-function handleLoadEvent() {
+async function handleLoadEvent() {
   currentEventId = eventIdInput.value.trim() || CONFIRMAE_THEME.defaultEventId;
   eventIdInput.value = currentEventId;
-  renderGuests();
+
+  await renderGuests();
 }
 
-function handleResetDemo() {
+async function handleResetDemo() {
   const confirmReset = confirm(
-    "Isso vai restaurar os convidados de demonstração neste navegador. Deseja continuar?"
+    "Isso vai restaurar os convidados de demonstração no Firebase. Deseja continuar?"
   );
 
   if (!confirmReset) {
     return;
   }
 
-  ConfirmaeApp.resetDemoGuests();
-  currentEventId = CONFIRMAE_THEME.defaultEventId;
-  eventIdInput.value = currentEventId;
-  renderGuests();
+  resetDemoButton.disabled = true;
+  resetDemoButton.textContent = "Restaurando...";
+
+  try {
+    await resetDemoGuests();
+
+    currentEventId = CONFIRMAE_THEME.defaultEventId;
+    eventIdInput.value = currentEventId;
+
+    await renderGuests();
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível restaurar a demonstração.");
+  } finally {
+    resetDemoButton.disabled = false;
+    resetDemoButton.textContent = "Restaurar demo";
+  }
 }
 
 guestForm.addEventListener("submit", handleGuestFormSubmit);
