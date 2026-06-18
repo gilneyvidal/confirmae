@@ -8,7 +8,7 @@
 
   <meta
     name="description"
-    content="Página de portaria para validar convidados e registrar presença no evento."
+    content="Página de portaria para validar convidados, ler QR Code pela câmera e registrar presença no evento."
   />
 
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -36,7 +36,7 @@
         <span class="eyebrow">Controle de entrada</span>
         <h1>Portaria do evento</h1>
         <p>
-          Valide o convite, confira o status e marque a chegada do convidado.
+          Leia o QR Code pela câmera, valide o convite e marque a chegada do convidado.
         </p>
       </div>
     </section>
@@ -50,18 +50,31 @@
           </div>
         </div>
 
-        <div class="scanner-placeholder">
-          <div class="scanner-frame">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+        <div class="scanner-placeholder" id="scannerArea">
+          <div id="qrReader" style="width: 100%; max-width: 420px; margin: 0 auto;"></div>
 
-          <p>
-            O leitor real de câmera será conectado na próxima etapa com uma
-            biblioteca de QR Code.
-          </p>
+          <div id="scannerIdleContent">
+            <div class="scanner-frame">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <p>
+              Clique em <strong>Iniciar câmera</strong>, permita o acesso e aponte para o QR Code do convite.
+            </p>
+          </div>
+        </div>
+
+        <div class="confirmation-actions">
+          <button type="button" class="btn btn-primary" id="startScannerButton">
+            Iniciar câmera
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="stopScannerButton" disabled>
+            Parar câmera
+          </button>
         </div>
 
         <form class="gate-form" id="gateForm">
@@ -83,8 +96,8 @@
         <div class="admin-help-box">
           <strong>Teste rápido</strong>
           <p>
-            Cole o link de convite copiado no painel do anfitrião ou use o token
-            <strong>convidado-demo</strong>.
+            Você pode ler o QR Code pela câmera ou colar o link manualmente.
+            Se a câmera não abrir, confira se o navegador pediu permissão de acesso.
           </p>
         </div>
       </article>
@@ -101,7 +114,7 @@
           <span class="result-icon">?</span>
           <h3>Aguardando leitura</h3>
           <p>
-            Leia um QR Code ou cole o link do convite para validar o convidado.
+            Leia um QR Code pela câmera ou cole o link do convite para validar o convidado.
           </p>
         </div>
       </aside>
@@ -116,6 +129,7 @@
   </footer>
 
   <script src="assets/js/theme.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script type="module" src="assets/js/portaria.js"></script>
 </body>
 </html>
