@@ -103,21 +103,13 @@
           </div>
         </div>
 
-        <div class="fake-qr fake-qr-large" aria-label="Representação visual de QR Code">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
+        <div class="qr-code-box" id="invitationQrCodeBox">
+          <p class="small-note">Carregando QR Code...</p>
         </div>
 
         <p>
-          Este QR Code representa o convite individual. Na próxima etapa,
-          vamos gerar QR Codes reais para cada convidado.
+          Este QR Code é exclusivo do seu convite. Ele pode ser apresentado na
+          portaria para validar sua entrada.
         </p>
       </aside>
     </section>
@@ -131,6 +123,7 @@
   </footer>
 
   <script src="assets/js/theme.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script type="module" src="assets/js/convite.js"></script>
 </body>
 </html>
