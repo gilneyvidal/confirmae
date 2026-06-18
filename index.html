@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Confirmaê | Confirmação de Presença para Eventos</title>
+  <title>Confirmaê | Confirmação de Presença com QR Code</title>
 
   <meta
     name="description"
-    content="Confirmaê é um sistema web para confirmação de presença em eventos, com convite digital, QR Code, painel do anfitrião e controle de portaria."
+    content="Confirmaê é um sistema web para confirmação de presença em festas, casamentos, aniversários e eventos com convite digital, QR Code e controle de portaria."
   />
 
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -23,8 +23,9 @@
       </a>
 
       <nav class="main-nav" aria-label="Menu principal">
-        <a href="index.html">Início</a>
-        <a href="admin.html">Anfitrião</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#contratar">Contratar</a>
+        <a href="admin.html">Acessar evento</a>
         <a href="portaria.html">Portaria</a>
       </nav>
     </div>
@@ -34,31 +35,26 @@
     <section class="hero-section">
       <div class="container hero-grid">
         <div class="hero-content">
-          <span class="eyebrow">Convite digital com confirmação inteligente</span>
+          <span class="eyebrow">Sistema profissional para eventos</span>
 
           <h1>
-            Controle convidados, confirmações e entrada do evento em um só lugar.
+            Confirme presenças, gere QR Codes e controle a entrada do seu evento.
           </h1>
 
           <p>
-            O Confirmaê é um sistema web para festas, aniversários, casamentos,
-            eventos corporativos e qualquer ocasião que precise de confirmação
-            de presença com praticidade.
+            O Confirmaê transforma sua lista de convidados em um sistema simples,
+            bonito e profissional para festas, aniversários, casamentos, formaturas
+            e eventos corporativos.
           </p>
 
           <div class="hero-actions">
-            <a href="admin.html" class="btn btn-primary">Acessar painel do anfitrião</a>
-            <a
-              href="convite.html?evento=evento-demo&convidado=convidado-demo"
-              class="btn btn-secondary"
-            >
-              Ver convite exemplo
-            </a>
+            <a href="#contratar" class="btn btn-primary">Criar novo evento</a>
+            <a href="admin.html" class="btn btn-secondary">Já tenho um evento</a>
           </div>
 
           <p class="hero-note">
-            Agora conectado ao Firebase Firestore para salvar convidados,
-            confirmações e check-ins online.
+            Por menos de R$ 1,00 por dia, você pode ter um sistema profissional
+            para organizar seu evento com muito mais controle.
           </p>
         </div>
 
@@ -69,16 +65,16 @@
               <span>Aguardando confirmação</span>
             </div>
 
-            <h2>Casamento João & Maria</h2>
+            <h2>Evento com controle profissional</h2>
 
-            <p class="event-date">20 de dezembro de 2026</p>
-            <p class="event-place">Espaço Jardim Imperial</p>
+            <p class="event-date">Confirmação online</p>
+            <p class="event-place">QR Code individual por convidado</p>
 
             <div class="guest-preview">
-              <span class="guest-avatar">G</span>
+              <span class="guest-avatar">C</span>
               <div>
-                <strong>Gilney Vidal</strong>
-                <small>Convite individual com QR Code</small>
+                <strong>Convidado nominal</strong>
+                <small>Link exclusivo + QR Code</small>
               </div>
             </div>
 
@@ -98,42 +94,42 @@
       </div>
     </section>
 
-    <section class="features-section">
+    <section class="features-section" id="como-funciona">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">Como vai funcionar</span>
-          <h2>Três áreas principais para organizar o evento</h2>
+          <span class="eyebrow">Como funciona</span>
+          <h2>Seu evento organizado em três etapas simples</h2>
           <p>
-            A base foi pensada para ser simples agora e escalável depois,
-            permitindo personalizar cada evento com seu próprio ID.
+            Você cadastra os convidados, envia os links ou QR Codes e acompanha
+            tudo em tempo real pelo painel do anfitrião.
           </p>
         </div>
 
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-icon">01</div>
-            <h3>Convite nominal</h3>
+            <h3>Cadastre os convidados</h3>
             <p>
-              Cada convidado recebe um link único com o ID do evento e o token
-              individual do convite.
+              Adicione nome, telefone, e-mail e acompanhantes. Cada convidado recebe
+              um convite individual com link próprio.
             </p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">02</div>
-            <h3>Painel do anfitrião</h3>
+            <h3>Envie o convite</h3>
             <p>
-              O anfitrião acompanha convidados cadastrados, convites enviados,
-              confirmações aceitas e recusas.
+              Copie o link ou baixe o QR Code de cada convidado para enviar pelo
+              WhatsApp, arte do convite ou impressão.
             </p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">03</div>
-            <h3>Portaria com QR Code</h3>
+            <h3>Controle a entrada</h3>
             <p>
-              A equipe da entrada lê o QR Code, valida o convidado e marca a
-              chegada no evento.
+              Na portaria, a equipe lê o QR Code, valida o convidado e marca a
+              chegada automaticamente.
             </p>
           </article>
         </div>
@@ -144,7 +140,11 @@
       <div class="container">
         <div class="section-heading">
           <span class="eyebrow">Controle visual</span>
-          <h2>Status dos convidados</h2>
+          <h2>Você sabe exatamente quem confirmou, recusou ou chegou</h2>
+          <p>
+            Chega de lista bagunçada no papel ou conversa perdida no WhatsApp.
+            O Confirmaê organiza tudo em uma única tela.
+          </p>
         </div>
 
         <div class="status-grid">
@@ -152,15 +152,15 @@
             <span></span>
             <div>
               <strong>Convite feito</strong>
-              <small>Convidado cadastrado, mas ainda sem envio registrado.</small>
+              <small>Convidado cadastrado no sistema.</small>
             </div>
           </article>
 
           <article class="status-card status-waiting">
             <span></span>
             <div>
-              <strong>Aguardando confirmação</strong>
-              <small>Convite enviado, esperando resposta do convidado.</small>
+              <strong>Aguardando</strong>
+              <small>Convite enviado, esperando resposta.</small>
             </div>
           </article>
 
@@ -168,7 +168,7 @@
             <span></span>
             <div>
               <strong>Aceito</strong>
-              <small>O convidado confirmou presença no evento.</small>
+              <small>O convidado confirmou presença.</small>
             </div>
           </article>
 
@@ -176,7 +176,7 @@
             <span></span>
             <div>
               <strong>Recusado</strong>
-              <small>O convidado avisou que não poderá comparecer.</small>
+              <small>O convidado avisou que não vai.</small>
             </div>
           </article>
 
@@ -184,25 +184,121 @@
             <span></span>
             <div>
               <strong>Presente</strong>
-              <small>O convidado já chegou e passou pela portaria.</small>
+              <small>A entrada foi registrada na portaria.</small>
             </div>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="next-step-section">
-      <div class="container next-step-card">
-        <div>
-          <span class="eyebrow">Banco online</span>
-          <h2>Agora o sistema salva no Firebase</h2>
+    <section class="features-section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Por que usar</span>
+          <h2>Mais controle, menos dor de cabeça</h2>
           <p>
-            A partir desta etapa, o painel, o convite e a portaria passam a usar
-            o Firestore como banco de dados online.
+            Ideal para quem quer passar uma imagem mais profissional e evitar
+            confusão com lista de presença no dia do evento.
           </p>
         </div>
 
-        <a href="admin.html" class="btn btn-primary">Ir para o painel</a>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon">✓</div>
+            <h3>Convite nominal</h3>
+            <p>
+              Cada pessoa recebe um link único, evitando bagunça e facilitando
+              a identificação no sistema.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">QR</div>
+            <h3>QR Code individual</h3>
+            <p>
+              O QR Code pode ser enviado pelo WhatsApp, usado na arte do convite
+              ou impresso para apresentação na entrada.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">VIP</div>
+            <h3>Portaria mais rápida</h3>
+            <p>
+              A equipe valida a entrada sem procurar nome em papel, reduzindo fila
+              e deixando o evento mais organizado.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="next-step-section" id="contratar">
+      <div class="container next-step-card">
+        <div>
+          <span class="eyebrow">Oferta de lançamento</span>
+          <h2>Crie seu evento por R$ 29,90</h2>
+          <p>
+            Por menos de R$ 1,00 por dia, você tem um sistema profissional com
+            painel do anfitrião, confirmação de presença, QR Code individual e
+            controle de portaria.
+          </p>
+
+          <p>
+            Para contratar, faça o Pix, envie o comprovante pelo WhatsApp e informe
+            o ID desejado para o seu evento.
+          </p>
+
+          <p>
+            <strong>Chave Pix:</strong> <span id="homePixKey">11968649673</span>
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary" id="homeWhatsappButton" target="_blank" rel="noopener">
+            Contratar pelo WhatsApp
+          </a>
+
+          <a href="admin.html" class="btn btn-secondary">
+            Acessar evento liberado
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Perguntas rápidas</span>
+          <h2>Dúvidas comuns</h2>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon">?</div>
+            <h3>Preciso instalar aplicativo?</h3>
+            <p>
+              Não. O Confirmaê funciona pelo navegador, no celular ou computador.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">R$</div>
+            <h3>Tem mensalidade?</h3>
+            <p>
+              Nesta oferta inicial, a liberação do evento é feita por pagamento único.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Como recebo acesso?</h3>
+            <p>
+              Após o pagamento e envio do comprovante, o ID do seu evento é liberado
+              manualmente.
+            </p>
+          </article>
+        </div>
       </div>
     </section>
   </main>
@@ -210,10 +306,26 @@
   <footer class="site-footer">
     <div class="container footer-content">
       <p>© 2026 Confirmaê. Sistema de confirmação de presença para eventos.</p>
-      <p>Projeto criado para GitHub Pages.</p>
+      <p>Convite digital, QR Code e controle de portaria.</p>
     </div>
   </footer>
 
   <script src="assets/js/theme.js"></script>
+
+  <script>
+    const business = window.CONFIRMAE_THEME.business;
+    const message = [
+      "Olá! Quero contratar o Confirmaê para meu evento.",
+      "",
+      "Valor: " + business.unlockPrice,
+      "Chave Pix: " + business.pixKey,
+      "",
+      "Quero enviar o comprovante e liberar meu evento."
+    ].join("\n");
+
+    document.getElementById("homePixKey").textContent = business.pixKey;
+    document.getElementById("homeWhatsappButton").href =
+      "https://wa.me/" + business.whatsappNumberInternational + "?text=" + encodeURIComponent(message);
+  </script>
 </body>
 </html>
