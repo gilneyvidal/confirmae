@@ -13,19 +13,23 @@ const CONFIRMAE_THEME = {
   },
 
   master: {
-    password: "Cdr.1290"
+    authorizedEmails: ["gw.vidal@gmail.com"]
   },
 
   colors: {
-    primary: "#6c3df4",
-    primaryDark: "#4d25c9",
-    secondary: "#18b38b",
+    primary: "#21BDC1",
+    primaryDark: "#159CA0",
+    secondary: "#5E6168",
     danger: "#ef4444",
     warning: "#facc15",
     success: "#22c55e",
-    info: "#3b82f6",
-    background: "#f7f4ff",
-    text: "#221b35"
+    info: "#38bdf8",
+    background: "#0D1014",
+    surface: "#151A20",
+    surfaceSoft: "#1F2630",
+    text: "#FEFEFE",
+    muted: "#ACADB3",
+    border: "#2C343D"
   },
 
   demoEvent: {
@@ -52,9 +56,12 @@ function applyConfirmaeTheme() {
   root.style.setProperty("--color-success", CONFIRMAE_THEME.colors.success);
   root.style.setProperty("--color-info", CONFIRMAE_THEME.colors.info);
   root.style.setProperty("--color-bg", CONFIRMAE_THEME.colors.background);
+  root.style.setProperty("--color-surface", CONFIRMAE_THEME.colors.surface);
+  root.style.setProperty("--color-surface-soft", CONFIRMAE_THEME.colors.surfaceSoft);
   root.style.setProperty("--color-text", CONFIRMAE_THEME.colors.text);
+  root.style.setProperty("--color-muted", CONFIRMAE_THEME.colors.muted);
+  root.style.setProperty("--color-border", CONFIRMAE_THEME.colors.border);
 }
 
 window.CONFIRMAE_THEME = CONFIRMAE_THEME;
-
 applyConfirmaeTheme();
