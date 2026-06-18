@@ -8,7 +8,9 @@ import {
 
 import {
   buildAdminLink,
+  buildGateLink,
   buildClientAccessWhatsappLink,
+  generateAccessPin,
   listEventAccessRecords,
   releaseEvent,
   blockEvent,
@@ -41,10 +43,13 @@ const masterCustomerNameInput = document.getElementById("masterCustomerNameInput
 const masterCustomerWhatsappInput = document.getElementById("masterCustomerWhatsappInput");
 const masterCustomerEmailInput = document.getElementById("masterCustomerEmailInput");
 const masterAmountInput = document.getElementById("masterAmountInput");
+const masterPanelPinInput = document.getElementById("masterPanelPinInput");
+const masterGatePinInput = document.getElementById("masterGatePinInput");
 const masterEventNameInput = document.getElementById("masterEventNameInput");
 const masterEventTypeInput = document.getElementById("masterEventTypeInput");
 const masterNotesInput = document.getElementById("masterNotesInput");
 
+const generatePinsButton = document.getElementById("generatePinsButton");
 const clearMasterFormButton = document.getElementById("clearMasterFormButton");
 const reloadMasterListButton = document.getElementById("reloadMasterListButton");
 const masterEventsTableBody = document.getElementById("masterEventsTableBody");
@@ -98,17 +103,27 @@ function showMasterApp(user) {
   masterUserEmail.textContent = user.email || "--";
 
   masterAppSection.hidden = false;
+
+  if (!masterPanelPinInput.value || !masterGatePinInput.value) {
+    generateNewPins();
+  }
+}
+
+function generateNewPins() {
+  masterPanelPinInput.value = generateAccessPin();
+  masterGatePinInput.value = generateAccessPin();
 }
 
 function clearMasterForm() {
   masterEventForm.reset();
   masterAmountInput.value = CONFIRMAE_THEME.business.unlockPrice;
+  generateNewPins();
 }
 
 function setTableMessage(message) {
   masterEventsTableBody.innerHTML = `
     <tr>
-      <td colspan="5">${escapeHtml(message)}</td>
+      <td colspan="6">${escapeHtml(message)}</td>
     </tr>
   `;
 }
@@ -120,6 +135,8 @@ function getFormData() {
     customerWhatsapp: masterCustomerWhatsappInput.value.trim(),
     customerEmail: masterCustomerEmailInput.value.trim(),
     amountPaid: masterAmountInput.value.trim(),
+    panelPin: masterPanelPinInput.value.trim(),
+    gatePin: masterGatePinInput.value.trim(),
     eventName: masterEventNameInput.value.trim(),
     eventType: masterEventTypeInput.value.trim(),
     notes: masterNotesInput.value.trim()
@@ -133,6 +150,8 @@ function getReleaseDataFromRecord(record) {
     customerWhatsapp: record.customerWhatsapp || "",
     customerEmail: record.customerEmail || "",
     amountPaid: record.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
+    panelPin: record.panelPin || generateAccessPin(),
+    gatePin: record.gatePin || generateAccessPin(),
     eventName: record.eventName || "",
     eventType: record.eventType || "",
     notes: record.notes || ""
@@ -145,6 +164,8 @@ function fillFormFromRecord(record) {
   masterCustomerWhatsappInput.value = record.customerWhatsapp || "";
   masterCustomerEmailInput.value = record.customerEmail || "";
   masterAmountInput.value = record.amountPaid || CONFIRMAE_THEME.business.unlockPrice;
+  masterPanelPinInput.value = record.panelPin || generateAccessPin();
+  masterGatePinInput.value = record.gatePin || generateAccessPin();
   masterEventNameInput.value = record.eventName || "";
   masterEventTypeInput.value = record.eventType || "";
   masterNotesInput.value = record.notes || "";
@@ -243,6 +264,13 @@ async function renderMasterList() {
 
             <td>
               <div class="guest-contact-cell">
+                <strong>Painel: ${escapeHtml(record.panelPin || "--")}</strong>
+                <small>Portaria: ${escapeHtml(record.gatePin || "--")}</small>
+              </div>
+            </td>
+
+            <td>
+              <div class="guest-contact-cell">
                 <strong>${escapeHtml(record.amountPaid || "Sem valor")}</strong>
                 <small>${paidText}</small>
               </div>
@@ -267,6 +295,15 @@ async function renderMasterList() {
                 >
                   Abrir
                 </button>
+
+                <a
+                  href="${escapeHtml(buildGateLink(record.id))}"
+                  class="btn btn-secondary btn-small"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Portaria
+                </a>
 
                 <button
                   type="button"
@@ -322,6 +359,16 @@ async function handleMasterEventSubmit(event) {
     return;
   }
 
+  if (!data.panelPin) {
+    data.panelPin = generateAccessPin();
+    masterPanelPinInput.value = data.panelPin;
+  }
+
+  if (!data.gatePin) {
+    data.gatePin = generateAccessPin();
+    masterGatePinInput.value = data.gatePin;
+  }
+
   const submitButton = masterEventForm.querySelector("button[type='submit']");
   submitButton.disabled = true;
   submitButton.textContent = "Liberando...";
@@ -334,6 +381,8 @@ async function handleMasterEventSubmit(event) {
       customerName: data.customerName,
       customerWhatsapp: data.customerWhatsapp,
       amountPaid: data.amountPaid,
+      panelPin: data.panelPin,
+      gatePin: data.gatePin,
       eventName: data.eventName,
       eventType: data.eventType
     };
@@ -520,6 +569,7 @@ googleSignInButton.addEventListener("click", handleGoogleSignIn);
 masterLogoutButton.addEventListener("click", handleLogout);
 deniedLogoutButton.addEventListener("click", handleLogout);
 masterEventForm.addEventListener("submit", handleMasterEventSubmit);
+generatePinsButton.addEventListener("click", generateNewPins);
 clearMasterFormButton.addEventListener("click", clearMasterForm);
 reloadMasterListButton.addEventListener("click", renderMasterList);
 masterEventsTableBody.addEventListener("click", handleMasterTableClick);
