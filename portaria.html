@@ -8,83 +8,111 @@
 
   <meta
     name="description"
-    content="Página de portaria para validar convidados, ler QR Code pela câmera e registrar presença no evento."
+    content="Tela de portaria do Confirmaê para validar convidados por QR Code."
   />
 
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 
-<body class="page-gate">
+<body class="page-admin">
   <header class="site-header">
     <div class="container header-content">
       <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
         <span class="brand-icon">✓</span>
-        <span class="brand-text">Confirmaê</span>
+        <span class="brand-text">Confirmaê Portaria</span>
       </a>
 
       <nav class="main-nav" aria-label="Menu principal">
         <a href="index.html">Início</a>
-        <a href="admin.html">Anfitrião</a>
-        <a href="convite.html?evento=evento-demo&convidado=convidado-demo">Convite</a>
+        <a href="admin.html">Painel evento</a>
       </nav>
     </div>
   </header>
 
-  <main class="gate-main">
-    <section class="container gate-header">
+  <main class="dashboard-main">
+    <section class="container dashboard-header">
       <div>
         <span class="eyebrow">Controle de entrada</span>
-        <h1>Portaria do evento</h1>
+        <h1>Validação da portaria</h1>
         <p>
-          Leia o QR Code pela câmera, valide o convite e marque a chegada do convidado.
+          Informe o ID do evento e o PIN da portaria para liberar o leitor de QR Code.
         </p>
+      </div>
+
+      <div class="event-selector-card">
+        <label for="gateEventIdInput">ID do evento</label>
+        <input
+          type="text"
+          id="gateEventIdInput"
+          value="evento-demo"
+          aria-label="ID do evento da portaria"
+        />
+
+        <label for="gatePinInput">PIN da portaria</label>
+        <input
+          type="password"
+          id="gatePinInput"
+          placeholder="Digite o PIN da portaria"
+          aria-label="PIN da portaria"
+        />
+
+        <small id="gateAccessHelpText">
+          Use o PIN da portaria enviado pelo anfitrião.
+        </small>
+
+        <button type="button" class="btn btn-primary" id="unlockGateButton">
+          Liberar portaria
+        </button>
       </div>
     </section>
 
-    <section class="container gate-grid">
-      <article class="panel-card scanner-card">
+    <section class="container dashboard-grid" data-gate-workspace hidden>
+      <article class="panel-card">
         <div class="panel-heading">
           <div>
-            <span class="eyebrow">Leitor QR</span>
-            <h2>Validação do convite</h2>
+            <span class="eyebrow">Leitor QR Code</span>
+            <h2>Câmera da portaria</h2>
           </div>
         </div>
 
-        <div class="scanner-placeholder" id="scannerArea">
-          <div id="qrReader" style="width: 100%; max-width: 420px; margin: 0 auto;"></div>
-
+        <div id="qrReader" class="qr-reader-box">
           <div id="scannerIdleContent">
-            <div class="scanner-frame">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-
             <p>
-              Clique em <strong>Iniciar câmera</strong>, permita o acesso e aponte para o QR Code do convite.
+              Clique em iniciar câmera para ler o QR Code do convidado.
             </p>
           </div>
         </div>
 
-        <div class="confirmation-actions">
+        <div class="hero-actions">
           <button type="button" class="btn btn-primary" id="startScannerButton">
             Iniciar câmera
           </button>
 
-          <button type="button" class="btn btn-secondary" id="stopScannerButton" disabled>
+          <button type="button" class="btn btn-secondary" id="stopScannerButton">
             Parar câmera
           </button>
         </div>
 
-        <form class="gate-form" id="gateForm">
+        <p class="small-note">
+          O navegador pode solicitar permissão para acessar a câmera.
+        </p>
+      </article>
+
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Validação manual</span>
+            <h2>Colar link ou token</h2>
+          </div>
+        </div>
+
+        <form class="guest-form" id="manualValidationForm">
           <div class="form-group">
-            <label for="qrInput">Cole o link ou token do convite</label>
+            <label for="qrInput">Link do convite ou token</label>
             <input
               type="text"
               id="qrInput"
-              placeholder="Ex: convite.html?evento=evento-demo&convidado=convidado-demo"
-              required
+              placeholder="Cole aqui o link do convite ou o token do convidado"
             />
           </div>
 
@@ -94,42 +122,37 @@
         </form>
 
         <div class="admin-help-box">
-          <strong>Teste rápido</strong>
-          <p>
-            Você pode ler o QR Code pela câmera ou colar o link manualmente.
-            Se a câmera não abrir, confira se o navegador pediu permissão de acesso.
-          </p>
+          <strong>Evento autorizado</strong>
+          <p id="authorizedGateEventText">--</p>
         </div>
       </article>
+    </section>
 
-      <aside class="panel-card result-card">
+    <section class="container" data-gate-workspace hidden style="margin-top: 24px;">
+      <article class="panel-card">
         <div class="panel-heading">
           <div>
             <span class="eyebrow">Resultado</span>
-            <h2>Status da entrada</h2>
+            <h2>Status da validação</h2>
           </div>
         </div>
 
-        <div class="gate-result" id="gateResult">
-          <span class="result-icon">?</span>
-          <h3>Aguardando leitura</h3>
-          <p>
-            Leia um QR Code pela câmera ou cole o link do convite para validar o convidado.
-          </p>
+        <div id="validationResult">
+          <p>Aguardando leitura ou validação manual.</p>
         </div>
-      </aside>
+      </article>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-content">
       <p>© 2026 Confirmaê.</p>
-      <p>Controle de portaria conectado ao Firebase.</p>
+      <p>Portaria com validação por QR Code.</p>
     </div>
   </footer>
 
   <script src="assets/js/theme.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  <script type="module" src="assets/js/portaria.js"></script>
+  <script type="module" src="assets/js/portaria.js?v=pins-1"></script>
 </body>
 </html>
