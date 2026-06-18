@@ -249,9 +249,15 @@
             pelo WhatsApp. Depois faça o Pix e envie o comprovante para liberação.
           </p>
 
-          <p>
-            <strong>Chave Pix:</strong> <span id="homePixKey">11968649673</span>
-          </p>
+          <div class="admin-help-box">
+            <strong>Dados para pagamento via Pix</strong>
+            <p>
+              <strong>Banco:</strong> <span id="homePixBank">Mercado Pago</span><br />
+              <strong>Chave Pix:</strong> <span id="homePixKey">11968649673</span><br />
+              <strong>Nome:</strong> <span id="homePixHolder">Gilney Wesley Aparecido Vidal</span><br />
+              <strong>Valor:</strong> <span id="homePixValue">R$ 29,90</span>
+            </p>
+          </div>
         </div>
 
         <div class="event-selector-card">
@@ -272,6 +278,16 @@
                 type="text"
                 id="leadWhatsappInput"
                 placeholder="Ex: 11999999999"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="leadEmailInput">Seu e-mail</label>
+              <input
+                type="email"
+                id="leadEmailInput"
+                placeholder="Ex: cliente@email.com"
                 required
               />
             </div>
@@ -347,9 +363,11 @@
   <script>
     const business = window.CONFIRMAE_THEME.business;
     const leadForm = document.getElementById("leadForm");
-    const homePixKey = document.getElementById("homePixKey");
 
-    homePixKey.textContent = business.pixKey;
+    document.getElementById("homePixBank").textContent = business.pixBank;
+    document.getElementById("homePixKey").textContent = business.pixKey;
+    document.getElementById("homePixHolder").textContent = business.pixHolder;
+    document.getElementById("homePixValue").textContent = business.unlockPrice;
 
     function normalizeEventId(value) {
       return String(value || "")
@@ -365,10 +383,11 @@
 
       const leadName = document.getElementById("leadNameInput").value.trim();
       const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
+      const leadEmail = document.getElementById("leadEmailInput").value.trim();
       const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
 
-      if (!leadName || !leadWhatsapp || !desiredEventId) {
-        alert("Preencha nome, WhatsApp e ID desejado para continuar.");
+      if (!leadName || !leadWhatsapp || !leadEmail || !desiredEventId) {
+        alert("Preencha nome, WhatsApp, e-mail e ID desejado para continuar.");
         return;
       }
 
@@ -377,12 +396,10 @@
         "",
         "Nome: " + leadName,
         "WhatsApp: " + leadWhatsapp,
+        "E-mail: " + leadEmail,
         "ID desejado: " + desiredEventId,
         "",
-        "Valor: " + business.unlockPrice,
-        "Chave Pix: " + business.pixKey,
-        "",
-        "Vou enviar o comprovante por aqui para liberar meu evento."
+        "Vi a oferta de " + business.unlockPrice + " e quero enviar o comprovante para liberar meu evento."
       ].join("\n");
 
       const whatsappUrl =
