@@ -126,6 +126,19 @@ function getFormData() {
   };
 }
 
+function getReleaseDataFromRecord(record) {
+  return {
+    eventId: record.id || record.eventId || "",
+    customerName: record.customerName || "",
+    customerWhatsapp: record.customerWhatsapp || "",
+    customerEmail: record.customerEmail || "",
+    amountPaid: record.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
+    eventName: record.eventName || "",
+    eventType: record.eventType || "",
+    notes: record.notes || ""
+  };
+}
+
 function fillFormFromRecord(record) {
   masterEventIdInput.value = record.id || "";
   masterCustomerNameInput.value = record.customerName || "";
@@ -201,7 +214,9 @@ async function renderMasterList() {
         const statusText = record.enabled ? "Liberado" : "Bloqueado";
         const statusClass = record.enabled ? "accepted" : "declined";
         const paidText = record.paid ? "Pago" : "Pendente";
-        const adminLink = buildAdminLink(record.id);
+        const blockButtonLabel = record.enabled ? "Bloquear" : "Desbloquear";
+        const blockButtonClass = record.enabled ? "btn-secondary" : "btn-primary";
+        const blockButtonAction = record.enabled ? "block" : "unblock";
 
         return `
           <tr>
@@ -244,14 +259,14 @@ async function renderMasterList() {
                   Editar
                 </button>
 
-                <a
-                  href="${escapeHtml(adminLink)}"
+                <button
+                  type="button"
                   class="btn btn-primary btn-small"
-                  target="_blank"
-                  rel="noopener"
+                  data-action="open-event"
+                  data-record='${escapeHtml(JSON.stringify(record))}'
                 >
                   Abrir
-                </a>
+                </button>
 
                 <button
                   type="button"
@@ -264,11 +279,12 @@ async function renderMasterList() {
 
                 <button
                   type="button"
-                  class="btn btn-secondary btn-small"
-                  data-action="block"
+                  class="btn ${blockButtonClass} btn-small"
+                  data-action="${blockButtonAction}"
+                  data-record='${escapeHtml(JSON.stringify(record))}'
                   data-event-id="${escapeHtml(record.id)}"
                 >
-                  Bloquear
+                  ${blockButtonLabel}
                 </button>
 
                 <button
@@ -336,7 +352,7 @@ async function handleMasterEventSubmit(event) {
     await renderMasterList();
   } catch (error) {
     console.error(error);
-    alert("Não foi possível liberar o evento.");
+    alert("Não foi possível liberar o evento. Confira as regras do Firestore e tente novamente.");
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Liberar / atualizar evento";
@@ -373,9 +389,43 @@ async function handleMasterTableClick(event) {
     return;
   }
 
+  if (action === "open-event") {
+    clickedButton.disabled = true;
+    clickedButton.textContent = "Abrindo...";
+
+    try {
+      const record = JSON.parse(clickedButton.dataset.record);
+
+      if (!record.enabled) {
+        alert("Este evento está bloqueado. Clique em Desbloquear antes de abrir.");
+        return;
+      }
+
+      const releaseData = getReleaseDataFromRecord(record);
+
+      await releaseEvent(record.id, releaseData);
+
+      window.open(buildAdminLink(record.id), "_blank");
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível abrir/reparar este evento.");
+    } finally {
+      clickedButton.disabled = false;
+      clickedButton.textContent = "Abrir";
+    }
+
+    return;
+  }
+
   if (action === "send-access") {
     try {
       const record = JSON.parse(clickedButton.dataset.record);
+
+      if (!record.enabled) {
+        alert("Este evento está bloqueado. Desbloqueie antes de enviar o acesso.");
+        return;
+      }
+
       openClientAccessWhatsapp(record);
     } catch (error) {
       alert("Não foi possível montar a mensagem de acesso.");
@@ -403,6 +453,43 @@ async function handleMasterTableClick(event) {
     return;
   }
 
+  if (action === "unblock") {
+    let record = null;
+
+    try {
+      record = JSON.parse(clickedButton.dataset.record);
+    } catch (error) {
+      alert("Não foi possível ler os dados deste evento.");
+      return;
+    }
+
+    const confirmUnblock = confirm(`Deseja desbloquear o evento ${record.id}?`);
+
+    if (!confirmUnblock) {
+      return;
+    }
+
+    clickedButton.disabled = true;
+    clickedButton.textContent = "Liberando...";
+
+    try {
+      const releaseData = getReleaseDataFromRecord(record);
+
+      await releaseEvent(record.id, releaseData);
+      await renderMasterList();
+
+      alert("Evento desbloqueado com sucesso.");
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível desbloquear este evento.");
+    } finally {
+      clickedButton.disabled = false;
+      clickedButton.textContent = "Desbloquear";
+    }
+
+    return;
+  }
+
   if (action === "delete") {
     const confirmDelete = confirm(
       `Deseja apagar o evento ${eventId}?\n\nIsso remove o acesso, o evento e os convidados cadastrados.`
@@ -424,7 +511,7 @@ async function handleMasterTableClick(event) {
       alert("Evento apagado com sucesso.");
     } catch (error) {
       console.error(error);
-      alert("Não foi possível apagar o evento.");
+      alert("Não foi possível apagar o evento. Confira as regras do Firestore.");
     }
   }
 }
