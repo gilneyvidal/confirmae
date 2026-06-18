@@ -193,6 +193,12 @@ p {
   transform: translateY(-2px);
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
 .btn-primary {
   background: var(--color-primary);
   color: #ffffff;
@@ -283,6 +289,10 @@ p {
 
 .status-dot-present {
   background: var(--color-info);
+}
+
+.status-dot-manual {
+  background: linear-gradient(135deg, var(--color-info), var(--color-primary));
 }
 
 .event-preview-card h2 {
@@ -711,7 +721,7 @@ input:focus {
 .guest-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 820px;
+  min-width: 900px;
 }
 
 .guest-table th,
@@ -749,6 +759,7 @@ input:focus {
   padding: 8px 10px;
   font-size: 0.8rem;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .status-pill-created {
@@ -777,7 +788,13 @@ input:focus {
   color: #1d4ed8;
 }
 
-.table-actions {
+.status-pill-manual {
+  background: rgba(108, 61, 244, 0.13);
+  color: var(--color-primary-dark);
+}
+
+.table-actions,
+.invitation-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -900,6 +917,107 @@ input:focus {
   background: var(--color-info);
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  padding: 24px;
+  background: rgba(34, 27, 53, 0.58);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.is-open {
+  display: flex;
+}
+
+.modal-card {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 30px 90px rgba(34, 27, 53, 0.28);
+  padding: 24px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 12px 0 0;
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.modal-close {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-primary-dark);
+  font-size: 1.7rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.qr-modal-body {
+  display: grid;
+  gap: 18px;
+}
+
+.qr-guest-info {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qr-guest-info small {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-muted);
+  word-break: break-all;
+}
+
+.qr-code-box {
+  width: 260px;
+  min-height: 260px;
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  display: grid;
+  place-items: center;
+}
+
+.qr-code-box canvas,
+.qr-code-box img {
+  width: 220px;
+  height: 220px;
+}
+
+.qr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.qr-actions .btn {
+  flex: 1;
+}
+
 @media (max-width: 980px) {
   .hero-grid,
   .invitation-wrapper,
@@ -970,7 +1088,16 @@ input:focus {
     width: 100%;
   }
 
-  .confirmation-actions {
+  .confirmation-actions,
+  .qr-actions {
     flex-direction: column;
+  }
+
+  .modal-overlay {
+    padding: 14px;
+  }
+
+  .modal-card {
+    padding: 18px;
   }
 }
