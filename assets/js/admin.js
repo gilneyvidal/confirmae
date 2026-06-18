@@ -1,5 +1,7 @@
 import {
   buildInvitationLink,
+  getEvent,
+  saveEvent,
   getGuestsByEvent,
   updateGuest,
   addGuest,
@@ -14,6 +16,16 @@ const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
 
 const eventIdInput = document.getElementById("eventIdInput");
 const loadEventButton = document.getElementById("loadEventButton");
+
+const eventConfigForm = document.getElementById("eventConfigForm");
+const eventNameInput = document.getElementById("eventNameInput");
+const eventTypeInput = document.getElementById("eventTypeInput");
+const eventHostInput = document.getElementById("eventHostInput");
+const eventDateInput = document.getElementById("eventDateInput");
+const eventTimeInput = document.getElementById("eventTimeInput");
+const eventLocationInput = document.getElementById("eventLocationInput");
+const eventIntroInput = document.getElementById("eventIntroInput");
+
 const guestForm = document.getElementById("guestForm");
 const guestTableBody = document.getElementById("guestTableBody");
 const resetDemoButton = document.getElementById("resetDemoButton");
@@ -51,6 +63,24 @@ function updateStats(guests) {
   acceptedGuests.textContent = guests.filter((guest) => guest.status === "accepted").length;
   declinedGuests.textContent = guests.filter((guest) => guest.status === "declined").length;
   presentGuests.textContent = guests.filter((guest) => guest.status === "present").length;
+}
+
+async function renderEventConfig() {
+  try {
+    const eventInfo = await getEvent(currentEventId);
+
+    eventNameInput.value = eventInfo.name || "";
+    eventTypeInput.value = eventInfo.type || "";
+    eventHostInput.value = eventInfo.hostName || "";
+    eventDateInput.value = eventInfo.date || "";
+    eventTimeInput.value = eventInfo.time || "";
+    eventLocationInput.value = eventInfo.location || "";
+    eventIntroInput.value = eventInfo.intro || "";
+  } catch (error) {
+    console.error(error);
+
+    alert("Não foi possível carregar os dados do evento.");
+  }
 }
 
 async function renderGuests() {
@@ -242,6 +272,35 @@ async function copyTextToClipboard(text, successButton = null, defaultText = "")
   }
 }
 
+async function handleEventConfigSubmit(event) {
+  event.preventDefault();
+
+  const submitButton = eventConfigForm.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+  submitButton.textContent = "Salvando...";
+
+  try {
+    await saveEvent(currentEventId, {
+      name: eventNameInput.value.trim(),
+      type: eventTypeInput.value.trim(),
+      hostName: eventHostInput.value.trim(),
+      date: eventDateInput.value.trim(),
+      time: eventTimeInput.value.trim(),
+      location: eventLocationInput.value.trim(),
+      intro: eventIntroInput.value.trim()
+    });
+
+    alert("Dados do evento salvos com sucesso!");
+  } catch (error) {
+    console.error(error);
+
+    alert("Não foi possível salvar os dados do evento.");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Salvar dados do evento";
+  }
+}
+
 async function handleGuestFormSubmit(event) {
   event.preventDefault();
 
@@ -351,12 +410,13 @@ async function handleLoadEvent() {
   currentEventId = eventIdInput.value.trim() || CONFIRMAE_THEME.defaultEventId;
   eventIdInput.value = currentEventId;
 
+  await renderEventConfig();
   await renderGuests();
 }
 
 async function handleResetDemo() {
   const confirmReset = confirm(
-    "Isso vai restaurar os convidados de demonstração no Firebase. Deseja continuar?"
+    "Isso vai restaurar os convidados de demonstração no Firebase. Os dados personalizados do evento serão mantidos. Deseja continuar?"
   );
 
   if (!confirmReset) {
@@ -372,6 +432,7 @@ async function handleResetDemo() {
     currentEventId = CONFIRMAE_THEME.defaultEventId;
     eventIdInput.value = currentEventId;
 
+    await renderEventConfig();
     await renderGuests();
   } catch (error) {
     console.error(error);
@@ -382,6 +443,7 @@ async function handleResetDemo() {
   }
 }
 
+eventConfigForm.addEventListener("submit", handleEventConfigSubmit);
 guestForm.addEventListener("submit", handleGuestFormSubmit);
 guestTableBody.addEventListener("click", handleTableClick);
 loadEventButton.addEventListener("click", handleLoadEvent);
@@ -407,4 +469,5 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+renderEventConfig();
 renderGuests();
