@@ -1,5 +1,6 @@
 import {
   buildAdminLink,
+  buildClientAccessWhatsappLink,
   listEventAccessRecords,
   releaseEvent,
   blockEvent,
@@ -28,6 +29,8 @@ const masterNotesInput = document.getElementById("masterNotesInput");
 const clearMasterFormButton = document.getElementById("clearMasterFormButton");
 const reloadMasterListButton = document.getElementById("reloadMasterListButton");
 const masterEventsTableBody = document.getElementById("masterEventsTableBody");
+
+let lastReleasedRecord = null;
 
 function isMasterLoggedIn() {
   return sessionStorage.getItem("confirmae_master_logged") === "true";
@@ -78,6 +81,17 @@ function fillFormFromRecord(record) {
   masterEventNameInput.value = record.eventName || "";
   masterEventTypeInput.value = record.eventType || "";
   masterNotesInput.value = record.notes || "";
+}
+
+function openClientAccessWhatsapp(record) {
+  const whatsappLink = buildClientAccessWhatsappLink(record);
+
+  if (!whatsappLink) {
+    alert("Este cliente não tem WhatsApp cadastrado.");
+    return;
+  }
+
+  window.open(whatsappLink, "_blank");
 }
 
 async function renderMasterList() {
@@ -151,6 +165,15 @@ async function renderMasterList() {
                 <button
                   type="button"
                   class="btn btn-secondary btn-small"
+                  data-action="send-access"
+                  data-record='${escapeHtml(JSON.stringify(record))}'
+                >
+                  Enviar acesso
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
                   data-action="block"
                   data-event-id="${escapeHtml(record.id)}"
                 >
@@ -214,9 +237,26 @@ async function handleMasterEventSubmit(event) {
   submitButton.textContent = "Liberando...";
 
   try {
-    await releaseEvent(data.eventId, data);
+    const releasedRecord = await releaseEvent(data.eventId, data);
+
+    lastReleasedRecord = {
+      ...releasedRecord,
+      customerName: data.customerName,
+      customerWhatsapp: data.customerWhatsapp,
+      amountPaid: data.amountPaid,
+      eventName: data.eventName,
+      eventType: data.eventType
+    };
 
     alert("Evento liberado/atualizado com sucesso!");
+
+    const shouldSendAccess = confirm(
+      "Deseja abrir o WhatsApp agora para enviar os dados de acesso ao cliente?"
+    );
+
+    if (shouldSendAccess) {
+      openClientAccessWhatsapp(lastReleasedRecord);
+    }
 
     clearMasterForm();
     await renderMasterList();
@@ -249,6 +289,17 @@ async function handleMasterTableClick(event) {
       });
     } catch (error) {
       alert("Não foi possível carregar este registro no formulário.");
+    }
+
+    return;
+  }
+
+  if (action === "send-access") {
+    try {
+      const record = JSON.parse(clickedButton.dataset.record);
+      openClientAccessWhatsapp(record);
+    } catch (error) {
+      alert("Não foi possível montar a mensagem de acesso.");
     }
 
     return;
