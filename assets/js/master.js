@@ -1,4 +1,12 @@
 import {
+  auth,
+  googleProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "./firebase-config.js";
+
+import {
   buildAdminLink,
   buildClientAccessWhatsappLink,
   listEventAccessRecords,
@@ -10,10 +18,21 @@ import {
 
 const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
 
+const ALLOWED_MASTER_EMAILS = [
+  "gw.vidal@gmail.com"
+];
+
+const masterLoadingSection = document.getElementById("masterLoadingSection");
 const masterLoginSection = document.getElementById("masterLoginSection");
+const masterDeniedSection = document.getElementById("masterDeniedSection");
 const masterAppSection = document.getElementById("masterAppSection");
-const masterLoginForm = document.getElementById("masterLoginForm");
-const masterPasswordInput = document.getElementById("masterPasswordInput");
+
+const googleSignInButton = document.getElementById("googleSignInButton");
+const deniedLogoutButton = document.getElementById("deniedLogoutButton");
+const deniedEmailText = document.getElementById("deniedEmailText");
+
+const masterUserName = document.getElementById("masterUserName");
+const masterUserEmail = document.getElementById("masterUserEmail");
 const masterLogoutButton = document.getElementById("masterLogoutButton");
 
 const masterEventForm = document.getElementById("masterEventForm");
@@ -30,19 +49,54 @@ const clearMasterFormButton = document.getElementById("clearMasterFormButton");
 const reloadMasterListButton = document.getElementById("reloadMasterListButton");
 const masterEventsTableBody = document.getElementById("masterEventsTableBody");
 
+let currentMasterUser = null;
 let lastReleasedRecord = null;
 
-function isMasterLoggedIn() {
-  return sessionStorage.getItem("confirmae_master_logged") === "true";
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
 }
 
-function showLogin() {
-  masterLoginSection.hidden = false;
+function isAuthorizedMaster(user) {
+  const userEmail = normalizeEmail(user ? user.email : "");
+
+  return ALLOWED_MASTER_EMAILS
+    .map((email) => normalizeEmail(email))
+    .includes(userEmail);
+}
+
+function hideAllMasterSections() {
+  masterLoadingSection.hidden = true;
+  masterLoginSection.hidden = true;
+  masterDeniedSection.hidden = true;
   masterAppSection.hidden = true;
 }
 
-function showMasterApp() {
-  masterLoginSection.hidden = true;
+function showLoading() {
+  hideAllMasterSections();
+  masterLoadingSection.hidden = false;
+}
+
+function showLogin() {
+  hideAllMasterSections();
+  masterLoginSection.hidden = false;
+}
+
+function showAccessDenied(user) {
+  hideAllMasterSections();
+
+  deniedEmailText.textContent = user && user.email
+    ? user.email
+    : "E-mail não identificado.";
+
+  masterDeniedSection.hidden = false;
+}
+
+function showMasterApp(user) {
+  hideAllMasterSections();
+
+  masterUserName.textContent = user.displayName || "Administrador";
+  masterUserEmail.textContent = user.email || "--";
+
   masterAppSection.hidden = false;
 }
 
@@ -94,7 +148,44 @@ function openClientAccessWhatsapp(record) {
   window.open(whatsappLink, "_blank");
 }
 
+async function handleGoogleSignIn() {
+  googleSignInButton.disabled = true;
+  googleSignInButton.textContent = "Entrando...";
+
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === "auth/unauthorized-domain") {
+      alert(
+        "Domínio não autorizado no Firebase Authentication. Adicione gilneyvidal.github.io em Authentication > Settings > Authorized domains."
+      );
+    } else if (error.code === "auth/popup-closed-by-user") {
+      alert("Login cancelado antes de concluir.");
+    } else {
+      alert("Não foi possível entrar com Google. Confira o Firebase Authentication.");
+    }
+  } finally {
+    googleSignInButton.disabled = false;
+    googleSignInButton.textContent = "Entrar com Google";
+  }
+}
+
+async function handleLogout() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível sair da conta.");
+  }
+}
+
 async function renderMasterList() {
+  if (!currentMasterUser || !isAuthorizedMaster(currentMasterUser)) {
+    return;
+  }
+
   setTableMessage("Carregando eventos...");
 
   try {
@@ -200,30 +291,13 @@ async function renderMasterList() {
   }
 }
 
-async function handleLogin(event) {
-  event.preventDefault();
-
-  const typedPassword = masterPasswordInput.value;
-
-  if (typedPassword !== CONFIRMAE_THEME.master.password) {
-    alert("Senha incorreta.");
-    return;
-  }
-
-  sessionStorage.setItem("confirmae_master_logged", "true");
-  masterPasswordInput.value = "";
-
-  showMasterApp();
-  await renderMasterList();
-}
-
-function handleLogout() {
-  sessionStorage.removeItem("confirmae_master_logged");
-  showLogin();
-}
-
 async function handleMasterEventSubmit(event) {
   event.preventDefault();
+
+  if (!currentMasterUser || !isAuthorizedMaster(currentMasterUser)) {
+    alert("Você não tem permissão para liberar eventos.");
+    return;
+  }
 
   const data = getFormData();
 
@@ -273,6 +347,11 @@ async function handleMasterTableClick(event) {
   const clickedButton = event.target.closest("button");
 
   if (!clickedButton) {
+    return;
+  }
+
+  if (!currentMasterUser || !isAuthorizedMaster(currentMasterUser)) {
+    alert("Você não tem permissão para executar esta ação.");
     return;
   }
 
@@ -350,16 +429,29 @@ async function handleMasterTableClick(event) {
   }
 }
 
-masterLoginForm.addEventListener("submit", handleLogin);
+googleSignInButton.addEventListener("click", handleGoogleSignIn);
 masterLogoutButton.addEventListener("click", handleLogout);
+deniedLogoutButton.addEventListener("click", handleLogout);
 masterEventForm.addEventListener("submit", handleMasterEventSubmit);
 clearMasterFormButton.addEventListener("click", clearMasterForm);
 reloadMasterListButton.addEventListener("click", renderMasterList);
 masterEventsTableBody.addEventListener("click", handleMasterTableClick);
 
-if (isMasterLoggedIn()) {
-  showMasterApp();
-  renderMasterList();
-} else {
-  showLogin();
-}
+showLoading();
+
+onAuthStateChanged(auth, async (user) => {
+  currentMasterUser = user;
+
+  if (!user) {
+    showLogin();
+    return;
+  }
+
+  if (!isAuthorizedMaster(user)) {
+    showAccessDenied(user);
+    return;
+  }
+
+  showMasterApp(user);
+  await renderMasterList();
+});
