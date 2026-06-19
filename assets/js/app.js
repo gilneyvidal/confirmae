@@ -16,6 +16,33 @@ import {
 const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
 const DEFAULT_EVENT_ID = CONFIRMAE_THEME.defaultEventId;
 
+const CONFIRMAE_PLANS = [
+  {
+    id: "essential",
+    name: "Confirmaê Essencial",
+    price: 29.9,
+    priceLabel: "R$ 29,90",
+    guestLimit: 30,
+    description: "Até 30 convidados"
+  },
+  {
+    id: "pro",
+    name: "Confirmaê Pro",
+    price: 49.9,
+    priceLabel: "R$ 49,90",
+    guestLimit: 60,
+    description: "Até 60 convidados"
+  },
+  {
+    id: "max",
+    name: "Confirmaê Max",
+    price: 89.99,
+    priceLabel: "R$ 89,99",
+    guestLimit: null,
+    description: "Convidados ilimitados"
+  }
+];
+
 const CONFIRMAE_STATUS = {
   created: {
     label: "Convite feito",
@@ -51,6 +78,14 @@ function createEventNotReleasedError(eventId) {
   return error;
 }
 
+function createGuestLimitError(limit) {
+  const error = new Error(`Este plano permite até ${limit} convidados.`);
+  error.code = "guest-limit-reached";
+  error.limit = limit;
+
+  return error;
+}
+
 function getQueryParam(name) {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
@@ -58,6 +93,71 @@ function getQueryParam(name) {
 
 function generateAccessPin() {
   return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function getPlanOptions() {
+  return CONFIRMAE_PLANS;
+}
+
+function getPlanById(planId) {
+  return CONFIRMAE_PLANS.find((plan) => plan.id === planId) || CONFIRMAE_PLANS[0];
+}
+
+function formatCurrency(value) {
+  const numberValue = Number(value || 0);
+
+  return numberValue.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function parseCurrencyToNumber(value) {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  const normalized = String(value || "")
+    .replace(/[^\d,.-]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+
+  const parsed = Number(normalized);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizeCouponCode(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Z0-9_-]/g, "");
+}
+
+function calculateEventPricing(planId, coupon = null) {
+  const plan = getPlanById(planId);
+  const originalAmount = plan.price;
+  const discountAmount = coupon && coupon.active !== false
+    ? Number(coupon.discountAmount || 0)
+    : 0;
+
+  const finalAmount = Math.max(0, originalAmount - discountAmount);
+
+  return {
+    planId: plan.id,
+    planName: plan.name,
+    planPrice: plan.price,
+    planPriceLabel: plan.priceLabel,
+    guestLimit: plan.guestLimit,
+    originalAmount,
+    originalAmountFormatted: formatCurrency(originalAmount),
+    discountAmount,
+    discountAmountFormatted: formatCurrency(discountAmount),
+    finalAmount,
+    finalAmountFormatted: formatCurrency(finalAmount)
+  };
 }
 
 function createGuestToken(name) {
@@ -114,7 +214,7 @@ function buildWhatsappUnlockLink(eventId) {
     "",
     `ID do evento: ${eventId}`,
     "",
-    `Vi a oferta de ${business.unlockPrice} e quero enviar o comprovante para liberar meu evento.`
+    "Gostaria de contratar um plano e enviar o comprovante para liberação."
   ].join("\n");
 
   return `https://wa.me/${business.whatsappNumberInternational}?text=${encodeURIComponent(message)}`;
@@ -128,6 +228,8 @@ function buildClientAccessWhatsappLink(record) {
   const customerName = record.customerName || "tudo bem";
   const panelPin = record.panelPin || "não informado";
   const gatePin = record.gatePin || "não informado";
+  const planName = record.planName || "Plano não informado";
+  const finalAmount = record.finalAmountFormatted || record.amountPaid || "Valor não informado";
 
   if (!customerWhatsapp) {
     return "";
@@ -135,6 +237,10 @@ function buildClientAccessWhatsappLink(record) {
 
   const message = [
     `Olá, ${customerName}! Seu evento foi liberado no Confirmaê. ✅`,
+    "",
+    "Resumo da contratação:",
+    `Plano: ${planName}`,
+    `Valor final: ${finalAmount}`,
     "",
     "Acesso do anfitrião:",
     `Link do painel: ${adminLink}`,
@@ -206,13 +312,19 @@ function getDemoGuestsSeed() {
 }
 
 function getDefaultEventData(eventId) {
+  const defaultPlan = getPlanById("essential");
+
   if (eventId === DEFAULT_EVENT_ID) {
     return {
       ...CONFIRMAE_THEME.demoEvent,
       id: eventId,
       accessEnabled: true,
       panelPin: "",
-      gatePin: ""
+      gatePin: "",
+      planId: "max",
+      planName: "Demonstração",
+      guestLimit: null,
+      eventDateIso: ""
     };
   }
 
@@ -223,12 +335,16 @@ function getDefaultEventData(eventId) {
     intro:
       "Você está recebendo este convite especial. Confirme sua presença para ajudar o anfitrião na organização.",
     date: "Data a definir",
+    eventDateIso: "",
     time: "Horário a definir",
     location: "Local a definir",
     hostName: "Anfitrião",
     accessEnabled: true,
     panelPin: "",
-    gatePin: ""
+    gatePin: "",
+    planId: defaultPlan.id,
+    planName: defaultPlan.name,
+    guestLimit: defaultPlan.guestLimit
   };
 }
 
@@ -240,12 +356,83 @@ function getEventAccessReference(eventId) {
   return doc(db, "eventAccess", eventId);
 }
 
+function getCouponReference(couponCode) {
+  return doc(db, "coupons", normalizeCouponCode(couponCode));
+}
+
 function getGuestReference(eventId, guestId) {
   return doc(db, "events", eventId, "guests", guestId);
 }
 
 function getGuestsCollectionReference(eventId) {
   return collection(db, "events", eventId, "guests");
+}
+
+async function createOrUpdateCoupon(data) {
+  const code = normalizeCouponCode(data.code);
+
+  if (!code) {
+    throw new Error("Informe o código do cupom.");
+  }
+
+  const couponData = {
+    code,
+    referrerName: data.referrerName || "",
+    referrerWhatsapp: data.referrerWhatsapp || "",
+    discountType: "fixed",
+    discountAmount: parseCurrencyToNumber(data.discountAmount),
+    discountAmountFormatted: formatCurrency(parseCurrencyToNumber(data.discountAmount)),
+    active: data.active !== false,
+    notes: data.notes || "",
+    updatedAt: serverTimestamp()
+  };
+
+  const couponSnapshot = await getDoc(getCouponReference(code));
+
+  await setDoc(getCouponReference(code), {
+    ...couponData,
+    createdAt: couponSnapshot.exists()
+      ? couponSnapshot.data().createdAt || serverTimestamp()
+      : serverTimestamp()
+  }, {
+    merge: true
+  });
+
+  return getCoupon(code);
+}
+
+async function getCoupon(couponCode) {
+  const code = normalizeCouponCode(couponCode);
+
+  if (!code) {
+    return null;
+  }
+
+  const couponSnapshot = await getDoc(getCouponReference(code));
+
+  if (!couponSnapshot.exists()) {
+    return null;
+  }
+
+  return {
+    id: couponSnapshot.id,
+    ...couponSnapshot.data()
+  };
+}
+
+async function listCoupons() {
+  const couponsSnapshot = await getDocs(collection(db, "coupons"));
+
+  const coupons = couponsSnapshot.docs.map((couponDocument) => {
+    return {
+      id: couponDocument.id,
+      ...couponDocument.data()
+    };
+  });
+
+  coupons.sort((a, b) => String(a.code || a.id).localeCompare(String(b.code || b.id)));
+
+  return coupons;
 }
 
 async function getEventAccess(eventId) {
@@ -259,6 +446,11 @@ async function getEventAccess(eventId) {
       amountPaid: "Demo",
       panelPin: "",
       gatePin: "",
+      planId: "max",
+      planName: "Demonstração",
+      guestLimit: null,
+      statusCommercial: "beta",
+      operationalStatus: "active",
       notes: "Evento demonstrativo padrão."
     };
   }
@@ -283,12 +475,35 @@ async function getEventAccess(eventId) {
 async function listEventAccessRecords() {
   const accessSnapshot = await getDocs(collection(db, "eventAccess"));
 
-  const records = accessSnapshot.docs.map((accessDocument) => {
-    return {
-      id: accessDocument.id,
-      ...accessDocument.data()
-    };
-  });
+  const records = await Promise.all(
+    accessSnapshot.docs.map(async (accessDocument) => {
+      const accessData = {
+        id: accessDocument.id,
+        ...accessDocument.data()
+      };
+
+      try {
+        const eventSnapshot = await getDoc(getEventReference(accessDocument.id));
+
+        if (eventSnapshot.exists()) {
+          const eventData = eventSnapshot.data();
+
+          return {
+            ...accessData,
+            eventDate: eventData.date || accessData.eventDate || "",
+            eventDateIso: eventData.eventDateIso || accessData.eventDateIso || "",
+            eventName: eventData.name || accessData.eventName || "",
+            eventType: eventData.type || accessData.eventType || "",
+            accessEnabled: eventData.accessEnabled
+          };
+        }
+      } catch (error) {
+        console.warn("Não foi possível sincronizar dados do evento no master.", error);
+      }
+
+      return accessData;
+    })
+  );
 
   records.sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
@@ -307,21 +522,55 @@ async function releaseEvent(eventId, data) {
     ? previousAccessSnapshot.data()
     : {};
 
-  const panelPin = String(data.panelPin || previousAccessData.panelPin || generateAccessPin()).trim();
-  const gatePin = String(data.gatePin || previousAccessData.gatePin || generateAccessPin()).trim();
+  const eventSnapshot = await getDoc(getEventReference(safeEventId));
+  const currentEventData = eventSnapshot.exists()
+    ? eventSnapshot.data()
+    : {};
+
+  const plan = getPlanById(data.planId || previousAccessData.planId || currentEventData.planId || "essential");
+  const couponCode = normalizeCouponCode(data.couponCode || previousAccessData.couponCode || "");
+  const coupon = couponCode ? await getCoupon(couponCode) : null;
+  const pricing = calculateEventPricing(plan.id, coupon);
+
+  const panelPin = String(data.panelPin || previousAccessData.panelPin || currentEventData.panelPin || generateAccessPin()).trim();
+  const gatePin = String(data.gatePin || previousAccessData.gatePin || currentEventData.gatePin || generateAccessPin()).trim();
+
+  const eventDateIso = data.eventDateIso || currentEventData.eventDateIso || previousAccessData.eventDateIso || "";
+  const eventDate = currentEventData.date || previousAccessData.eventDate || "";
+  const statusCommercial = data.statusCommercial || previousAccessData.statusCommercial || "paid";
+  const operationalStatus = data.operationalStatus || previousAccessData.operationalStatus || "active";
 
   const accessData = {
     id: safeEventId,
     enabled: true,
-    paid: true,
+    paid: statusCommercial === "paid" || statusCommercial === "beta" || statusCommercial === "courtesy",
     customerName: data.customerName || "",
     customerWhatsapp: data.customerWhatsapp || "",
     customerEmail: data.customerEmail || "",
-    amountPaid: data.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
-    eventName: data.eventName || "",
-    eventType: data.eventType || "",
+    amountPaid: pricing.finalAmountFormatted,
+    planId: pricing.planId,
+    planName: pricing.planName,
+    planPrice: pricing.planPrice,
+    planPriceLabel: pricing.planPriceLabel,
+    guestLimit: pricing.guestLimit,
+    originalAmount: pricing.originalAmount,
+    originalAmountFormatted: pricing.originalAmountFormatted,
+    discountAmount: pricing.discountAmount,
+    discountAmountFormatted: pricing.discountAmountFormatted,
+    finalAmount: pricing.finalAmount,
+    finalAmountFormatted: pricing.finalAmountFormatted,
+    couponCode,
+    couponValid: Boolean(coupon && coupon.active !== false),
+    couponReferrerName: coupon ? coupon.referrerName || "" : "",
+    couponReferrerWhatsapp: coupon ? coupon.referrerWhatsapp || "" : "",
+    eventName: data.eventName || currentEventData.name || "",
+    eventType: data.eventType || currentEventData.type || "",
+    eventDate,
+    eventDateIso,
     panelPin,
     gatePin,
+    statusCommercial,
+    operationalStatus,
     notes: data.notes || "",
     releasedAt: previousAccessData.releasedAt || serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -330,8 +579,6 @@ async function releaseEvent(eventId, data) {
   await setDoc(getEventAccessReference(safeEventId), accessData, {
     merge: true
   });
-
-  const eventSnapshot = await getDoc(getEventReference(safeEventId));
 
   if (!eventSnapshot.exists()) {
     const defaultEventData = getDefaultEventData(safeEventId);
@@ -344,16 +591,26 @@ async function releaseEvent(eventId, data) {
       accessEnabled: true,
       panelPin,
       gatePin,
+      planId: pricing.planId,
+      planName: pricing.planName,
+      guestLimit: pricing.guestLimit,
+      statusCommercial,
+      operationalStatus,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
   } else {
     await setDoc(getEventReference(safeEventId), {
-      name: data.eventName || eventSnapshot.data().name || "Evento personalizado",
-      type: data.eventType || eventSnapshot.data().type || "Evento",
+      name: data.eventName || currentEventData.name || "Evento personalizado",
+      type: data.eventType || currentEventData.type || "Evento",
       accessEnabled: true,
       panelPin,
       gatePin,
+      planId: pricing.planId,
+      planName: pricing.planName,
+      guestLimit: pricing.guestLimit,
+      statusCommercial,
+      operationalStatus,
       updatedAt: serverTimestamp()
     }, {
       merge: true
@@ -373,7 +630,7 @@ async function blockEvent(eventId) {
   await setDoc(getEventAccessReference(safeEventId), {
     id: safeEventId,
     enabled: false,
-    paid: false,
+    operationalStatus: "blocked",
     blockedAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   }, {
@@ -385,6 +642,7 @@ async function blockEvent(eventId) {
   if (eventSnapshot.exists()) {
     await setDoc(getEventReference(safeEventId), {
       accessEnabled: false,
+      operationalStatus: "blocked",
       updatedAt: serverTimestamp()
     }, {
       merge: true
@@ -559,8 +817,15 @@ async function updateGuest(eventId, guestId, updates) {
 
 async function addGuest(guestData) {
   const eventId = guestData.eventId || DEFAULT_EVENT_ID;
+  const eventInfo = await ensureEventExists(eventId);
 
-  await ensureEventExists(eventId);
+  if (eventId !== DEFAULT_EVENT_ID && eventInfo.guestLimit !== null && eventInfo.guestLimit !== undefined) {
+    const guestsSnapshot = await getDocs(getGuestsCollectionReference(eventId));
+
+    if (guestsSnapshot.size >= Number(eventInfo.guestLimit)) {
+      throw createGuestLimitError(Number(eventInfo.guestLimit));
+    }
+  }
 
   const newGuest = {
     id: createGuestToken(guestData.name),
@@ -685,6 +950,11 @@ export {
   CONFIRMAE_STATUS,
   getQueryParam,
   generateAccessPin,
+  getPlanOptions,
+  getPlanById,
+  calculateEventPricing,
+  formatCurrency,
+  normalizeCouponCode,
   createGuestToken,
   getBaseUrl,
   buildInvitationLink,
@@ -692,6 +962,9 @@ export {
   buildGateLink,
   buildWhatsappUnlockLink,
   buildClientAccessWhatsappLink,
+  createOrUpdateCoupon,
+  getCoupon,
+  listCoupons,
   getEventAccess,
   listEventAccessRecords,
   releaseEvent,
