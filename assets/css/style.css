@@ -1616,3 +1616,95 @@ label {
     scroll-behavior: auto !important;
   }
 }
+/* =========================================================
+   Rodapé com assinatura Vidal Design Solutions
+   ========================================================= */
+
+.footer-content-branded {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.footer-brand-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-brand-note p {
+  margin: 0;
+}
+
+.developer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  min-height: 54px;
+  background: rgba(254, 254, 254, 0.045);
+  border: 1px solid rgba(33, 189, 193, 0.18);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--color-muted);
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.developer-badge:hover {
+  transform: translateY(-2px);
+  background: rgba(33, 189, 193, 0.08);
+  border-color: rgba(33, 189, 193, 0.42);
+  box-shadow: 0 14px 32px rgba(33, 189, 193, 0.12);
+}
+
+.developer-badge span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.developer-badge img {
+  display: block;
+  height: 32px;
+  width: auto;
+  max-width: 170px;
+  object-fit: contain;
+}
+
+@media (max-width: 720px) {
+  .footer-content-branded {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .footer-brand-note {
+    align-items: center;
+  }
+
+  .developer-badge {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .developer-badge {
+    width: 100%;
+    border-radius: 18px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .developer-badge img {
+    height: 30px;
+    max-width: 190px;
+  }
+}
