@@ -11,6 +11,13 @@ import {
   buildGateLink,
   buildClientAccessWhatsappLink,
   generateAccessPin,
+  getPlanOptions,
+  getPlanById,
+  calculateEventPricing,
+  normalizeCouponCode,
+  createOrUpdateCoupon,
+  getCoupon,
+  listCoupons,
   listEventAccessRecords,
   releaseEvent,
   blockEvent,
@@ -42,7 +49,14 @@ const masterEventIdInput = document.getElementById("masterEventIdInput");
 const masterCustomerNameInput = document.getElementById("masterCustomerNameInput");
 const masterCustomerWhatsappInput = document.getElementById("masterCustomerWhatsappInput");
 const masterCustomerEmailInput = document.getElementById("masterCustomerEmailInput");
-const masterAmountInput = document.getElementById("masterAmountInput");
+const masterPlanSelect = document.getElementById("masterPlanSelect");
+const masterCouponCodeInput = document.getElementById("masterCouponCodeInput");
+const masterOriginalAmountInput = document.getElementById("masterOriginalAmountInput");
+const masterDiscountAmountInput = document.getElementById("masterDiscountAmountInput");
+const masterFinalAmountInput = document.getElementById("masterFinalAmountInput");
+const masterStatusCommercialSelect = document.getElementById("masterStatusCommercialSelect");
+const masterStatusOperationalSelect = document.getElementById("masterStatusOperationalSelect");
+const masterEventDateIsoInput = document.getElementById("masterEventDateIsoInput");
 const masterPanelPinInput = document.getElementById("masterPanelPinInput");
 const masterGatePinInput = document.getElementById("masterGatePinInput");
 const masterEventNameInput = document.getElementById("masterEventNameInput");
@@ -53,6 +67,17 @@ const generatePinsButton = document.getElementById("generatePinsButton");
 const clearMasterFormButton = document.getElementById("clearMasterFormButton");
 const reloadMasterListButton = document.getElementById("reloadMasterListButton");
 const masterEventsTableBody = document.getElementById("masterEventsTableBody");
+
+const couponForm = document.getElementById("couponForm");
+const couponCodeInput = document.getElementById("couponCodeInput");
+const couponReferrerNameInput = document.getElementById("couponReferrerNameInput");
+const couponReferrerWhatsappInput = document.getElementById("couponReferrerWhatsappInput");
+const couponDiscountAmountInput = document.getElementById("couponDiscountAmountInput");
+const couponActiveSelect = document.getElementById("couponActiveSelect");
+const couponNotesInput = document.getElementById("couponNotesInput");
+const clearCouponFormButton = document.getElementById("clearCouponFormButton");
+const reloadCouponsButton = document.getElementById("reloadCouponsButton");
+const couponsTableBody = document.getElementById("couponsTableBody");
 
 let currentMasterUser = null;
 let lastReleasedRecord = null;
@@ -104,9 +129,31 @@ function showMasterApp(user) {
 
   masterAppSection.hidden = false;
 
+  fillPlanOptions();
+
   if (!masterPanelPinInput.value || !masterGatePinInput.value) {
     generateNewPins();
   }
+
+  updatePricingPreview();
+}
+
+function fillPlanOptions() {
+  const plans = getPlanOptions();
+
+  masterPlanSelect.innerHTML = plans
+    .map((plan) => {
+      const limitText = plan.guestLimit === null
+        ? "Convidados ilimitados"
+        : `Até ${plan.guestLimit} convidados`;
+
+      return `
+        <option value="${escapeHtml(plan.id)}">
+          ${escapeHtml(plan.name)} - ${escapeHtml(plan.priceLabel)} - ${escapeHtml(limitText)}
+        </option>
+      `;
+    })
+    .join("");
 }
 
 function generateNewPins() {
@@ -116,16 +163,54 @@ function generateNewPins() {
 
 function clearMasterForm() {
   masterEventForm.reset();
-  masterAmountInput.value = CONFIRMAE_THEME.business.unlockPrice;
+  masterPlanSelect.value = "essential";
+  masterStatusCommercialSelect.value = "paid";
+  masterStatusOperationalSelect.value = "active";
+  masterEventDateIsoInput.value = "";
   generateNewPins();
+  updatePricingPreview();
+}
+
+function clearCouponForm() {
+  couponForm.reset();
+  couponActiveSelect.value = "true";
 }
 
 function setTableMessage(message) {
   masterEventsTableBody.innerHTML = `
     <tr>
-      <td colspan="6">${escapeHtml(message)}</td>
+      <td colspan="7">${escapeHtml(message)}</td>
     </tr>
   `;
+}
+
+function setCouponTableMessage(message) {
+  couponsTableBody.innerHTML = `
+    <tr>
+      <td colspan="5">${escapeHtml(message)}</td>
+    </tr>
+  `;
+}
+
+async function updatePricingPreview() {
+  const planId = masterPlanSelect.value || "essential";
+  const couponCode = normalizeCouponCode(masterCouponCodeInput.value);
+  let coupon = null;
+
+  if (couponCode) {
+    coupon = await getCoupon(couponCode);
+  }
+
+  const pricing = calculateEventPricing(planId, coupon);
+
+  masterOriginalAmountInput.value = pricing.originalAmountFormatted;
+  masterDiscountAmountInput.value = pricing.discountAmountFormatted;
+  masterFinalAmountInput.value = pricing.finalAmountFormatted;
+
+  return {
+    pricing,
+    coupon
+  };
 }
 
 function getFormData() {
@@ -134,7 +219,11 @@ function getFormData() {
     customerName: masterCustomerNameInput.value.trim(),
     customerWhatsapp: masterCustomerWhatsappInput.value.trim(),
     customerEmail: masterCustomerEmailInput.value.trim(),
-    amountPaid: masterAmountInput.value.trim(),
+    planId: masterPlanSelect.value,
+    couponCode: normalizeCouponCode(masterCouponCodeInput.value),
+    statusCommercial: masterStatusCommercialSelect.value,
+    operationalStatus: masterStatusOperationalSelect.value,
+    eventDateIso: masterEventDateIsoInput.value.trim(),
     panelPin: masterPanelPinInput.value.trim(),
     gatePin: masterGatePinInput.value.trim(),
     eventName: masterEventNameInput.value.trim(),
@@ -149,7 +238,11 @@ function getReleaseDataFromRecord(record) {
     customerName: record.customerName || "",
     customerWhatsapp: record.customerWhatsapp || "",
     customerEmail: record.customerEmail || "",
-    amountPaid: record.amountPaid || CONFIRMAE_THEME.business.unlockPrice,
+    planId: record.planId || "essential",
+    couponCode: record.couponCode || "",
+    statusCommercial: record.statusCommercial || "paid",
+    operationalStatus: "active",
+    eventDateIso: record.eventDateIso || "",
     panelPin: record.panelPin || generateAccessPin(),
     gatePin: record.gatePin || generateAccessPin(),
     eventName: record.eventName || "",
@@ -163,12 +256,138 @@ function fillFormFromRecord(record) {
   masterCustomerNameInput.value = record.customerName || "";
   masterCustomerWhatsappInput.value = record.customerWhatsapp || "";
   masterCustomerEmailInput.value = record.customerEmail || "";
-  masterAmountInput.value = record.amountPaid || CONFIRMAE_THEME.business.unlockPrice;
+  masterPlanSelect.value = record.planId || "essential";
+  masterCouponCodeInput.value = record.couponCode || "";
+  masterStatusCommercialSelect.value = record.statusCommercial || "paid";
+  masterStatusOperationalSelect.value = record.operationalStatus || "active";
+  masterEventDateIsoInput.value = record.eventDateIso || "";
   masterPanelPinInput.value = record.panelPin || generateAccessPin();
   masterGatePinInput.value = record.gatePin || generateAccessPin();
   masterEventNameInput.value = record.eventName || "";
   masterEventTypeInput.value = record.eventType || "";
   masterNotesInput.value = record.notes || "";
+
+  updatePricingPreview();
+}
+
+function fillCouponForm(coupon) {
+  couponCodeInput.value = coupon.code || coupon.id || "";
+  couponReferrerNameInput.value = coupon.referrerName || "";
+  couponReferrerWhatsappInput.value = coupon.referrerWhatsapp || "";
+  couponDiscountAmountInput.value = coupon.discountAmountFormatted || "";
+  couponActiveSelect.value = coupon.active === false ? "false" : "true";
+  couponNotesInput.value = coupon.notes || "";
+}
+
+function formatDateIsoToBrazil(dateIso) {
+  if (!dateIso) {
+    return "";
+  }
+
+  const [year, month, day] = String(dateIso).split("-");
+
+  if (!year || !month || !day) {
+    return dateIso;
+  }
+
+  return `${day}/${month}/${year}`;
+}
+
+function getDaysDifference(dateIso) {
+  if (!dateIso) {
+    return null;
+  }
+
+  const [year, month, day] = String(dateIso).split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  const eventDate = new Date(year, month - 1, day);
+  const today = new Date();
+
+  eventDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const differenceMs = eventDate.getTime() - today.getTime();
+
+  return Math.round(differenceMs / 86400000);
+}
+
+function getEventDateAdvice(record) {
+  if (record.enabled === false || record.operationalStatus === "blocked") {
+    return {
+      label: "Evento bloqueado",
+      className: "declined"
+    };
+  }
+
+  const daysDifference = getDaysDifference(record.eventDateIso);
+
+  if (daysDifference === null) {
+    return {
+      label: "Aguardando cliente preencher data",
+      className: "waiting"
+    };
+  }
+
+  if (daysDifference > 0) {
+    return {
+      label: `Faltam ${daysDifference} dia(s)`,
+      className: "accepted"
+    };
+  }
+
+  if (daysDifference === 0) {
+    return {
+      label: "Evento é hoje",
+      className: "present"
+    };
+  }
+
+  const overdueDays = Math.abs(daysDifference);
+
+  if (overdueDays >= 7) {
+    return {
+      label: `Vencido há ${overdueDays} dias — excluir recomendado`,
+      className: "declined"
+    };
+  }
+
+  if (overdueDays >= 3) {
+    return {
+      label: `Vencido há ${overdueDays} dias — bloquear recomendado`,
+      className: "waiting"
+    };
+  }
+
+  return {
+    label: `Finalizado há ${overdueDays} dia(s)`,
+    className: "created"
+  };
+}
+
+function getCommercialStatusLabel(status) {
+  const labels = {
+    paid: "Pago",
+    pending: "Pendente",
+    courtesy: "Cortesia",
+    beta: "Beta"
+  };
+
+  return labels[status] || "Pago";
+}
+
+function getOperationalStatusLabel(status) {
+  const labels = {
+    active: "Ativo",
+    blocked: "Bloqueado",
+    finished: "Finalizado",
+    waiting_delete: "Aguardando exclusão"
+  };
+
+  return labels[status] || "Ativo";
 }
 
 function openClientAccessWhatsapp(record) {
@@ -215,6 +434,75 @@ async function handleLogout() {
   }
 }
 
+async function renderCoupons() {
+  if (!currentMasterUser || !isAuthorizedMaster(currentMasterUser)) {
+    return;
+  }
+
+  setCouponTableMessage("Carregando cupons...");
+
+  try {
+    const coupons = await listCoupons();
+
+    if (!coupons.length) {
+      setCouponTableMessage("Nenhum cupom cadastrado ainda.");
+      return;
+    }
+
+    couponsTableBody.innerHTML = coupons
+      .map((coupon) => {
+        const statusText = coupon.active === false ? "Inativo" : "Ativo";
+        const statusClass = coupon.active === false ? "declined" : "accepted";
+
+        return `
+          <tr>
+            <td>
+              <div class="guest-name-cell">
+                <strong>${escapeHtml(coupon.code || coupon.id)}</strong>
+                <small>${escapeHtml(coupon.notes || "Sem observações")}</small>
+              </div>
+            </td>
+
+            <td>
+              <div class="guest-contact-cell">
+                <strong>${escapeHtml(coupon.referrerName || "Sem nome")}</strong>
+                <small>${escapeHtml(coupon.referrerWhatsapp || "Sem WhatsApp")}</small>
+              </div>
+            </td>
+
+            <td>
+              <strong>${escapeHtml(coupon.discountAmountFormatted || "R$ 0,00")}</strong>
+            </td>
+
+            <td>
+              <span class="status-pill status-pill-${statusClass}">
+                <span class="status-dot status-dot-${statusClass}"></span>
+                ${statusText}
+              </span>
+            </td>
+
+            <td>
+              <div class="table-actions">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  data-action="edit-coupon"
+                  data-coupon='${escapeHtml(JSON.stringify(coupon))}'
+                >
+                  Editar
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+  } catch (error) {
+    console.error(error);
+    setCouponTableMessage("Erro ao carregar cupons. Confira as regras do Firebase.");
+  }
+}
+
 async function renderMasterList() {
   if (!currentMasterUser || !isAuthorizedMaster(currentMasterUser)) {
     return;
@@ -234,17 +522,23 @@ async function renderMasterList() {
       .map((record) => {
         const statusText = record.enabled ? "Liberado" : "Bloqueado";
         const statusClass = record.enabled ? "accepted" : "declined";
-        const paidText = record.paid ? "Pago" : "Pendente";
+        const paidText = getCommercialStatusLabel(record.statusCommercial || "paid");
+        const operationalText = getOperationalStatusLabel(record.operationalStatus || "active");
         const blockButtonLabel = record.enabled ? "Bloquear" : "Desbloquear";
         const blockButtonClass = record.enabled ? "btn-secondary" : "btn-primary";
         const blockButtonAction = record.enabled ? "block" : "unblock";
+        const advice = getEventDateAdvice(record);
+        const plan = getPlanById(record.planId || "essential");
+        const limitText = record.guestLimit === null || record.guestLimit === undefined
+          ? "Ilimitado"
+          : `até ${record.guestLimit}`;
 
         return `
           <tr>
             <td>
               <div class="guest-name-cell">
                 <strong>${escapeHtml(record.id)}</strong>
-                <small>${escapeHtml(record.notes || "Sem observações")}</small>
+                <small>${escapeHtml(record.eventName || record.notes || "Sem nome do evento")}</small>
               </div>
             </td>
 
@@ -256,80 +550,61 @@ async function renderMasterList() {
             </td>
 
             <td>
-              <span class="status-pill status-pill-${statusClass}">
-                <span class="status-dot status-dot-${statusClass}"></span>
-                ${statusText}
-              </span>
-            </td>
-
-            <td>
               <div class="guest-contact-cell">
-                <strong>Painel: ${escapeHtml(record.panelPin || "--")}</strong>
-                <small>Portaria: ${escapeHtml(record.gatePin || "--")}</small>
+                <strong>${escapeHtml(record.planName || plan.name)}</strong>
+                <small>${escapeHtml(record.finalAmountFormatted || record.amountPaid || plan.priceLabel)} • ${escapeHtml(limitText)}</small>
               </div>
             </td>
 
             <td>
               <div class="guest-contact-cell">
-                <strong>${escapeHtml(record.amountPaid || "Sem valor")}</strong>
-                <small>${paidText}</small>
+                <strong>${escapeHtml(record.couponCode || "Sem cupom")}</strong>
+                <small>${escapeHtml(record.discountAmountFormatted || "R$ 0,00")}</small>
+              </div>
+            </td>
+
+            <td>
+              <div class="guest-contact-cell">
+                <strong>${escapeHtml(formatDateIsoToBrazil(record.eventDateIso) || record.eventDate || "Sem data")}</strong>
+                <small>
+                  <span class="status-pill status-pill-${escapeHtml(advice.className)}">
+                    <span class="status-dot status-dot-${escapeHtml(advice.className)}"></span>
+                    ${escapeHtml(advice.label)}
+                  </span>
+                </small>
+              </div>
+            </td>
+
+            <td>
+              <div class="guest-contact-cell">
+                <strong>${escapeHtml(statusText)}</strong>
+                <small>${escapeHtml(paidText)} • ${escapeHtml(operationalText)}</small>
               </div>
             </td>
 
             <td>
               <div class="table-actions">
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-small"
-                  data-action="edit"
-                  data-record='${escapeHtml(JSON.stringify(record))}'
-                >
+                <button type="button" class="btn btn-secondary btn-small" data-action="edit" data-record='${escapeHtml(JSON.stringify(record))}'>
                   Editar
                 </button>
 
-                <button
-                  type="button"
-                  class="btn btn-primary btn-small"
-                  data-action="open-event"
-                  data-record='${escapeHtml(JSON.stringify(record))}'
-                >
+                <button type="button" class="btn btn-primary btn-small" data-action="open-event" data-record='${escapeHtml(JSON.stringify(record))}'>
                   Abrir
                 </button>
 
-                <a
-                  href="${escapeHtml(buildGateLink(record.id))}"
-                  class="btn btn-secondary btn-small"
-                  target="_blank"
-                  rel="noopener"
-                >
+                <a href="${escapeHtml(buildGateLink(record.id))}" class="btn btn-secondary btn-small" target="_blank" rel="noopener">
                   Portaria
                 </a>
 
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-small"
-                  data-action="send-access"
-                  data-record='${escapeHtml(JSON.stringify(record))}'
-                >
+                <button type="button" class="btn btn-secondary btn-small" data-action="send-access" data-record='${escapeHtml(JSON.stringify(record))}'>
                   Enviar acesso
                 </button>
 
-                <button
-                  type="button"
-                  class="btn ${blockButtonClass} btn-small"
-                  data-action="${blockButtonAction}"
-                  data-record='${escapeHtml(JSON.stringify(record))}'
-                  data-event-id="${escapeHtml(record.id)}"
-                >
+                <button type="button" class="btn ${blockButtonClass} btn-small" data-action="${blockButtonAction}" data-record='${escapeHtml(JSON.stringify(record))}' data-event-id="${escapeHtml(record.id)}">
                   ${blockButtonLabel}
                 </button>
 
-                <button
-                  type="button"
-                  class="btn btn-danger btn-small"
-                  data-action="delete"
-                  data-event-id="${escapeHtml(record.id)}"
-                >
+                <button type="button" class="btn btn-danger btn-small" data-action="delete" data-event-id="${escapeHtml(record.id)}">
                   Apagar
                 </button>
               </div>
@@ -341,6 +616,41 @@ async function renderMasterList() {
   } catch (error) {
     console.error(error);
     setTableMessage("Erro ao carregar eventos. Confira o Firebase.");
+  }
+}
+
+async function handleCouponSubmit(event) {
+  event.preventDefault();
+
+  if (!currentMasterUser || !isAuthorizedMaster(currentMasterUser)) {
+    alert("Você não tem permissão para criar cupons.");
+    return;
+  }
+
+  const submitButton = couponForm.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+  submitButton.textContent = "Salvando...";
+
+  try {
+    await createOrUpdateCoupon({
+      code: couponCodeInput.value,
+      referrerName: couponReferrerNameInput.value.trim(),
+      referrerWhatsapp: couponReferrerWhatsappInput.value.trim(),
+      discountAmount: couponDiscountAmountInput.value.trim(),
+      active: couponActiveSelect.value === "true",
+      notes: couponNotesInput.value.trim()
+    });
+
+    alert("Cupom salvo com sucesso!");
+    clearCouponForm();
+    await renderCoupons();
+    await updatePricingPreview();
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível salvar o cupom.");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Salvar cupom";
   }
 }
 
@@ -369,6 +679,15 @@ async function handleMasterEventSubmit(event) {
     masterGatePinInput.value = data.gatePin;
   }
 
+  if (data.couponCode) {
+    const coupon = await getCoupon(data.couponCode);
+
+    if (!coupon || coupon.active === false) {
+      alert("Cupom não encontrado ou inativo. Crie/ative o cupom antes de aplicar no evento.");
+      return;
+    }
+  }
+
   const submitButton = masterEventForm.querySelector("button[type='submit']");
   submitButton.disabled = true;
   submitButton.textContent = "Liberando...";
@@ -380,7 +699,6 @@ async function handleMasterEventSubmit(event) {
       ...releasedRecord,
       customerName: data.customerName,
       customerWhatsapp: data.customerWhatsapp,
-      amountPaid: data.amountPaid,
       panelPin: data.panelPin,
       gatePin: data.gatePin,
       eventName: data.eventName,
@@ -427,10 +745,7 @@ async function handleMasterTableClick(event) {
     try {
       const record = JSON.parse(clickedButton.dataset.record);
       fillFormFromRecord(record);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       alert("Não foi possível carregar este registro no formulário.");
     }
@@ -450,9 +765,7 @@ async function handleMasterTableClick(event) {
         return;
       }
 
-      const releaseData = getReleaseDataFromRecord(record);
-
-      await releaseEvent(record.id, releaseData);
+      await releaseEvent(record.id, getReleaseDataFromRecord(record));
 
       window.open(buildAdminLink(record.id), "_blank");
     } catch (error) {
@@ -522,9 +835,7 @@ async function handleMasterTableClick(event) {
     clickedButton.textContent = "Liberando...";
 
     try {
-      const releaseData = getReleaseDataFromRecord(record);
-
-      await releaseEvent(record.id, releaseData);
+      await releaseEvent(record.id, getReleaseDataFromRecord(record));
       await renderMasterList();
 
       alert("Evento desbloqueado com sucesso.");
@@ -565,14 +876,40 @@ async function handleMasterTableClick(event) {
   }
 }
 
+function handleCouponTableClick(event) {
+  const clickedButton = event.target.closest("button");
+
+  if (!clickedButton) {
+    return;
+  }
+
+  if (clickedButton.dataset.action === "edit-coupon") {
+    try {
+      const coupon = JSON.parse(clickedButton.dataset.coupon);
+      fillCouponForm(coupon);
+      couponCodeInput.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (error) {
+      alert("Não foi possível carregar este cupom.");
+    }
+  }
+}
+
 googleSignInButton.addEventListener("click", handleGoogleSignIn);
 masterLogoutButton.addEventListener("click", handleLogout);
 deniedLogoutButton.addEventListener("click", handleLogout);
 masterEventForm.addEventListener("submit", handleMasterEventSubmit);
+couponForm.addEventListener("submit", handleCouponSubmit);
 generatePinsButton.addEventListener("click", generateNewPins);
 clearMasterFormButton.addEventListener("click", clearMasterForm);
+clearCouponFormButton.addEventListener("click", clearCouponForm);
 reloadMasterListButton.addEventListener("click", renderMasterList);
+reloadCouponsButton.addEventListener("click", renderCoupons);
 masterEventsTableBody.addEventListener("click", handleMasterTableClick);
+couponsTableBody.addEventListener("click", handleCouponTableClick);
+
+masterPlanSelect.addEventListener("change", updatePricingPreview);
+masterCouponCodeInput.addEventListener("blur", updatePricingPreview);
+masterCouponCodeInput.addEventListener("change", updatePricingPreview);
 
 showLoading();
 
@@ -590,5 +927,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   showMasterApp(user);
+  await renderCoupons();
   await renderMasterList();
 });
