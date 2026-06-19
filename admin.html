@@ -12,8 +12,8 @@
   />
 
   <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
-<link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
-<link rel="stylesheet" href="assets/css/style.css?v=brand-1" />
+  <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css?v=comercial-1" />
 </head>
 
 <body class="page-admin">
@@ -50,20 +50,10 @@
 
       <div class="event-selector-card">
         <label for="eventIdInput">ID do evento</label>
-        <input
-          type="text"
-          id="eventIdInput"
-          value="evento-demo"
-          aria-label="ID do evento"
-        />
+        <input type="text" id="eventIdInput" value="evento-demo" aria-label="ID do evento" />
 
         <label for="eventPanelPinInput">PIN do painel</label>
-        <input
-          type="password"
-          id="eventPanelPinInput"
-          placeholder="Digite o PIN do painel"
-          aria-label="PIN do painel"
-        />
+        <input type="password" id="eventPanelPinInput" placeholder="Digite o PIN do painel" aria-label="PIN do painel" />
 
         <small id="panelPinHelpText">
           O PIN é enviado pelo WhatsApp após a liberação do evento.
@@ -88,14 +78,12 @@
           <article class="feature-card">
             <div class="feature-icon">ID</div>
             <h3 id="lockedEventIdText">evento</h3>
-            <p>
-              Este ID ainda não foi liberado para uso no Confirmaê.
-            </p>
+            <p>Este ID ainda não foi liberado para uso no Confirmaê.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">PIX</div>
-            <h3 id="unlockPriceText">R$ 29,90</h3>
+            <h3 id="unlockPriceText">Planos disponíveis</h3>
             <p>
               <strong>Banco:</strong> <span id="pixBankText">Mercado Pago</span><br />
               <strong>Chave:</strong> <span id="pixKeyText">11968649673</span><br />
@@ -106,9 +94,7 @@
           <article class="feature-card">
             <div class="feature-icon">WA</div>
             <h3>Enviar comprovante</h3>
-            <p>
-              Após o pagamento, envie o comprovante pelo WhatsApp para liberação manual.
-            </p>
+            <p>Após o pagamento, envie o comprovante pelo WhatsApp para liberação manual.</p>
           </article>
         </div>
 
@@ -181,7 +167,12 @@
           </div>
 
           <div class="form-group">
-            <label for="eventDateInput">Data do evento</label>
+            <label for="eventDateIsoInput">Data oficial do evento</label>
+            <input type="date" id="eventDateIsoInput" />
+          </div>
+
+          <div class="form-group">
+            <label for="eventDateInput">Data exibida no convite</label>
             <input type="text" id="eventDateInput" placeholder="Ex: 20 de dezembro de 2026" required />
           </div>
 
@@ -322,8 +313,8 @@
     </div>
   </footer>
 
-  <script src="assets/js/theme.js?v=brand-1"></script>
+  <script src="assets/js/theme.js?v=comercial-1"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script type="module" src="assets/js/admin.js?v=pins-1"></script>
+  <script type="module" src="assets/js/admin.js?v=comercial-1"></script>
 </body>
 </html>
