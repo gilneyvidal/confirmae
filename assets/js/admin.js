@@ -46,6 +46,11 @@ const guestForm = document.getElementById("guestForm");
 const guestTableBody = document.getElementById("guestTableBody");
 const resetDemoButton = document.getElementById("resetDemoButton");
 
+const exportAllGuestsButton = document.getElementById("exportAllGuestsButton");
+const exportAcceptedGuestsButton = document.getElementById("exportAcceptedGuestsButton");
+const exportPresentGuestsButton = document.getElementById("exportPresentGuestsButton");
+const exportDeclinedGuestsButton = document.getElementById("exportDeclinedGuestsButton");
+
 const totalGuests = document.getElementById("totalGuests");
 const waitingGuests = document.getElementById("waitingGuests");
 const acceptedGuests = document.getElementById("acceptedGuests");
@@ -165,6 +170,134 @@ function formatDateIsoToLongText(dateIso) {
     month: "long",
     year: "numeric"
   });
+}
+
+function formatDateTimeForCsv(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleString("pt-BR");
+}
+
+function sanitizeFileName(value) {
+  return String(value || "evento")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function createCsvCell(value) {
+  let safeValue = String(value ?? "");
+
+  if (/^[=+\-@]/.test(safeValue)) {
+    safeValue = `'${safeValue}`;
+  }
+
+  return `"${safeValue.replaceAll('"', '""')}"`;
+}
+
+function downloadCsv(filename, rows) {
+  const csvContent = rows
+    .map((row) => row.map(createCsvCell).join(";"))
+    .join("\n");
+
+  const blob = new Blob([`\ufeff${csvContent}`], {
+    type: "text/csv;charset=utf-8;"
+  });
+
+  const temporaryUrl = URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+
+  downloadLink.href = temporaryUrl;
+  downloadLink.download = filename;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+
+  URL.revokeObjectURL(temporaryUrl);
+}
+
+function getGuestsForExport(type) {
+  if (type === "accepted") {
+    return currentGuests.filter((guest) => guest.status === "accepted");
+  }
+
+  if (type === "present") {
+    return currentGuests.filter((guest) => guest.status === "present");
+  }
+
+  if (type === "declined") {
+    return currentGuests.filter((guest) => guest.status === "declined");
+  }
+
+  return currentGuests;
+}
+
+function getExportLabel(type) {
+  const labels = {
+    all: "todos",
+    accepted: "confirmados",
+    present: "presentes",
+    declined: "recusados"
+  };
+
+  return labels[type] || "convidados";
+}
+
+function exportGuests(type) {
+  const guestsToExport = getGuestsForExport(type);
+  const exportLabel = getExportLabel(type);
+
+  if (!guestsToExport.length) {
+    alert(`Nenhum convidado encontrado para exportar em: ${exportLabel}.`);
+    return;
+  }
+
+  const header = [
+    "Evento",
+    "ID do evento",
+    "Nome do convidado",
+    "Telefone",
+    "E-mail",
+    "Acompanhantes permitidos",
+    "Status",
+    "Presente com liberação manual",
+    "Data/hora de entrada",
+    "ID do convite",
+    "Link do convite"
+  ];
+
+  const rows = guestsToExport.map((guest) => {
+    const statusInfo = getGuestStatusInfo(guest);
+    const invitationLink = buildInvitationLink(guest.eventId, guest.id);
+
+    return [
+      currentEventInfo?.name || currentEventId,
+      currentEventId,
+      guest.name || "",
+      guest.phone || "",
+      guest.email || "",
+      guest.companions || 0,
+      statusInfo.label,
+      guest.gateOverride === true ? "Sim" : "Não",
+      formatDateTimeForCsv(guest.arrivedAt),
+      guest.id || "",
+      invitationLink
+    ];
+  });
+
+  const fileName = `confirmae-${sanitizeFileName(currentEventId)}-${exportLabel}.csv`;
+
+  downloadCsv(fileName, [header, ...rows]);
 }
 
 function renderEventConfig(eventInfo) {
@@ -572,6 +705,11 @@ guestForm.addEventListener("submit", handleGuestFormSubmit);
 guestTableBody.addEventListener("click", handleTableClick);
 loadEventButton.addEventListener("click", loadCurrentEvent);
 resetDemoButton.addEventListener("click", handleResetDemo);
+
+exportAllGuestsButton.addEventListener("click", () => exportGuests("all"));
+exportAcceptedGuestsButton.addEventListener("click", () => exportGuests("accepted"));
+exportPresentGuestsButton.addEventListener("click", () => exportGuests("present"));
+exportDeclinedGuestsButton.addEventListener("click", () => exportGuests("declined"));
 
 eventDateIsoInput.addEventListener("change", () => {
   if (!eventDateInput.value.trim()) {
