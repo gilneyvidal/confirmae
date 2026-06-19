@@ -241,9 +241,27 @@
             <h2>Status dos convites</h2>
           </div>
 
-          <button type="button" class="btn btn-secondary" id="resetDemoButton">
-            Restaurar demo
-          </button>
+          <div class="table-actions">
+            <button type="button" class="btn btn-secondary btn-small" id="exportAllGuestsButton">
+              Exportar todos
+            </button>
+
+            <button type="button" class="btn btn-secondary btn-small" id="exportAcceptedGuestsButton">
+              Exportar confirmados
+            </button>
+
+            <button type="button" class="btn btn-secondary btn-small" id="exportPresentGuestsButton">
+              Exportar presentes
+            </button>
+
+            <button type="button" class="btn btn-secondary btn-small" id="exportDeclinedGuestsButton">
+              Exportar recusados
+            </button>
+
+            <button type="button" class="btn btn-secondary btn-small" id="resetDemoButton">
+              Restaurar demo
+            </button>
+          </div>
         </div>
 
         <div class="table-wrapper">
@@ -315,6 +333,6 @@
 
   <script src="assets/js/theme.js?v=comercial-1"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script type="module" src="assets/js/admin.js?v=comercial-1"></script>
+  <script type="module" src="assets/js/admin.js?v=csv-1"></script>
 </body>
 </html>
