@@ -12,8 +12,8 @@
   />
 
   <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
-<link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
-<link rel="stylesheet" href="assets/css/style.css?v=brand-1" />
+  <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css?v=comercial-1" />
 </head>
 
 <body class="page-admin">
@@ -38,8 +38,7 @@
         <span class="eyebrow">Painel interno</span>
         <h1>Gestão master</h1>
         <p>
-          Libere eventos pagos, bloqueie acessos, consulte clientes e apague eventos
-          quando necessário.
+          Libere eventos pagos, gerencie planos, cupons, status comerciais e controle de vencimento.
         </p>
       </div>
     </section>
@@ -53,9 +52,7 @@
           </div>
         </div>
 
-        <p>
-          Aguarde enquanto verificamos se existe uma conta Google conectada.
-        </p>
+        <p>Aguarde enquanto verificamos se existe uma conta Google conectada.</p>
       </article>
     </section>
 
@@ -68,9 +65,7 @@
           </div>
         </div>
 
-        <p>
-          Entre com a conta Google autorizada para acessar a gestão interna do Confirmaê.
-        </p>
+        <p>Entre com a conta Google autorizada para acessar a gestão interna do Confirmaê.</p>
 
         <div class="hero-actions">
           <button type="button" class="btn btn-primary" id="googleSignInButton">
@@ -89,9 +84,7 @@
           </div>
         </div>
 
-        <p>
-          Você entrou com uma conta Google que não tem permissão para acessar o painel master.
-        </p>
+        <p>Você entrou com uma conta Google que não tem permissão para acessar o painel master.</p>
 
         <div class="admin-help-box">
           <strong>E-mail conectado</strong>
@@ -130,93 +123,101 @@
         <form class="guest-form" id="masterEventForm">
           <div class="form-group">
             <label for="masterEventIdInput">ID do evento</label>
-            <input
-              type="text"
-              id="masterEventIdInput"
-              placeholder="Ex: aniversario-maria-2026"
-              required
-            />
+            <input type="text" id="masterEventIdInput" placeholder="Ex: aniversario-maria-2026" required />
           </div>
 
           <div class="form-group">
             <label for="masterCustomerNameInput">Nome do cliente</label>
-            <input
-              type="text"
-              id="masterCustomerNameInput"
-              placeholder="Ex: Maria Oliveira"
-            />
+            <input type="text" id="masterCustomerNameInput" placeholder="Ex: Maria Oliveira" />
           </div>
 
           <div class="form-group">
             <label for="masterCustomerWhatsappInput">WhatsApp do cliente</label>
-            <input
-              type="text"
-              id="masterCustomerWhatsappInput"
-              placeholder="Ex: 11999999999"
-            />
+            <input type="text" id="masterCustomerWhatsappInput" placeholder="Ex: 11999999999" />
           </div>
 
           <div class="form-group">
             <label for="masterCustomerEmailInput">E-mail do cliente</label>
-            <input
-              type="email"
-              id="masterCustomerEmailInput"
-              placeholder="Ex: cliente@email.com"
-            />
+            <input type="email" id="masterCustomerEmailInput" placeholder="Ex: cliente@email.com" />
           </div>
 
           <div class="form-group">
-            <label for="masterAmountInput">Valor pago</label>
-            <input
-              type="text"
-              id="masterAmountInput"
-              value="R$ 29,90"
-            />
+            <label for="masterPlanSelect">Plano contratado</label>
+            <select id="masterPlanSelect" required>
+              <option value="essential">Confirmaê Essencial - R$ 29,90 - Até 30 convidados</option>
+              <option value="pro">Confirmaê Pro - R$ 49,90 - Até 60 convidados</option>
+              <option value="max">Confirmaê Max - R$ 89,99 - Convidados ilimitados</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="masterCouponCodeInput">Cupom aplicado</label>
+            <input type="text" id="masterCouponCodeInput" placeholder="Ex: ELISETEGRAF" />
+          </div>
+
+          <div class="form-group">
+            <label for="masterOriginalAmountInput">Valor original</label>
+            <input type="text" id="masterOriginalAmountInput" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="masterDiscountAmountInput">Desconto</label>
+            <input type="text" id="masterDiscountAmountInput" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="masterFinalAmountInput">Valor final</label>
+            <input type="text" id="masterFinalAmountInput" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="masterStatusCommercialSelect">Status comercial</label>
+            <select id="masterStatusCommercialSelect">
+              <option value="paid">Pago</option>
+              <option value="pending">Pendente</option>
+              <option value="courtesy">Cortesia</option>
+              <option value="beta">Beta</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="masterStatusOperationalSelect">Status operacional</label>
+            <select id="masterStatusOperationalSelect">
+              <option value="active">Ativo</option>
+              <option value="blocked">Bloqueado</option>
+              <option value="finished">Finalizado</option>
+              <option value="waiting_delete">Aguardando exclusão</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="masterEventDateIsoInput">Data oficial do evento</label>
+            <input type="text" id="masterEventDateIsoInput" placeholder="Será puxada quando o cliente preencher" readonly />
           </div>
 
           <div class="form-group">
             <label for="masterPanelPinInput">PIN do painel do cliente</label>
-            <input
-              type="text"
-              id="masterPanelPinInput"
-              placeholder="Ex: 123456"
-            />
+            <input type="text" id="masterPanelPinInput" placeholder="Ex: 123456" />
           </div>
 
           <div class="form-group">
             <label for="masterGatePinInput">PIN da portaria</label>
-            <input
-              type="text"
-              id="masterGatePinInput"
-              placeholder="Ex: 654321"
-            />
+            <input type="text" id="masterGatePinInput" placeholder="Ex: 654321" />
           </div>
 
           <div class="form-group">
             <label for="masterEventNameInput">Nome inicial do evento</label>
-            <input
-              type="text"
-              id="masterEventNameInput"
-              placeholder="Ex: Aniversário da Maria"
-            />
+            <input type="text" id="masterEventNameInput" placeholder="Ex: Aniversário da Maria" />
           </div>
 
           <div class="form-group">
             <label for="masterEventTypeInput">Tipo do evento</label>
-            <input
-              type="text"
-              id="masterEventTypeInput"
-              placeholder="Ex: Aniversário"
-            />
+            <input type="text" id="masterEventTypeInput" placeholder="Ex: Aniversário" />
           </div>
 
           <div class="form-group">
             <label for="masterNotesInput">Observações internas</label>
-            <input
-              type="text"
-              id="masterNotesInput"
-              placeholder="Ex: Pagamento confirmado via Pix."
-            />
+            <input type="text" id="masterNotesInput" placeholder="Ex: Pagamento confirmado via Pix." />
           </div>
 
           <div class="hero-actions">
@@ -238,6 +239,84 @@
       <article class="panel-card" style="margin-top: 24px;">
         <div class="panel-heading">
           <div>
+            <span class="eyebrow">Cupons</span>
+            <h2>Criar ou atualizar cupom</h2>
+          </div>
+
+          <button type="button" class="btn btn-secondary" id="reloadCouponsButton">
+            Atualizar cupons
+          </button>
+        </div>
+
+        <form class="guest-form" id="couponForm">
+          <div class="form-group">
+            <label for="couponCodeInput">Código do cupom</label>
+            <input type="text" id="couponCodeInput" placeholder="Ex: ELISETEGRAF" required />
+          </div>
+
+          <div class="form-group">
+            <label for="couponReferrerNameInput">Nome do indicador</label>
+            <input type="text" id="couponReferrerNameInput" placeholder="Ex: Elisete" />
+          </div>
+
+          <div class="form-group">
+            <label for="couponReferrerWhatsappInput">WhatsApp do indicador</label>
+            <input type="text" id="couponReferrerWhatsappInput" placeholder="Ex: 11999999999" />
+          </div>
+
+          <div class="form-group">
+            <label for="couponDiscountAmountInput">Desconto fixo</label>
+            <input type="text" id="couponDiscountAmountInput" placeholder="Ex: R$ 10,00" required />
+          </div>
+
+          <div class="form-group">
+            <label for="couponActiveSelect">Status do cupom</label>
+            <select id="couponActiveSelect">
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="couponNotesInput">Observações</label>
+            <input type="text" id="couponNotesInput" placeholder="Ex: Beta indicado pela Elisete" />
+          </div>
+
+          <div class="hero-actions">
+            <button type="submit" class="btn btn-primary">
+              Salvar cupom
+            </button>
+
+            <button type="button" class="btn btn-secondary" id="clearCouponFormButton">
+              Limpar cupom
+            </button>
+          </div>
+        </form>
+
+        <div class="table-wrapper" style="margin-top: 24px;">
+          <table class="guest-table">
+            <thead>
+              <tr>
+                <th>Cupom</th>
+                <th>Indicador</th>
+                <th>Desconto</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+
+            <tbody id="couponsTableBody">
+              <tr>
+                <td colspan="5">Carregando cupons...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel-card" style="margin-top: 24px;">
+        <div class="panel-heading">
+          <div>
             <span class="eyebrow">Eventos</span>
             <h2>Eventos liberados e bloqueados</h2>
           </div>
@@ -253,16 +332,17 @@
               <tr>
                 <th>ID</th>
                 <th>Cliente</th>
+                <th>Plano</th>
+                <th>Cupom</th>
+                <th>Data / alerta</th>
                 <th>Status</th>
-                <th>PINs</th>
-                <th>Pagamento</th>
                 <th>Ações</th>
               </tr>
             </thead>
 
             <tbody id="masterEventsTableBody">
               <tr>
-                <td colspan="6">Carregando eventos...</td>
+                <td colspan="7">Carregando eventos...</td>
               </tr>
             </tbody>
           </table>
@@ -278,7 +358,7 @@
     </div>
   </footer>
 
-  <script src="assets/js/theme.js?v=brand-1"></script>
-  <script type="module" src="assets/js/master.js?v=pins-1"></script>
+  <script src="assets/js/theme.js?v=comercial-1"></script>
+  <script type="module" src="assets/js/master.js?v=comercial-1"></script>
 </body>
 </html>
