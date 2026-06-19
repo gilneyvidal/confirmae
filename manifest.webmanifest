@@ -1,1 +1,79 @@
-
+{
+  "name": "Confirmaê - Controle de Eventos",
+  "short_name": "Confirmaê",
+  "description": "Sistema para confirmação de presença, QR Code e controle de portaria em eventos.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0D1014",
+  "theme_color": "#0D1014",
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
+  ],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/img/confirmae-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/confirmae-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/confirmae-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Painel do anfitrião",
+      "short_name": "Painel",
+      "description": "Acessar o painel do anfitrião",
+      "url": "./admin.html",
+      "icons": [
+        {
+          "src": "assets/img/confirmae-icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Portaria",
+      "short_name": "Portaria",
+      "description": "Acessar a validação de entrada",
+      "url": "./portaria.html",
+      "icons": [
+        {
+          "src": "assets/img/confirmae-icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Manual",
+      "short_name": "Manual",
+      "description": "Abrir o manual de uso do Confirmaê",
+      "url": "./manual.html",
+      "icons": [
+        {
+          "src": "assets/img/confirmae-icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
