@@ -18,6 +18,8 @@ const CONFIRMAE_THEME = window.CONFIRMAE_THEME;
 const BUSINESS_CONFIG = CONFIRMAE_THEME.business;
 
 const eventIdInput = document.getElementById("eventIdInput");
+const eventPanelPinInput = document.getElementById("eventPanelPinInput");
+const panelPinHelpText = document.getElementById("panelPinHelpText");
 const loadEventButton = document.getElementById("loadEventButton");
 
 const accessLockedSection = document.getElementById("accessLockedSection");
@@ -34,6 +36,7 @@ const eventConfigForm = document.getElementById("eventConfigForm");
 const eventNameInput = document.getElementById("eventNameInput");
 const eventTypeInput = document.getElementById("eventTypeInput");
 const eventHostInput = document.getElementById("eventHostInput");
+const eventDateIsoInput = document.getElementById("eventDateIsoInput");
 const eventDateInput = document.getElementById("eventDateInput");
 const eventTimeInput = document.getElementById("eventTimeInput");
 const eventLocationInput = document.getElementById("eventLocationInput");
@@ -61,15 +64,20 @@ const downloadQrButton = document.getElementById("downloadQrButton");
 let currentEventId = getQueryParam("evento") || CONFIRMAE_THEME.defaultEventId;
 let currentQrLink = "";
 let currentQrGuestName = "";
+let currentEventInfo = null;
+let currentGuests = [];
 
 eventIdInput.value = currentEventId;
+eventPanelPinInput.value = getQueryParam("pin") || "";
 
-function setTableLoading(message) {
-  guestTableBody.innerHTML = `
-    <tr>
-      <td colspan="5">${escapeHtml(message)}</td>
-    </tr>
-  `;
+function getPanelStorageKey(eventId) {
+  return `confirmae_panel_pin_${eventId}`;
+}
+
+function hideEventWorkspace() {
+  eventWorkspaceSections.forEach((section) => {
+    section.hidden = true;
+  });
 }
 
 function showEventWorkspace() {
@@ -80,21 +88,55 @@ function showEventWorkspace() {
   });
 }
 
+function setTableLoading(message) {
+  guestTableBody.innerHTML = `
+    <tr>
+      <td colspan="5">${escapeHtml(message)}</td>
+    </tr>
+  `;
+}
+
+function isPanelPinValid(eventInfo) {
+  if (currentEventId === CONFIRMAE_THEME.defaultEventId) {
+    return true;
+  }
+
+  if (!eventInfo.panelPin) {
+    return true;
+  }
+
+  const typedPin = eventPanelPinInput.value.trim();
+  const storedPin = sessionStorage.getItem(getPanelStorageKey(currentEventId));
+
+  return typedPin === eventInfo.panelPin || storedPin === eventInfo.panelPin;
+}
+
+function rememberPanelPin(eventInfo) {
+  if (eventInfo && eventInfo.panelPin) {
+    sessionStorage.setItem(getPanelStorageKey(currentEventId), eventInfo.panelPin);
+  }
+}
+
 function showAccessLocked(eventId) {
   lockedEventIdText.textContent = eventId;
-  unlockPriceText.textContent = BUSINESS_CONFIG.unlockPrice;
+  unlockPriceText.textContent = "Planos a partir de R$ 29,90";
   pixBankText.textContent = BUSINESS_CONFIG.pixBank;
   pixKeyText.textContent = BUSINESS_CONFIG.pixKey;
   pixHolderText.textContent = BUSINESS_CONFIG.pixHolder;
   unlockWhatsappLink.href = buildWhatsappUnlockLink(eventId);
 
   accessLockedSection.hidden = false;
-
-  eventWorkspaceSections.forEach((section) => {
-    section.hidden = true;
-  });
-
+  hideEventWorkspace();
   updateStats([]);
+}
+
+function showPanelPinDenied() {
+  accessLockedSection.hidden = true;
+  hideEventWorkspace();
+  updateStats([]);
+
+  panelPinHelpText.textContent = "PIN incorreto. Confira o PIN enviado pelo WhatsApp e tente novamente.";
+  alert("PIN do painel incorreto.");
 }
 
 function updateStats(guests) {
@@ -105,12 +147,31 @@ function updateStats(guests) {
   presentGuests.textContent = guests.filter((guest) => guest.status === "present").length;
 }
 
-async function renderEventConfig() {
-  const eventInfo = await getEvent(currentEventId);
+function formatDateIsoToLongText(dateIso) {
+  if (!dateIso) {
+    return "";
+  }
 
+  const [year, month, day] = String(dateIso).split("-").map(Number);
+
+  if (!year || !month || !day) {
+    return "";
+  }
+
+  const date = new Date(year, month - 1, day);
+
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function renderEventConfig(eventInfo) {
   eventNameInput.value = eventInfo.name || "";
   eventTypeInput.value = eventInfo.type || "";
   eventHostInput.value = eventInfo.hostName || "";
+  eventDateIsoInput.value = eventInfo.eventDateIso || "";
   eventDateInput.value = eventInfo.date || "";
   eventTimeInput.value = eventInfo.time || "";
   eventLocationInput.value = eventInfo.location || "";
@@ -121,6 +182,7 @@ async function renderGuests() {
   setTableLoading("Carregando convidados do Firebase...");
 
   const guests = await getGuestsByEvent(currentEventId);
+  currentGuests = guests;
 
   updateStats(guests);
 
@@ -165,22 +227,11 @@ async function renderGuests() {
 
           <td>
             <div class="invitation-actions">
-              <button
-                type="button"
-                class="btn btn-secondary btn-small"
-                data-action="copy-link"
-                data-link="${escapeHtml(invitationLink)}"
-              >
+              <button type="button" class="btn btn-secondary btn-small" data-action="copy-link" data-link="${escapeHtml(invitationLink)}">
                 Copiar link
               </button>
 
-              <button
-                type="button"
-                class="btn btn-primary btn-small"
-                data-action="show-qr"
-                data-link="${escapeHtml(invitationLink)}"
-                data-guest-name="${escapeHtml(guest.name)}"
-              >
+              <button type="button" class="btn btn-primary btn-small" data-action="show-qr" data-link="${escapeHtml(invitationLink)}" data-guest-name="${escapeHtml(guest.name)}">
                 Ver QR
               </button>
             </div>
@@ -188,21 +239,11 @@ async function renderGuests() {
 
           <td>
             <div class="table-actions">
-              <button
-                type="button"
-                class="btn btn-secondary btn-small"
-                data-action="mark-waiting"
-                data-guest-id="${escapeHtml(guest.id)}"
-              >
+              <button type="button" class="btn btn-secondary btn-small" data-action="mark-waiting" data-guest-id="${escapeHtml(guest.id)}">
                 Enviado
               </button>
 
-              <button
-                type="button"
-                class="btn btn-danger btn-small"
-                data-action="remove"
-                data-guest-id="${escapeHtml(guest.id)}"
-              >
+              <button type="button" class="btn btn-danger btn-small" data-action="remove" data-guest-id="${escapeHtml(guest.id)}">
                 Remover
               </button>
             </div>
@@ -217,11 +258,28 @@ async function loadCurrentEvent() {
   currentEventId = eventIdInput.value.trim() || CONFIRMAE_THEME.defaultEventId;
   eventIdInput.value = currentEventId;
 
+  panelPinHelpText.textContent = "Verificando acesso...";
   loadEventButton.disabled = true;
   loadEventButton.textContent = "Carregando...";
 
   try {
-    await renderEventConfig();
+    const eventInfo = await getEvent(currentEventId);
+    currentEventInfo = eventInfo;
+
+    if (!eventInfo || eventInfo.accessEnabled === false) {
+      showAccessLocked(currentEventId);
+      return;
+    }
+
+    if (!isPanelPinValid(eventInfo)) {
+      showPanelPinDenied();
+      return;
+    }
+
+    rememberPanelPin(eventInfo);
+    panelPinHelpText.textContent = "Acesso liberado para este evento.";
+
+    renderEventConfig(eventInfo);
     await renderGuests();
     showEventWorkspace();
   } catch (error) {
@@ -329,27 +387,27 @@ async function handleEventConfigSubmit(event) {
   submitButton.disabled = true;
   submitButton.textContent = "Salvando...";
 
+  const eventDateIso = eventDateIsoInput.value.trim();
+  const dateText = eventDateInput.value.trim() || formatDateIsoToLongText(eventDateIso);
+
   try {
     await saveEvent(currentEventId, {
       name: eventNameInput.value.trim(),
       type: eventTypeInput.value.trim(),
       hostName: eventHostInput.value.trim(),
-      date: eventDateInput.value.trim(),
+      eventDateIso,
+      date: dateText,
       time: eventTimeInput.value.trim(),
       location: eventLocationInput.value.trim(),
       intro: eventIntroInput.value.trim()
     });
 
     alert("Dados do evento salvos com sucesso!");
+
+    await loadCurrentEvent();
   } catch (error) {
     console.error(error);
-
-    if (error.code === "event-not-released") {
-      showAccessLocked(currentEventId);
-      alert("Este evento ainda não foi liberado para edição.");
-    } else {
-      alert("Não foi possível salvar os dados do evento.");
-    }
+    alert("Não foi possível salvar os dados do evento.");
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Salvar dados do evento";
@@ -368,6 +426,19 @@ async function handleGuestFormSubmit(event) {
 
   if (!name) {
     alert("Informe o nome do convidado.");
+    return;
+  }
+
+  if (
+    currentEventId !== CONFIRMAE_THEME.defaultEventId &&
+    currentEventInfo &&
+    currentEventInfo.guestLimit !== null &&
+    currentEventInfo.guestLimit !== undefined &&
+    currentGuests.length >= Number(currentEventInfo.guestLimit)
+  ) {
+    alert(
+      `Seu plano permite até ${currentEventInfo.guestLimit} convidados.\n\nPara cadastrar mais pessoas, solicite upgrade pelo WhatsApp.`
+    );
     return;
   }
 
@@ -395,9 +466,10 @@ async function handleGuestFormSubmit(event) {
   } catch (error) {
     console.error(error);
 
-    if (error.code === "event-not-released") {
-      showAccessLocked(currentEventId);
-      alert("Este evento ainda não foi liberado para cadastro de convidados.");
+    if (error.code === "guest-limit-reached") {
+      alert(
+        `Seu plano permite até ${error.limit} convidados.\n\nPara cadastrar mais pessoas, solicite upgrade pelo WhatsApp.`
+      );
     } else {
       alert("Não foi possível criar o convite. Confira o Firebase e tente novamente.");
     }
@@ -485,9 +557,7 @@ async function handleResetDemo() {
     currentEventId = CONFIRMAE_THEME.defaultEventId;
     eventIdInput.value = currentEventId;
 
-    await renderEventConfig();
-    await renderGuests();
-    showEventWorkspace();
+    await loadCurrentEvent();
   } catch (error) {
     console.error(error);
     alert("Não foi possível restaurar a demonstração.");
@@ -502,6 +572,12 @@ guestForm.addEventListener("submit", handleGuestFormSubmit);
 guestTableBody.addEventListener("click", handleTableClick);
 loadEventButton.addEventListener("click", loadCurrentEvent);
 resetDemoButton.addEventListener("click", handleResetDemo);
+
+eventDateIsoInput.addEventListener("change", () => {
+  if (!eventDateInput.value.trim()) {
+    eventDateInput.value = formatDateIsoToLongText(eventDateIsoInput.value);
+  }
+});
 
 copyPixButton.addEventListener("click", () => {
   copyTextToClipboard(BUSINESS_CONFIG.pixKey, copyPixButton, "Copiar chave Pix");
@@ -527,4 +603,5 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+hideEventWorkspace();
 loadCurrentEvent();
