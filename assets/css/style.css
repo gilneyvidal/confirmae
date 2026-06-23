@@ -1904,3 +1904,136 @@ label {
     white-space: normal;
   }
 }
+/* =========================================================
+   Checkout preparado para liberação manual
+   ========================================================= */
+
+.checkout-main {
+  min-height: calc(100vh - 180px);
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.checkout-summary-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.checkout-summary-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(33, 189, 193, 0.18), transparent 36%);
+  pointer-events: none;
+}
+
+.checkout-summary-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.checkout-price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 18px 0 12px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(172, 173, 179, 0.14);
+  border-bottom: 1px solid rgba(172, 173, 179, 0.14);
+}
+
+.checkout-price strong {
+  color: var(--color-text);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.checkout-price span {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.checkout-plan-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.checkout-plan-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(172, 173, 179, 0.14);
+  border-radius: 18px;
+  background: rgba(254, 254, 254, 0.035);
+  cursor: pointer;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.checkout-plan-option:hover,
+.checkout-plan-option.is-selected {
+  transform: translateY(-2px);
+  border-color: rgba(33, 189, 193, 0.44);
+  background: rgba(33, 189, 193, 0.08);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+}
+
+.checkout-plan-option-featured {
+  border-color: rgba(33, 189, 193, 0.32);
+}
+
+.checkout-plan-option input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.checkout-plan-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkout-plan-option strong {
+  color: var(--color-text);
+}
+
+.checkout-plan-option small {
+  color: var(--color-muted);
+}
+
+.payment-status-card {
+  text-align: center;
+}
+
+.payment-status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  background: rgba(33, 189, 193, 0.12);
+  color: var(--color-primary);
+  border: 1px solid rgba(33, 189, 193, 0.28);
+  font-size: 2.3rem;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+}
