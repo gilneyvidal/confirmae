@@ -2,10 +2,11 @@
 <html lang="pt-BR">
 <head>
   <link rel="manifest" href="manifest.webmanifest" />
-<meta name="theme-color" content="#0D1014" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="Confirmaê" />
+  <meta name="theme-color" content="#0D1014" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Confirmaê" />
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -17,8 +18,8 @@
   />
 
   <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
-<link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
-<link rel="stylesheet" href="assets/css/style.css?v=footer-1" />
+  <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css?v=pricing-2" />
 </head>
 
 <body class="page-home">
@@ -31,9 +32,10 @@
 
       <nav class="main-nav" aria-label="Menu principal">
         <a href="#como-funciona">Como funciona</a>
-        <a href="#contratar">Contratar</a>
+        <a href="#contratar">Planos</a>
         <a href="admin.html">Acessar evento</a>
         <a href="portaria.html">Portaria</a>
+        <a href="manual.html">Manual</a>
       </nav>
     </div>
   </header>
@@ -55,13 +57,13 @@
           </p>
 
           <div class="hero-actions">
-            <a href="#contratar" class="btn btn-primary">Criar novo evento</a>
+            <a href="#contratar" class="btn btn-primary">Ver planos</a>
             <a href="admin.html" class="btn btn-secondary">Já tenho um evento</a>
           </div>
 
           <p class="hero-note">
-            Por menos de R$ 1,00 por dia, você pode ter um sistema profissional
-            para organizar seu evento com muito mais controle.
+            Planos por evento a partir de R$ 29,90, com confirmação online,
+            QR Code individual, portaria digital e exportação de lista.
           </p>
         </div>
 
@@ -240,83 +242,216 @@
       </div>
     </section>
 
-    <section class="next-step-section" id="contratar">
-      <div class="container next-step-card">
-        <div>
-          <span class="eyebrow">Oferta de lançamento</span>
-          <h2>Crie seu evento por R$ 29,90</h2>
+    <section class="pricing-section" id="contratar">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Planos por evento</span>
+          <h2>Escolha o plano ideal para o seu evento</h2>
           <p>
-            Por menos de R$ 1,00 por dia, você tem um sistema profissional com
-            painel do anfitrião, confirmação de presença, QR Code individual e
-            controle de portaria.
+            O Confirmaê é contratado por evento. Você escolhe o plano de acordo
+            com a quantidade de convidados que deseja cadastrar.
           </p>
-
-          <p>
-            Preencha seus dados, escolha um ID para seu evento e envie a mensagem
-            pelo WhatsApp. Depois faça o Pix e envie o comprovante para liberação.
-          </p>
-
-          <div class="admin-help-box">
-            <strong>Dados para pagamento via Pix</strong>
-            <p>
-              <strong>Banco:</strong> <span id="homePixBank">Mercado Pago</span><br />
-              <strong>Chave Pix:</strong> <span id="homePixKey">11968649673</span><br />
-              <strong>Nome:</strong> <span id="homePixHolder">Gilney Wesley Aparecido Vidal</span><br />
-              <strong>Valor:</strong> <span id="homePixValue">R$ 29,90</span>
-            </p>
-          </div>
         </div>
 
-        <div class="event-selector-card">
-          <form class="guest-form" id="leadForm">
-            <div class="form-group">
-              <label for="leadNameInput">Seu nome</label>
-              <input
-                type="text"
-                id="leadNameInput"
-                placeholder="Ex: Maria Oliveira"
-                required
-              />
+        <div class="pricing-grid">
+          <article class="pricing-card">
+            <div class="pricing-card-header">
+              <span class="pricing-badge">Para eventos menores</span>
+              <h3>Confirmaê Essencial</h3>
+              <p>
+                Ideal para aniversários, encontros, chás e eventos mais compactos.
+              </p>
             </div>
 
-            <div class="form-group">
-              <label for="leadWhatsappInput">Seu WhatsApp</label>
-              <input
-                type="text"
-                id="leadWhatsappInput"
-                placeholder="Ex: 11999999999"
-                required
-              />
+            <div class="pricing-price">
+              <strong>R$ 29,90</strong>
+              <span>por evento</span>
             </div>
 
-            <div class="form-group">
-              <label for="leadEmailInput">Seu e-mail</label>
-              <input
-                type="email"
-                id="leadEmailInput"
-                placeholder="Ex: cliente@email.com"
-                required
-              />
-            </div>
+            <ul class="pricing-features">
+              <li>Até 30 convidados</li>
+              <li>Link individual para cada convidado</li>
+              <li>QR Code individual</li>
+              <li>Confirmação de presença online</li>
+              <li>Painel do anfitrião</li>
+              <li>Portaria com validação por QR Code</li>
+              <li>Exportação de lista em CSV</li>
+            </ul>
 
-            <div class="form-group">
-              <label for="leadEventIdInput">ID desejado para o evento</label>
-              <input
-                type="text"
-                id="leadEventIdInput"
-                placeholder="Ex: aniversario-maria-2026"
-                required
-              />
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-              Contratar pelo WhatsApp
+            <button
+              type="button"
+              class="btn btn-secondary pricing-button"
+              data-select-plan="essential"
+            >
+              Quero o Essencial
             </button>
+          </article>
 
-            <a href="admin.html" class="btn btn-secondary">
-              Já tenho evento liberado
-            </a>
-          </form>
+          <article class="pricing-card pricing-card-featured">
+            <div class="pricing-card-header">
+              <span class="pricing-badge">Mais indicado</span>
+              <h3>Confirmaê Pro</h3>
+              <p>
+                Perfeito para festas, eventos familiares maiores e celebrações com mais controle.
+              </p>
+            </div>
+
+            <div class="pricing-price">
+              <strong>R$ 49,90</strong>
+              <span>por evento</span>
+            </div>
+
+            <ul class="pricing-features">
+              <li>Até 60 convidados</li>
+              <li>Link individual para cada convidado</li>
+              <li>QR Code individual</li>
+              <li>Confirmação de presença online</li>
+              <li>Painel do anfitrião</li>
+              <li>Portaria com validação por QR Code</li>
+              <li>Exportação de lista em CSV</li>
+              <li>Ideal para quem quer mais margem de convidados</li>
+            </ul>
+
+            <button
+              type="button"
+              class="btn btn-primary pricing-button"
+              data-select-plan="pro"
+            >
+              Quero o Pro
+            </button>
+          </article>
+
+          <article class="pricing-card">
+            <div class="pricing-card-header">
+              <span class="pricing-badge">Sem limite</span>
+              <h3>Confirmaê Max</h3>
+              <p>
+                Para eventos maiores, equipes, produtores, igrejas, escolas e organizações.
+              </p>
+            </div>
+
+            <div class="pricing-price">
+              <strong>R$ 89,99</strong>
+              <span>por evento</span>
+            </div>
+
+            <ul class="pricing-features">
+              <li>Convidados ilimitados</li>
+              <li>Link individual para cada convidado</li>
+              <li>QR Code individual</li>
+              <li>Confirmação de presença online</li>
+              <li>Painel do anfitrião</li>
+              <li>Portaria com validação por QR Code</li>
+              <li>Exportação de lista em CSV</li>
+              <li>Melhor opção para eventos grandes</li>
+            </ul>
+
+            <button
+              type="button"
+              class="btn btn-secondary pricing-button"
+              data-select-plan="max"
+            >
+              Quero o Max
+            </button>
+          </article>
+        </div>
+
+        <div class="pricing-note">
+          <strong>Todos os planos incluem:</strong>
+          <span>
+            painel do anfitrião, confirmação online, QR Code individual,
+            portaria digital, exportação CSV e suporte para liberação do evento.
+          </span>
+        </div>
+
+        <div class="container next-step-card pricing-lead-card" id="formulario-contratacao">
+          <div>
+            <span class="eyebrow">Contratação</span>
+            <h2>Solicite a liberação do seu evento</h2>
+
+            <p>
+              Preencha seus dados, escolha o plano desejado e envie a mensagem pelo
+              WhatsApp. Depois faça o Pix e envie o comprovante para liberação.
+            </p>
+
+            <div class="admin-help-box">
+              <strong>Dados para pagamento via Pix</strong>
+              <p>
+                <strong>Banco:</strong> <span id="homePixBank">Mercado Pago</span><br />
+                <strong>Chave Pix:</strong> <span id="homePixKey">11968649673</span><br />
+                <strong>Nome:</strong> <span id="homePixHolder">Gilney Wesley Aparecido Vidal</span><br />
+                <strong>Plano selecionado:</strong> <span id="homeSelectedPlan">Confirmaê Essencial</span><br />
+                <strong>Valor:</strong> <span id="homePixValue">R$ 29,90</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="event-selector-card">
+            <form class="guest-form" id="leadForm">
+              <div class="form-group">
+                <label for="leadNameInput">Seu nome</label>
+                <input
+                  type="text"
+                  id="leadNameInput"
+                  placeholder="Ex: Maria Oliveira"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="leadWhatsappInput">Seu WhatsApp</label>
+                <input
+                  type="text"
+                  id="leadWhatsappInput"
+                  placeholder="Ex: 11999999999"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="leadEmailInput">Seu e-mail</label>
+                <input
+                  type="email"
+                  id="leadEmailInput"
+                  placeholder="Ex: cliente@email.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="leadPlanInput">Plano desejado</label>
+                <select id="leadPlanInput" required>
+                  <option value="essential">
+                    Essencial - R$ 29,90 - até 30 convidados
+                  </option>
+                  <option value="pro">
+                    Pro - R$ 49,90 - até 60 convidados
+                  </option>
+                  <option value="max">
+                    Max - R$ 89,99 - convidados ilimitados
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="leadEventIdInput">ID desejado para o evento</label>
+                <input
+                  type="text"
+                  id="leadEventIdInput"
+                  placeholder="Ex: aniversario-maria-2026"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Contratar pelo WhatsApp
+              </button>
+
+              <a href="admin.html" class="btn btn-secondary">
+                Já tenho evento liberado
+              </a>
+            </form>
+          </div>
         </div>
       </div>
     </section>
@@ -333,7 +468,8 @@
             <div class="feature-icon">?</div>
             <h3>Preciso instalar aplicativo?</h3>
             <p>
-              Não. O Confirmaê funciona pelo navegador, no celular ou computador.
+              Não precisa baixar pela loja. O Confirmaê funciona pelo navegador
+              e também pode ser instalado no celular como app.
             </p>
           </article>
 
@@ -341,7 +477,7 @@
             <div class="feature-icon">R$</div>
             <h3>Tem mensalidade?</h3>
             <p>
-              Nesta oferta inicial, a liberação do evento é feita por pagamento único.
+              Não. A contratação é por evento, conforme o plano escolhido.
             </p>
           </article>
 
@@ -350,7 +486,7 @@
             <h3>Como recebo acesso?</h3>
             <p>
               Após o pagamento e envio do comprovante, o ID do seu evento é liberado
-              manualmente.
+              manualmente com PIN do painel e PIN da portaria.
             </p>
           </article>
         </div>
@@ -359,38 +495,56 @@
   </main>
 
   <footer class="site-footer">
-  <div class="container footer-content footer-content-branded">
-    <div class="footer-brand-note">
-      <p>© 2026 Confirmaê.</p>
-      <p>Confirmaê é um sistema desenvolvido por Vidal Design Solutions.</p>
+    <div class="container footer-content footer-content-branded">
+      <div class="footer-brand-note">
+        <p>© 2026 Confirmaê.</p>
+        <p>Confirmaê é um sistema desenvolvido por Vidal Design Solutions.</p>
+      </div>
+
+      <a
+        href="http://www.vidaldesignsolutions.com.br"
+        class="developer-badge"
+        target="_blank"
+        rel="noopener"
+        aria-label="Acessar site da Vidal Design Solutions"
+      >
+        <span>Desenvolvido por</span>
+        <img
+          src="assets/img/vidal-design-logo.png"
+          alt="Vidal Design Solutions"
+        />
+      </a>
     </div>
+  </footer>
 
-    <a
-      href="http://www.vidaldesignsolutions.com.br"
-      class="developer-badge"
-      target="_blank"
-      rel="noopener"
-      aria-label="Acessar site da Vidal Design Solutions"
-    >
-      <span>Desenvolvido por</span>
-      <img
-        src="assets/img/vidal-design-logo.png"
-        alt="Vidal Design Solutions"
-      />
-    </a>
-  </div>
-</footer>
-
-  <script src="assets/js/theme.js"></script>
+  <script src="assets/js/theme.js?v=pricing-2"></script>
 
   <script>
     const business = window.CONFIRMAE_THEME.business;
     const leadForm = document.getElementById("leadForm");
+    const leadPlanInput = document.getElementById("leadPlanInput");
+
+    const planData = {
+      essential: {
+        name: "Confirmaê Essencial",
+        price: "R$ 29,90",
+        limit: "até 30 convidados"
+      },
+      pro: {
+        name: "Confirmaê Pro",
+        price: "R$ 49,90",
+        limit: "até 60 convidados"
+      },
+      max: {
+        name: "Confirmaê Max",
+        price: "R$ 89,99",
+        limit: "convidados ilimitados"
+      }
+    };
 
     document.getElementById("homePixBank").textContent = business.pixBank;
     document.getElementById("homePixKey").textContent = business.pixKey;
     document.getElementById("homePixHolder").textContent = business.pixHolder;
-    document.getElementById("homePixValue").textContent = business.unlockPrice;
 
     function normalizeEventId(value) {
       return String(value || "")
@@ -401,6 +555,40 @@
         .replace(/(^-|-$)/g, "");
     }
 
+    function getSelectedPlan() {
+      return planData[leadPlanInput.value] || planData.essential;
+    }
+
+    function updateSelectedPlanInfo() {
+      const selectedPlan = getSelectedPlan();
+
+      document.getElementById("homeSelectedPlan").textContent = selectedPlan.name;
+      document.getElementById("homePixValue").textContent = selectedPlan.price;
+    }
+
+    function scrollToLeadForm() {
+      const formSection = document.getElementById("formulario-contratacao");
+
+      if (formSection) {
+        formSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }
+
+    document.querySelectorAll("[data-select-plan]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const selectedPlanId = button.getAttribute("data-select-plan");
+
+        leadPlanInput.value = selectedPlanId;
+        updateSelectedPlanInfo();
+        scrollToLeadForm();
+      });
+    });
+
+    leadPlanInput.addEventListener("change", updateSelectedPlanInfo);
+
     leadForm.addEventListener("submit", function (event) {
       event.preventDefault();
 
@@ -408,6 +596,7 @@
       const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
       const leadEmail = document.getElementById("leadEmailInput").value.trim();
       const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
+      const selectedPlan = getSelectedPlan();
 
       if (!leadName || !leadWhatsapp || !leadEmail || !desiredEventId) {
         alert("Preencha nome, WhatsApp, e-mail e ID desejado para continuar.");
@@ -422,7 +611,11 @@
         "E-mail: " + leadEmail,
         "ID desejado: " + desiredEventId,
         "",
-        "Vi a oferta de " + business.unlockPrice + " e quero enviar o comprovante para liberar meu evento."
+        "Plano escolhido: " + selectedPlan.name,
+        "Limite: " + selectedPlan.limit,
+        "Valor: " + selectedPlan.price,
+        "",
+        "Quero enviar o comprovante para liberar meu evento."
       ].join("\n");
 
       const whatsappUrl =
@@ -433,7 +626,10 @@
 
       window.open(whatsappUrl, "_blank");
     });
+
+    updateSelectedPlanInfo();
   </script>
+
   <script src="assets/js/pwa.js?v=pwa-1"></script>
 </body>
 </html>
