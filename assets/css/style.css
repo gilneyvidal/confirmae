@@ -2037,3 +2037,42 @@ label {
     grid-template-columns: 1fr;
   }
 }
+/* =========================================================
+   Cupom na home antes do checkout
+   ========================================================= */
+
+.pricing-coupon-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 22px;
+  align-items: end;
+  margin-top: 34px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(33, 189, 193, 0.12), transparent 34%),
+    rgba(254, 254, 254, 0.045);
+  border: 1px solid rgba(33, 189, 193, 0.18);
+  border-radius: 24px;
+}
+
+.pricing-coupon-box h3 {
+  margin: 8px 0 8px;
+  color: var(--color-text);
+}
+
+.pricing-coupon-box p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.pricing-coupon-box .form-group {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .pricing-coupon-box {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
