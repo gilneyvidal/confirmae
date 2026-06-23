@@ -1,4 +1,4 @@
-const CONFIRMAE_CACHE_NAME = "confirmae-cache-v1";
+const CONFIRMAE_CACHE_NAME = "confirmae-cache-v2";
 
 const CONFIRMAE_CORE_ASSETS = [
   "./",
@@ -8,6 +8,8 @@ const CONFIRMAE_CORE_ASSETS = [
   "./convite.html",
   "./portaria.html",
   "./manual.html",
+  "./checkout.html",
+  "./pagamento.html",
   "./manifest.webmanifest",
   "./assets/css/style.css",
   "./assets/js/theme.js",
