@@ -19,7 +19,7 @@
 
   <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
   <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
-  <link rel="stylesheet" href="assets/css/style.css?v=pricing-2" />
+  <link rel="stylesheet" href="assets/css/style.css?v=pricing-3" />
 </head>
 
 <body class="page-home">
@@ -33,6 +33,7 @@
       <nav class="main-nav" aria-label="Menu principal">
         <a href="#como-funciona">Como funciona</a>
         <a href="#contratar">Planos</a>
+        <a href="checkout.html">Checkout</a>
         <a href="admin.html">Acessar evento</a>
         <a href="portaria.html">Portaria</a>
         <a href="manual.html">Manual</a>
@@ -248,9 +249,29 @@
           <span class="eyebrow">Planos por evento</span>
           <h2>Escolha o plano ideal para o seu evento</h2>
           <p>
-            O Confirmaê é contratado por evento. Você escolhe o plano de acordo
-            com a quantidade de convidados que deseja cadastrar.
+            O Confirmaê é contratado por evento. Escolha o plano de acordo com
+            a quantidade de convidados que deseja cadastrar.
           </p>
+        </div>
+
+        <div class="pricing-coupon-box">
+          <div>
+            <span class="eyebrow">Tem cupom?</span>
+            <h3>Informe seu cupom antes de escolher o plano</h3>
+            <p>
+              Se você recebeu um cupom de indicação, digite abaixo. Ele será levado
+              automaticamente para o checkout.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="homeCouponInput">Cupom de indicação</label>
+            <input
+              type="text"
+              id="homeCouponInput"
+              placeholder="Ex: ELISETEGRAF"
+            />
+          </div>
         </div>
 
         <div class="pricing-grid">
@@ -281,9 +302,9 @@
             <button
               type="button"
               class="btn btn-secondary pricing-button"
-              data-select-plan="essential"
+              data-checkout-plan="essential"
             >
-              Quero o Essencial
+              Escolher Essencial
             </button>
           </article>
 
@@ -315,9 +336,9 @@
             <button
               type="button"
               class="btn btn-primary pricing-button"
-              data-select-plan="pro"
+              data-checkout-plan="pro"
             >
-              Quero o Pro
+              Escolher Pro
             </button>
           </article>
 
@@ -349,9 +370,9 @@
             <button
               type="button"
               class="btn btn-secondary pricing-button"
-              data-select-plan="max"
+              data-checkout-plan="max"
             >
-              Quero o Max
+              Escolher Max
             </button>
           </article>
         </div>
@@ -362,96 +383,6 @@
             painel do anfitrião, confirmação online, QR Code individual,
             portaria digital, exportação CSV e suporte para liberação do evento.
           </span>
-        </div>
-
-        <div class="container next-step-card pricing-lead-card" id="formulario-contratacao">
-          <div>
-            <span class="eyebrow">Contratação</span>
-            <h2>Solicite a liberação do seu evento</h2>
-
-            <p>
-              Preencha seus dados, escolha o plano desejado e envie a mensagem pelo
-              WhatsApp. Depois faça o Pix e envie o comprovante para liberação.
-            </p>
-
-            <div class="admin-help-box">
-              <strong>Dados para pagamento via Pix</strong>
-              <p>
-                <strong>Banco:</strong> <span id="homePixBank">Mercado Pago</span><br />
-                <strong>Chave Pix:</strong> <span id="homePixKey">11968649673</span><br />
-                <strong>Nome:</strong> <span id="homePixHolder">Gilney Wesley Aparecido Vidal</span><br />
-                <strong>Plano selecionado:</strong> <span id="homeSelectedPlan">Confirmaê Essencial</span><br />
-                <strong>Valor:</strong> <span id="homePixValue">R$ 29,90</span>
-              </p>
-            </div>
-          </div>
-
-          <div class="event-selector-card">
-            <form class="guest-form" id="leadForm">
-              <div class="form-group">
-                <label for="leadNameInput">Seu nome</label>
-                <input
-                  type="text"
-                  id="leadNameInput"
-                  placeholder="Ex: Maria Oliveira"
-                  required
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="leadWhatsappInput">Seu WhatsApp</label>
-                <input
-                  type="text"
-                  id="leadWhatsappInput"
-                  placeholder="Ex: 11999999999"
-                  required
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="leadEmailInput">Seu e-mail</label>
-                <input
-                  type="email"
-                  id="leadEmailInput"
-                  placeholder="Ex: cliente@email.com"
-                  required
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="leadPlanInput">Plano desejado</label>
-                <select id="leadPlanInput" required>
-                  <option value="essential">
-                    Essencial - R$ 29,90 - até 30 convidados
-                  </option>
-                  <option value="pro">
-                    Pro - R$ 49,90 - até 60 convidados
-                  </option>
-                  <option value="max">
-                    Max - R$ 89,99 - convidados ilimitados
-                  </option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label for="leadEventIdInput">ID desejado para o evento</label>
-                <input
-                  type="text"
-                  id="leadEventIdInput"
-                  placeholder="Ex: aniversario-maria-2026"
-                  required
-                />
-              </div>
-
-              <button type="submit" class="btn btn-primary">
-                Contratar pelo WhatsApp
-              </button>
-
-              <a href="admin.html" class="btn btn-secondary">
-                Já tenho evento liberado
-              </a>
-            </form>
-          </div>
         </div>
       </div>
     </section>
@@ -517,117 +448,37 @@
     </div>
   </footer>
 
-  <script src="assets/js/theme.js?v=pricing-2"></script>
+  <script src="assets/js/theme.js?v=pricing-3"></script>
 
   <script>
-    const business = window.CONFIRMAE_THEME.business;
-    const leadForm = document.getElementById("leadForm");
-    const leadPlanInput = document.getElementById("leadPlanInput");
-
-    const planData = {
-      essential: {
-        name: "Confirmaê Essencial",
-        price: "R$ 29,90",
-        limit: "até 30 convidados"
-      },
-      pro: {
-        name: "Confirmaê Pro",
-        price: "R$ 49,90",
-        limit: "até 60 convidados"
-      },
-      max: {
-        name: "Confirmaê Max",
-        price: "R$ 89,99",
-        limit: "convidados ilimitados"
-      }
-    };
-
-    document.getElementById("homePixBank").textContent = business.pixBank;
-    document.getElementById("homePixKey").textContent = business.pixKey;
-    document.getElementById("homePixHolder").textContent = business.pixHolder;
-
-    function normalizeEventId(value) {
+    function normalizeCoupon(value) {
       return String(value || "")
+        .trim()
+        .toUpperCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+        .replace(/[^A-Z0-9_-]/g, "");
     }
 
-    function getSelectedPlan() {
-      return planData[leadPlanInput.value] || planData.essential;
-    }
+    function goToCheckout(planId) {
+      const couponInput = document.getElementById("homeCouponInput");
+      const coupon = normalizeCoupon(couponInput ? couponInput.value : "");
 
-    function updateSelectedPlanInfo() {
-      const selectedPlan = getSelectedPlan();
+      const params = new URLSearchParams();
+      params.set("plano", planId);
 
-      document.getElementById("homeSelectedPlan").textContent = selectedPlan.name;
-      document.getElementById("homePixValue").textContent = selectedPlan.price;
-    }
-
-    function scrollToLeadForm() {
-      const formSection = document.getElementById("formulario-contratacao");
-
-      if (formSection) {
-        formSection.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
+      if (coupon) {
+        params.set("cupom", coupon);
       }
+
+      window.location.href = "checkout.html?" + params.toString();
     }
 
-    document.querySelectorAll("[data-select-plan]").forEach((button) => {
+    document.querySelectorAll("[data-checkout-plan]").forEach((button) => {
       button.addEventListener("click", () => {
-        const selectedPlanId = button.getAttribute("data-select-plan");
-
-        leadPlanInput.value = selectedPlanId;
-        updateSelectedPlanInfo();
-        scrollToLeadForm();
+        goToCheckout(button.getAttribute("data-checkout-plan"));
       });
     });
-
-    leadPlanInput.addEventListener("change", updateSelectedPlanInfo);
-
-    leadForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      const leadName = document.getElementById("leadNameInput").value.trim();
-      const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
-      const leadEmail = document.getElementById("leadEmailInput").value.trim();
-      const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
-      const selectedPlan = getSelectedPlan();
-
-      if (!leadName || !leadWhatsapp || !leadEmail || !desiredEventId) {
-        alert("Preencha nome, WhatsApp, e-mail e ID desejado para continuar.");
-        return;
-      }
-
-      const message = [
-        "Olá! Quero contratar o Confirmaê para meu evento.",
-        "",
-        "Nome: " + leadName,
-        "WhatsApp: " + leadWhatsapp,
-        "E-mail: " + leadEmail,
-        "ID desejado: " + desiredEventId,
-        "",
-        "Plano escolhido: " + selectedPlan.name,
-        "Limite: " + selectedPlan.limit,
-        "Valor: " + selectedPlan.price,
-        "",
-        "Quero enviar o comprovante para liberar meu evento."
-      ].join("\n");
-
-      const whatsappUrl =
-        "https://wa.me/" +
-        business.whatsappNumberInternational +
-        "?text=" +
-        encodeURIComponent(message);
-
-      window.open(whatsappUrl, "_blank");
-    });
-
-    updateSelectedPlanInfo();
   </script>
 
   <script src="assets/js/pwa.js?v=pwa-1"></script>
