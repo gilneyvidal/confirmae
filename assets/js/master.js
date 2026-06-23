@@ -411,9 +411,9 @@ async function handleGoogleSignIn() {
     console.error(error);
 
     if (error.code === "auth/unauthorized-domain") {
-      alert(
-        "Domínio não autorizado no Firebase Authentication. Adicione gilneyvidal.github.io em Authentication > Settings > Authorized domains."
-      );
+  alert(
+    `Domínio não autorizado no Firebase Authentication. Adicione ${window.location.hostname} em Authentication > Settings > Authorized domains.`
+  );
     } else if (error.code === "auth/popup-closed-by-user") {
       alert("Login cancelado antes de concluir.");
     } else {
