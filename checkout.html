@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0D1014" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Confirmaê" />
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Checkout | Confirmaê</title>
+
+  <meta
+    name="description"
+    content="Escolha seu plano do Confirmaê, informe seus dados e envie a solicitação de liberação do evento pelo WhatsApp."
+  />
+
+  <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
+  <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css?v=checkout-1" />
+</head>
+
+<body class="page-admin">
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Início</a>
+        <a href="index.html#contratar">Planos</a>
+        <a href="manual.html">Manual</a>
+        <a href="admin.html">Acessar evento</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-main checkout-main">
+    <section class="container dashboard-header">
+      <div>
+        <span class="eyebrow">Solicitação de liberação</span>
+        <h1>Escolha seu plano e envie seu pedido</h1>
+        <p>
+          Preencha os dados do evento e envie a solicitação pelo WhatsApp.
+          Após a confirmação, o acesso será liberado manualmente.
+        </p>
+      </div>
+
+      <div class="event-selector-card checkout-summary-card">
+        <span class="eyebrow">Resumo</span>
+        <h2 id="checkoutPlanName">Confirmaê Essencial</h2>
+
+        <div class="checkout-price">
+          <strong id="checkoutPlanPrice">R$ 29,90</strong>
+          <span>por evento</span>
+        </div>
+
+        <p id="checkoutPlanLimit">Até 30 convidados</p>
+
+        <div class="admin-help-box">
+          <strong>Pagamento e liberação</strong>
+          <p>
+            Depois de enviar a solicitação, você receberá orientação para pagamento
+            e liberação do evento pelo WhatsApp.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container checkout-grid">
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Plano</span>
+            <h2>Selecione o plano</h2>
+          </div>
+        </div>
+
+        <div class="checkout-plan-options" id="checkoutPlanOptions">
+          <label class="checkout-plan-option">
+            <input type="radio" name="plan" value="essential" checked />
+            <span>
+              <strong>Essencial</strong>
+              <small>R$ 29,90 • até 30 convidados</small>
+            </span>
+          </label>
+
+          <label class="checkout-plan-option checkout-plan-option-featured">
+            <input type="radio" name="plan" value="pro" />
+            <span>
+              <strong>Pro</strong>
+              <small>R$ 49,90 • até 60 convidados</small>
+            </span>
+          </label>
+
+          <label class="checkout-plan-option">
+            <input type="radio" name="plan" value="max" />
+            <span>
+              <strong>Max</strong>
+              <small>R$ 89,99 • convidados ilimitados</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="admin-help-box">
+          <strong>Todos os planos incluem</strong>
+          <p>
+            Painel do anfitrião, confirmação online, QR Code individual,
+            portaria digital, exportação CSV e suporte para liberação.
+          </p>
+        </div>
+      </article>
+
+      <article class="panel-card panel-card-large">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Dados do pedido</span>
+            <h2>Informações para liberação</h2>
+          </div>
+        </div>
+
+        <form class="guest-form" id="checkoutForm">
+          <div class="form-group">
+            <label for="leadNameInput">Seu nome</label>
+            <input
+              type="text"
+              id="leadNameInput"
+              placeholder="Ex: Maria Oliveira"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadWhatsappInput">Seu WhatsApp</label>
+            <input
+              type="text"
+              id="leadWhatsappInput"
+              placeholder="Ex: 11999999999"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadEmailInput">Seu e-mail</label>
+            <input
+              type="email"
+              id="leadEmailInput"
+              placeholder="Ex: cliente@email.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadEventTypeInput">Tipo de evento</label>
+            <input
+              type="text"
+              id="leadEventTypeInput"
+              placeholder="Ex: casamento, aniversário, formatura"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadGuestCountInput">Quantidade aproximada de convidados</label>
+            <input
+              type="number"
+              id="leadGuestCountInput"
+              min="1"
+              placeholder="Ex: 80"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadCouponInput">Cupom, se tiver</label>
+            <input
+              type="text"
+              id="leadCouponInput"
+              placeholder="Ex: ELISETEGRAF"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadEventIdInput">ID desejado para o evento</label>
+            <input
+              type="text"
+              id="leadEventIdInput"
+              placeholder="Ex: casamento-maria-2026"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="leadNotesInput">Observações</label>
+            <input
+              type="text"
+              id="leadNotesInput"
+              placeholder="Ex: evento será em setembro, quero testar no celular"
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            Enviar solicitação pelo WhatsApp
+          </button>
+
+          <a href="manual.html" class="btn btn-secondary">
+            Ver manual antes
+          </a>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content footer-content-branded">
+      <div class="footer-brand-note">
+        <p>© 2026 Confirmaê.</p>
+        <p>Confirmaê é um sistema desenvolvido por Vidal Design Solutions.</p>
+      </div>
+
+      <a
+        href="http://www.vidaldesignsolutions.com.br"
+        class="developer-badge"
+        target="_blank"
+        rel="noopener"
+        aria-label="Acessar site da Vidal Design Solutions"
+      >
+        <span>Desenvolvido por</span>
+        <img
+          src="assets/img/vidal-design-logo.png"
+          alt="Vidal Design Solutions"
+        />
+      </a>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js?v=checkout-1"></script>
+
+  <script>
+    const business = window.CONFIRMAE_THEME.business;
+    const checkoutForm = document.getElementById("checkoutForm");
+
+    const planData = {
+      essential: {
+        id: "essential",
+        name: "Confirmaê Essencial",
+        price: "R$ 29,90",
+        limit: "Até 30 convidados"
+      },
+      pro: {
+        id: "pro",
+        name: "Confirmaê Pro",
+        price: "R$ 49,90",
+        limit: "Até 60 convidados"
+      },
+      max: {
+        id: "max",
+        name: "Confirmaê Max",
+        price: "R$ 89,99",
+        limit: "Convidados ilimitados"
+      }
+    };
+
+    function normalizeEventId(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    function normalizeCoupon(value) {
+      return String(value || "")
+        .trim()
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^A-Z0-9_-]/g, "");
+    }
+
+    function getSelectedPlanId() {
+      const checkedInput = document.querySelector("input[name='plan']:checked");
+
+      return checkedInput ? checkedInput.value : "essential";
+    }
+
+    function getSelectedPlan() {
+      return planData[getSelectedPlanId()] || planData.essential;
+    }
+
+    function updateCheckoutSummary() {
+      const selectedPlan = getSelectedPlan();
+
+      document.getElementById("checkoutPlanName").textContent = selectedPlan.name;
+      document.getElementById("checkoutPlanPrice").textContent = selectedPlan.price;
+      document.getElementById("checkoutPlanLimit").textContent = selectedPlan.limit;
+
+      document.querySelectorAll(".checkout-plan-option").forEach((option) => {
+        const input = option.querySelector("input");
+
+        if (input && input.checked) {
+          option.classList.add("is-selected");
+        } else {
+          option.classList.remove("is-selected");
+        }
+      });
+    }
+
+    function selectPlanFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const planParam = String(params.get("plano") || params.get("plan") || "").toLowerCase();
+
+      const aliases = {
+        essencial: "essential",
+        essential: "essential",
+        pro: "pro",
+        max: "max"
+      };
+
+      const planId = aliases[planParam];
+
+      if (!planId) {
+        return;
+      }
+
+      const input = document.querySelector(`input[name='plan'][value='${planId}']`);
+
+      if (input) {
+        input.checked = true;
+      }
+    }
+
+    document.querySelectorAll("input[name='plan']").forEach((input) => {
+      input.addEventListener("change", updateCheckoutSummary);
+    });
+
+    checkoutForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const selectedPlan = getSelectedPlan();
+
+      const leadName = document.getElementById("leadNameInput").value.trim();
+      const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
+      const leadEmail = document.getElementById("leadEmailInput").value.trim();
+      const eventType = document.getElementById("leadEventTypeInput").value.trim();
+      const guestCount = document.getElementById("leadGuestCountInput").value.trim();
+      const coupon = normalizeCoupon(document.getElementById("leadCouponInput").value);
+      const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
+      const notes = document.getElementById("leadNotesInput").value.trim();
+
+      if (!leadName || !leadWhatsapp || !leadEmail || !eventType || !guestCount || !desiredEventId) {
+        alert("Preencha nome, WhatsApp, e-mail, tipo de evento, quantidade de convidados e ID desejado.");
+        return;
+      }
+
+      const message = [
+        "🧾 Novo pedido Confirmaê",
+        "",
+        "Nome: " + leadName,
+        "WhatsApp: " + leadWhatsapp,
+        "E-mail: " + leadEmail,
+        "",
+        "Tipo de evento: " + eventType,
+        "Quantidade aproximada de convidados: " + guestCount,
+        "ID desejado: " + desiredEventId,
+        "",
+        "Plano escolhido: " + selectedPlan.name,
+        "Limite do plano: " + selectedPlan.limit,
+        "Valor do plano: " + selectedPlan.price,
+        "Cupom informado: " + (coupon || "Não informado"),
+        "",
+        "Observações: " + (notes || "Sem observações"),
+        "",
+        "Status: aguardando liberação manual.",
+        "",
+        "Quero receber as instruções de pagamento e liberação do meu evento."
+      ].join("\n");
+
+      const whatsappUrl =
+        "https://wa.me/" +
+        business.whatsappNumberInternational +
+        "?text=" +
+        encodeURIComponent(message);
+
+      window.open(whatsappUrl, "_blank");
+
+      setTimeout(() => {
+        window.location.href =
+          "pagamento.html?status=solicitado&plano=" +
+          encodeURIComponent(selectedPlan.id);
+      }, 900);
+    });
+
+    selectPlanFromUrl();
+    updateCheckoutSummary();
+  </script>
+
+  <script src="assets/js/pwa.js?v=pwa-1"></script>
+</body>
+</html>
