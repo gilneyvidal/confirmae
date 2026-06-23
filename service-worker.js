@@ -1,4 +1,4 @@
-const CONFIRMAE_CACHE_NAME = "confirmae-cache-v2";
+const CONFIRMAE_CACHE_NAME = "confirmae-cache-v3";
 
 const CONFIRMAE_CORE_ASSETS = [
   "./",
@@ -19,12 +19,17 @@ const CONFIRMAE_CORE_ASSETS = [
   "./assets/js/master.js",
   "./assets/js/portaria.js",
   "./assets/js/pwa.js",
+  "./assets/js/animations.js",
   "./assets/img/confirmae-icon.png",
   "./assets/img/confirmae-logo.png",
   "./assets/img/confirmae-logo-horizontal.png",
   "./assets/img/vidal-design-logo.png",
   "./assets/img/pwa-icon-192.png",
-  "./assets/img/pwa-icon-512.png"
+  "./assets/img/pwa-icon-512.png",
+  "./assets/img/mockup-painel.png",
+  "./assets/img/mockup-convite.png",
+  "./assets/img/mockup-portaria.png",
+  "./assets/img/mockup-checkout.png"
 ];
 
 self.addEventListener("install", (event) => {
