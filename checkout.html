@@ -19,7 +19,7 @@
 
   <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
   <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
-  <link rel="stylesheet" href="assets/css/style.css?v=checkout-2" />
+  <link rel="stylesheet" href="assets/css/style.css?v=checkout-3" />
 </head>
 
 <body class="page-admin">
@@ -238,7 +238,7 @@
     </div>
   </footer>
 
-  <script src="assets/js/theme.js?v=checkout-2"></script>
+  <script src="assets/js/theme.js?v=checkout-3"></script>
 
   <script>
     const business = window.CONFIRMAE_THEME.business;
@@ -335,6 +335,21 @@
 
       if (input) {
         input.checked = true;
+      }
+    }
+
+    function fillCouponFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const couponParam = params.get("cupom") || params.get("coupon") || "";
+
+      if (!couponParam) {
+        return;
+      }
+
+      const couponInput = document.getElementById("leadCouponInput");
+
+      if (couponInput) {
+        couponInput.value = normalizeCoupon(couponParam);
       }
     }
 
@@ -440,6 +455,7 @@
     });
 
     selectPlanFromUrl();
+    fillCouponFromUrl();
     updateCheckoutSummary();
   </script>
 
