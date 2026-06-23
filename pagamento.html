@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0D1014" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Confirmaê" />
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Solicitação enviada | Confirmaê</title>
+
+  <meta
+    name="description"
+    content="Página de acompanhamento da solicitação de pagamento e liberação do evento no Confirmaê."
+  />
+
+  <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
+  <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css?v=checkout-1" />
+</head>
+
+<body class="page-admin">
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="index.html" class="brand" aria-label="Página inicial do Confirmaê">
+        <span class="brand-icon">✓</span>
+        <span class="brand-text">Confirmaê</span>
+      </a>
+
+      <nav class="main-nav" aria-label="Menu principal">
+        <a href="index.html">Início</a>
+        <a href="checkout.html">Checkout</a>
+        <a href="manual.html">Manual</a>
+        <a href="admin.html">Acessar evento</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <section class="container dashboard-header">
+      <div>
+        <span class="eyebrow" id="paymentEyebrow">Solicitação enviada</span>
+        <h1 id="paymentTitle">Seu pedido foi preparado</h1>
+        <p id="paymentDescription">
+          Se o WhatsApp abriu corretamente, envie a mensagem para solicitar a liberação do evento.
+        </p>
+
+        <div class="hero-actions">
+          <a
+            href="https://wa.me/5511968649673?text=Ol%C3%A1%21%20Fiz%20uma%20solicita%C3%A7%C3%A3o%20do%20Confirma%C3%AA%20e%20quero%20confirmar%20a%20libera%C3%A7%C3%A3o."
+            class="btn btn-primary"
+            target="_blank"
+            rel="noopener"
+          >
+            Falar no WhatsApp
+          </a>
+
+          <a href="checkout.html" class="btn btn-secondary">
+            Voltar ao checkout
+          </a>
+        </div>
+      </div>
+
+      <div class="event-selector-card payment-status-card">
+        <div class="payment-status-icon" id="paymentStatusIcon">✓</div>
+
+        <h2 id="paymentStatusTitle">Aguardando atendimento</h2>
+        <p id="paymentStatusText">
+          A liberação ainda é manual. Assim que o pedido for conferido,
+          você receberá o acesso pelo WhatsApp.
+        </p>
+      </div>
+    </section>
+
+    <section class="container features-grid">
+      <article class="feature-card">
+        <div class="feature-icon">1</div>
+        <h3>Envie a mensagem</h3>
+        <p>
+          A solicitação precisa ser enviada pelo WhatsApp para que possamos receber seus dados.
+        </p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">2</div>
+        <h3>Aguarde a conferência</h3>
+        <p>
+          O atendimento confere plano, cupom, dados do evento e pagamento.
+        </p>
+      </article>
+
+      <article class="feature-card">
+        <div class="feature-icon">3</div>
+        <h3>Receba seu acesso</h3>
+        <p>
+          Você receberá o link do painel, ID do evento, PIN do painel e PIN da portaria.
+        </p>
+      </article>
+    </section>
+
+    <section class="container" style="margin-top: 24px;">
+      <article class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Próximos passos</span>
+            <h2>Como funciona depois da solicitação?</h2>
+          </div>
+        </div>
+
+        <ul class="event-details-list">
+          <li><strong>Pedido:</strong> você envia a mensagem estruturada pelo WhatsApp.</li>
+          <li><strong>Pagamento:</strong> você recebe as instruções para pagamento.</li>
+          <li><strong>Liberação:</strong> o evento é liberado manualmente no painel master.</li>
+          <li><strong>Acesso:</strong> você recebe o link do painel, ID do evento e PINs.</li>
+          <li><strong>Uso:</strong> depois é só configurar o evento e cadastrar os convidados.</li>
+        </ul>
+
+        <div class="admin-help-box">
+          <strong>Dica</strong>
+          <p>
+            Enquanto aguarda, você pode abrir o manual rápido e entender como usar
+            o painel do anfitrião e a portaria.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a href="manual.html" class="btn btn-secondary">
+            Abrir manual
+          </a>
+
+          <a href="index.html" class="btn btn-secondary">
+            Voltar para o início
+          </a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content footer-content-branded">
+      <div class="footer-brand-note">
+        <p>© 2026 Confirmaê.</p>
+        <p>Confirmaê é um sistema desenvolvido por Vidal Design Solutions.</p>
+      </div>
+
+      <a
+        href="http://www.vidaldesignsolutions.com.br"
+        class="developer-badge"
+        target="_blank"
+        rel="noopener"
+        aria-label="Acessar site da Vidal Design Solutions"
+      >
+        <span>Desenvolvido por</span>
+        <img
+          src="assets/img/vidal-design-logo.png"
+          alt="Vidal Design Solutions"
+        />
+      </a>
+    </div>
+  </footer>
+
+  <script src="assets/js/theme.js?v=checkout-1"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status") || "solicitado";
+
+    const paymentEyebrow = document.getElementById("paymentEyebrow");
+    const paymentTitle = document.getElementById("paymentTitle");
+    const paymentDescription = document.getElementById("paymentDescription");
+    const paymentStatusIcon = document.getElementById("paymentStatusIcon");
+    const paymentStatusTitle = document.getElementById("paymentStatusTitle");
+    const paymentStatusText = document.getElementById("paymentStatusText");
+
+    const statusContent = {
+      solicitado: {
+        eyebrow: "Solicitação enviada",
+        title: "Seu pedido foi preparado",
+        description:
+          "Se o WhatsApp abriu corretamente, envie a mensagem para solicitar a liberação do evento.",
+        icon: "✓",
+        statusTitle: "Aguardando atendimento",
+        statusText:
+          "A liberação ainda é manual. Assim que o pedido for conferido, você receberá o acesso pelo WhatsApp."
+      },
+      aprovado: {
+        eyebrow: "Pagamento aprovado",
+        title: "Pagamento confirmado",
+        description:
+          "Seu pagamento foi confirmado. Aguarde o envio dos dados de acesso pelo WhatsApp.",
+        icon: "✓",
+        statusTitle: "Liberação em andamento",
+        statusText:
+          "Em breve você receberá o link do painel, ID do evento, PIN do painel e PIN da portaria."
+      },
+      pendente: {
+        eyebrow: "Pagamento pendente",
+        title: "Estamos aguardando confirmação",
+        description:
+          "O pagamento ainda não foi confirmado. Assim que for aprovado, a liberação será feita.",
+        icon: "!",
+        statusTitle: "Aguardando pagamento",
+        statusText:
+          "Caso já tenha pago, envie o comprovante pelo WhatsApp para agilizar a conferência."
+      },
+      erro: {
+        eyebrow: "Pagamento não concluído",
+        title: "Não foi possível concluir",
+        description:
+          "Algo impediu a conclusão do pagamento ou solicitação. Você pode tentar novamente.",
+        icon: "×",
+        statusTitle: "Tente novamente",
+        statusText:
+          "Volte ao checkout ou chame o suporte pelo WhatsApp para continuar."
+      }
+    };
+
+    const content = statusContent[status] || statusContent.solicitado;
+
+    paymentEyebrow.textContent = content.eyebrow;
+    paymentTitle.textContent = content.title;
+    paymentDescription.textContent = content.description;
+    paymentStatusIcon.textContent = content.icon;
+    paymentStatusTitle.textContent = content.statusTitle;
+    paymentStatusText.textContent = content.statusText;
+  </script>
+
+  <script src="assets/js/pwa.js?v=pwa-1"></script>
+</body>
+</html>
