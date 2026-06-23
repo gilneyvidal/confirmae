@@ -19,7 +19,7 @@
 
   <link rel="icon" type="image/png" href="assets/img/confirmae-icon.png" />
   <link rel="apple-touch-icon" href="assets/img/confirmae-icon.png" />
-  <link rel="stylesheet" href="assets/css/style.css?v=checkout-1" />
+  <link rel="stylesheet" href="assets/css/style.css?v=checkout-2" />
 </head>
 
 <body class="page-admin">
@@ -64,8 +64,8 @@
         <div class="admin-help-box">
           <strong>Pagamento e liberação</strong>
           <p>
-            Depois de enviar a solicitação, você receberá orientação para pagamento
-            e liberação do evento pelo WhatsApp.
+            Depois de enviar a solicitação pelo WhatsApp, envie o comprovante do Pix
+            na conversa para conferência e liberação do evento.
           </p>
         </div>
       </div>
@@ -199,7 +199,7 @@
             <input
               type="text"
               id="leadNotesInput"
-              placeholder="Ex: evento será em setembro, quero testar no celular"
+              placeholder="Ex: quero testar para meu casamento"
             />
           </div>
 
@@ -238,210 +238,211 @@
     </div>
   </footer>
 
-  <script src="assets/js/theme.js?v=checkout-1"></script>
+  <script src="assets/js/theme.js?v=checkout-2"></script>
 
   <script>
-  const business = window.CONFIRMAE_THEME.business;
-  const checkoutForm = document.getElementById("checkoutForm");
+    const business = window.CONFIRMAE_THEME.business;
+    const checkoutForm = document.getElementById("checkoutForm");
 
-  const planData = {
-    essential: {
-      id: "essential",
-      name: "Confirmaê Essencial",
-      price: "R$ 29,90",
-      limit: "Até 30 convidados",
-      numericLimit: 30
-    },
-    pro: {
-      id: "pro",
-      name: "Confirmaê Pro",
-      price: "R$ 49,90",
-      limit: "Até 60 convidados",
-      numericLimit: 60
-    },
-    max: {
-      id: "max",
-      name: "Confirmaê Max",
-      price: "R$ 89,99",
-      limit: "Convidados ilimitados",
-      numericLimit: null
-    }
-  };
-
-  function normalizeEventId(value) {
-    return String(value || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  }
-
-  function normalizeCoupon(value) {
-    return String(value || "")
-      .trim()
-      .toUpperCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^A-Z0-9_-]/g, "");
-  }
-
-  function getSelectedPlanId() {
-    const checkedInput = document.querySelector("input[name='plan']:checked");
-
-    return checkedInput ? checkedInput.value : "essential";
-  }
-
-  function getSelectedPlan() {
-    return planData[getSelectedPlanId()] || planData.essential;
-  }
-
-  function updateCheckoutSummary() {
-    const selectedPlan = getSelectedPlan();
-
-    document.getElementById("checkoutPlanName").textContent = selectedPlan.name;
-    document.getElementById("checkoutPlanPrice").textContent = selectedPlan.price;
-    document.getElementById("checkoutPlanLimit").textContent = selectedPlan.limit;
-
-    document.querySelectorAll(".checkout-plan-option").forEach((option) => {
-      const input = option.querySelector("input");
-
-      if (input && input.checked) {
-        option.classList.add("is-selected");
-      } else {
-        option.classList.remove("is-selected");
+    const planData = {
+      essential: {
+        id: "essential",
+        name: "Confirmaê Essencial",
+        price: "R$ 29,90",
+        limit: "Até 30 convidados",
+        numericLimit: 30
+      },
+      pro: {
+        id: "pro",
+        name: "Confirmaê Pro",
+        price: "R$ 49,90",
+        limit: "Até 60 convidados",
+        numericLimit: 60
+      },
+      max: {
+        id: "max",
+        name: "Confirmaê Max",
+        price: "R$ 89,99",
+        limit: "Convidados ilimitados",
+        numericLimit: null
       }
-    });
-  }
-
-  function selectPlanFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const planParam = String(params.get("plano") || params.get("plan") || "").toLowerCase();
-
-    const aliases = {
-      essencial: "essential",
-      essential: "essential",
-      pro: "pro",
-      max: "max"
     };
 
-    const planId = aliases[planParam];
-
-    if (!planId) {
-      return;
+    function normalizeEventId(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
     }
 
-    const input = document.querySelector(`input[name='plan'][value='${planId}']`);
-
-    if (input) {
-      input.checked = true;
-    }
-  }
-
-  function suggestPlanByGuestCount(guestCount) {
-    const totalGuests = Number(guestCount || 0);
-
-    if (totalGuests <= 30) {
-      return planData.essential;
+    function normalizeCoupon(value) {
+      return String(value || "")
+        .trim()
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^A-Z0-9_-]/g, "");
     }
 
-    if (totalGuests <= 60) {
-      return planData.pro;
+    function getSelectedPlanId() {
+      const checkedInput = document.querySelector("input[name='plan']:checked");
+
+      return checkedInput ? checkedInput.value : "essential";
     }
 
-    return planData.max;
-  }
-
-  function selectedPlanSupportsGuestCount(selectedPlan, guestCount) {
-    if (selectedPlan.numericLimit === null) {
-      return true;
+    function getSelectedPlan() {
+      return planData[getSelectedPlanId()] || planData.essential;
     }
 
-    return Number(guestCount || 0) <= selectedPlan.numericLimit;
-  }
+    function updateCheckoutSummary() {
+      const selectedPlan = getSelectedPlan();
 
-  document.querySelectorAll("input[name='plan']").forEach((input) => {
-    input.addEventListener("change", updateCheckoutSummary);
-  });
+      document.getElementById("checkoutPlanName").textContent = selectedPlan.name;
+      document.getElementById("checkoutPlanPrice").textContent = selectedPlan.price;
+      document.getElementById("checkoutPlanLimit").textContent = selectedPlan.limit;
 
-  checkoutForm.addEventListener("submit", function (event) {
-    event.preventDefault();
+      document.querySelectorAll(".checkout-plan-option").forEach((option) => {
+        const input = option.querySelector("input");
 
-    const selectedPlan = getSelectedPlan();
-
-    const leadName = document.getElementById("leadNameInput").value.trim();
-    const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
-    const leadEmail = document.getElementById("leadEmailInput").value.trim();
-    const eventType = document.getElementById("leadEventTypeInput").value.trim();
-    const guestCount = document.getElementById("leadGuestCountInput").value.trim();
-    const coupon = normalizeCoupon(document.getElementById("leadCouponInput").value);
-    const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
-    const notes = document.getElementById("leadNotesInput").value.trim();
-
-    if (!leadName || !leadWhatsapp || !leadEmail || !eventType || !guestCount || !desiredEventId) {
-      alert("Preencha nome, WhatsApp, e-mail, tipo de evento, quantidade de convidados e ID desejado.");
-      return;
+        if (input && input.checked) {
+          option.classList.add("is-selected");
+        } else {
+          option.classList.remove("is-selected");
+        }
+      });
     }
 
-    if (!selectedPlanSupportsGuestCount(selectedPlan, guestCount)) {
-      const suggestedPlan = suggestPlanByGuestCount(guestCount);
+    function selectPlanFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const planParam = String(params.get("plano") || params.get("plan") || "").toLowerCase();
 
-      alert(
-        `O plano ${selectedPlan.name} não atende ${guestCount} convidados.\n\n` +
-        `Para essa quantidade, o plano indicado é:\n` +
-        `${suggestedPlan.name} - ${suggestedPlan.price} - ${suggestedPlan.limit}`
-      );
+      const aliases = {
+        essencial: "essential",
+        essential: "essential",
+        pro: "pro",
+        max: "max"
+      };
 
-      const suggestedInput = document.querySelector(`input[name='plan'][value='${suggestedPlan.id}']`);
+      const planId = aliases[planParam];
 
-      if (suggestedInput) {
-        suggestedInput.checked = true;
-        updateCheckoutSummary();
+      if (!planId) {
+        return;
       }
 
-      return;
+      const input = document.querySelector(`input[name='plan'][value='${planId}']`);
+
+      if (input) {
+        input.checked = true;
+      }
     }
 
-    const message = [
-      "Novo pedido Confirmaê",
-      "",
-      "Nome: " + leadName,
-      "WhatsApp: " + leadWhatsapp,
-      "E-mail: " + leadEmail,
-      "",
-      "Tipo de evento: " + eventType,
-      "Quantidade aproximada de convidados: " + guestCount,
-      "ID desejado: " + desiredEventId,
-      "",
-      "Plano escolhido: " + selectedPlan.name,
-      "Limite do plano: " + selectedPlan.limit,
-      "Valor do plano: " + selectedPlan.price,
-      "Cupom informado: " + (coupon || "Não informado"),
-      "",
-      "Observações: " + (notes || "Sem observações"),
-      "",
-      "Solicito a liberação do meu evento no Confirmaê.",
-      "Posso enviar o comprovante do Pix por aqui?"
-    ].join("\n");
+    function suggestPlanByGuestCount(guestCount) {
+      const totalGuests = Number(guestCount || 0);
 
-    const whatsappUrl =
-      "https://wa.me/" +
-      business.whatsappNumberInternational +
-      "?text=" +
-      encodeURIComponent(message);
+      if (totalGuests <= 30) {
+        return planData.essential;
+      }
 
-    window.open(whatsappUrl, "_blank");
+      if (totalGuests <= 60) {
+        return planData.pro;
+      }
 
-    setTimeout(() => {
-      window.location.href =
-        "pagamento.html?status=solicitado&plano=" +
-        encodeURIComponent(selectedPlan.id);
-    }, 900);
-  });
+      return planData.max;
+    }
 
-  selectPlanFromUrl();
-  updateCheckoutSummary();
-</script>
+    function selectedPlanSupportsGuestCount(selectedPlan, guestCount) {
+      if (selectedPlan.numericLimit === null) {
+        return true;
+      }
+
+      return Number(guestCount || 0) <= selectedPlan.numericLimit;
+    }
+
+    document.querySelectorAll("input[name='plan']").forEach((input) => {
+      input.addEventListener("change", updateCheckoutSummary);
+    });
+
+    checkoutForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const selectedPlan = getSelectedPlan();
+
+      const leadName = document.getElementById("leadNameInput").value.trim();
+      const leadWhatsapp = document.getElementById("leadWhatsappInput").value.trim();
+      const leadEmail = document.getElementById("leadEmailInput").value.trim();
+      const eventType = document.getElementById("leadEventTypeInput").value.trim();
+      const guestCount = document.getElementById("leadGuestCountInput").value.trim();
+      const coupon = normalizeCoupon(document.getElementById("leadCouponInput").value);
+      const desiredEventId = normalizeEventId(document.getElementById("leadEventIdInput").value);
+      const notes = document.getElementById("leadNotesInput").value.trim();
+
+      if (!leadName || !leadWhatsapp || !leadEmail || !eventType || !guestCount || !desiredEventId) {
+        alert("Preencha nome, WhatsApp, e-mail, tipo de evento, quantidade de convidados e ID desejado.");
+        return;
+      }
+
+      if (!selectedPlanSupportsGuestCount(selectedPlan, guestCount)) {
+        const suggestedPlan = suggestPlanByGuestCount(guestCount);
+
+        alert(
+          `O plano ${selectedPlan.name} não atende ${guestCount} convidados.\n\n` +
+          `Para essa quantidade, o plano indicado é:\n` +
+          `${suggestedPlan.name} - ${suggestedPlan.price} - ${suggestedPlan.limit}`
+        );
+
+        const suggestedInput = document.querySelector(`input[name='plan'][value='${suggestedPlan.id}']`);
+
+        if (suggestedInput) {
+          suggestedInput.checked = true;
+          updateCheckoutSummary();
+        }
+
+        return;
+      }
+
+      const message = [
+        "Novo pedido Confirmaê",
+        "",
+        "Nome: " + leadName,
+        "WhatsApp: " + leadWhatsapp,
+        "E-mail: " + leadEmail,
+        "",
+        "Tipo de evento: " + eventType,
+        "Quantidade aproximada de convidados: " + guestCount,
+        "ID desejado: " + desiredEventId,
+        "",
+        "Plano escolhido: " + selectedPlan.name,
+        "Limite do plano: " + selectedPlan.limit,
+        "Valor do plano: " + selectedPlan.price,
+        "Cupom informado: " + (coupon || "Não informado"),
+        "",
+        "Observações: " + (notes || "Sem observações"),
+        "",
+        "Solicito a liberação do meu evento no Confirmaê.",
+        "Posso enviar o comprovante do Pix por aqui?"
+      ].join("\n");
+
+      const whatsappUrl =
+        "https://wa.me/" +
+        business.whatsappNumberInternational +
+        "?text=" +
+        encodeURIComponent(message);
+
+      window.open(whatsappUrl, "_blank");
+
+      setTimeout(() => {
+        window.location.href =
+          "pagamento.html?status=solicitado&plano=" +
+          encodeURIComponent(selectedPlan.id);
+      }, 900);
+    });
+
+    selectPlanFromUrl();
+    updateCheckoutSummary();
+  </script>
+
   <script src="assets/js/pwa.js?v=pwa-1"></script>
 </body>
 </html>
